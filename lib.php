@@ -18,21 +18,26 @@
 /**
  * lib.php - Contains Plagiarism plugin specific functions called by Modules.
  *
- * @since 2.0
- * @package    plagiarism_safeasign
- * @subpackage plagiarism
- * @copyright  2010 Dan Marsden http://danmarsden.com
+ * @package    plagiarism_safeassign
+ * @copyright  Copyright (c) 2017 Blackboard Inc.
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 if (!defined('MOODLE_INTERNAL')) {
-    die('Direct access to this script is forbidden.');    ///  It must be included from a Moodle page
+    die('Direct access to this script is forbidden.');    ///  It must be included from a Moodle page.
 }
 
-//get global class
+// Get global class.
 global $CFG;
 require_once($CFG->dirroot.'/plagiarism/lib.php');
 
+/**
+ * Extends plagiarism core base class.
+ *
+ * @package   plagiarism_safeassign
+ * @copyright Copyright (c) 2017 Blackboard Inc.
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class plagiarism_plugin_safeassign extends plagiarism_plugin {
 
     /**

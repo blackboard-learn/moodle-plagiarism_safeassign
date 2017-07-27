@@ -16,12 +16,30 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package   safeassign
+ * SafeAssign event hooks.
+ *
+ * @package   plagiarism_safeassign
  * @copyright Copyright (c) 2017 Blackboard Inc.
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 $observers = array (
-
+    array(
+        'eventname' => '\assignsubmission_file\event\assessable_uploaded',
+        'callback' => 'plagiarism_safeassign_observer::assignsubmission_file_uploaded'
+    ),
+    array(
+        'eventname' => '\mod_workshop\event\assessable_uploaded',
+        'callback' => 'plagiarism_safeassign_observer::workshop_file_uploaded'
+    ),
+    array(
+        'eventname' => '\mod_forum\event\assessable_uploaded',
+        'callback' => 'plagiarism_safeassign_observer::forum_file_uploaded'
+    ),
+    array(
+        'eventname' => '\assignsubmission_onlinetext\event\assessable_uploaded',
+        'callback' => 'plagiarism_safeassign_observer::assignsubmission_onlinetext_uploaded'
+    )
 );

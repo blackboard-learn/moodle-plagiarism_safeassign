@@ -15,15 +15,20 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package   safeassign
+ * Define the settings configuration form for SafeAssign plagiarism plugin.
+ *
+ * @package   plagiarism_safeassign
  * @copyright Copyright (c) 2017 Blackboard Inc.
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once($CFG->dirroot.'/lib/formslib.php');
 
 class plagiarism_setup_form extends moodleform {
 
-/// Define the form
+    /**
+     * Define the form.
+     */
     function definition () {
         global $CFG;
         $mform =& $this->_form;

@@ -15,17 +15,21 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * SafeAssign language strings.
  *
- * @package   plagiarism_safeaasign
- * @copyright 1999 onwards Martin Dougiamas  {@link http://moodle.com}
+ * @package   plagiarism_safeassign
+ * @copyright Copyright (c) 2017 Blackboard Inc.
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 $string['pluginname'] = 'SafeAssign plagiarism plugin';
+$string['sendfiles'] = 'Send queued files';
 $string['studentdisclosuredefault']  ='All files uploaded will be submitted to a plagiarism detection service';
 $string['studentdisclosure'] = 'Student Disclosure';
 $string['studentdisclosure_help'] = 'This text will be displayed to all students on the file upload page.';
 $string['safeassignexplain'] = 'For more information on this plugin see: ';
 $string['safeassign'] = 'SafeAssign';
+$string['safeassign:enable'] = 'Allow the teacher to enable/disable SafeAssign inside an activity';
+$string['safeassign:viewreport'] = 'Allow the teacher to view the full report from SafeAssign';
 $string['usesafeassign'] ='Enable SafeAssign';
 $string['savedconfigsuccess'] = 'Plagiarism Settings Saved';

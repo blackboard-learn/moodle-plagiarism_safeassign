@@ -20,6 +20,52 @@ if (!defined('MOODLE_INTERNAL')) {
 
 require_once($CFG->dirroot.'/plagiarism/safeassign/lib.php');
 
+/**
+ * Event observers used in SafeAssign Plagiarism plugin.
+ *
+ * @package   plagiarism_safeassign
+ * @copyright Copyright (c) 2017 Blackboard Inc.
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class plagiarism_safeassign_observer {
 
+    /**
+     * Upload a forum file
+     * @param  \mod_forum\event\assessable_uploaded $event Event
+     * @return void
+     */
+    public static function forum_file_uploaded(
+        \mod_forum\event\assessable_uploaded $event) {
+
+    }
+
+    /**
+     * Upload a workshop file
+     * @param  \mod_workshop\event\assessable_uploaded $event Event
+     * @return void
+     */
+    public static function workshop_file_uploaded(
+        \mod_workshop\event\assessable_uploaded $event) {
+
+    }
+
+    /**
+     * Upload a assign online text
+     * @param  \assignsubmission_onlinetext\event\assessable_uploaded $event Event
+     * @return void
+     */
+    public static function assignsubmission_onlinetext_uploaded(
+        \assignsubmission_onlinetext\event\assessable_uploaded $event) {
+
+    }
+
+    /**
+     * Upload a assign file
+     * @param  \assignsubmission_file\event\assessable_uploaded $event Event
+     * @return void
+     */
+    public static function assignsubmission_file_uploaded(
+        \assignsubmission_file\event\assessable_uploaded $event) {
+
+    }
 }

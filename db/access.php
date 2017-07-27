@@ -16,8 +16,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package   safeassign
+ * SafeAssign capabilities.
+ *
+ * @package   plagiarism_safeassign
  * @copyright Copyright (c) 2017 Blackboard Inc.
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 $capabilities = array(
@@ -27,7 +30,8 @@ $capabilities = array(
         'contextlevel' => CONTEXT_COURSE,
         'legacy' => array(
             'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW)
+            'manager' => CAP_ALLOW
+        )
     ),
 
     'plagiarism/safeassign:viewreport' => array(
@@ -36,6 +40,7 @@ $capabilities = array(
         'legacy' => array(
             'editingteacher' => CAP_ALLOW,
             'teacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW)
+            'manager' => CAP_ALLOW
+        )
     ),
 );

@@ -17,9 +17,8 @@
 /**
  * plagiarism.php - allows the admin to configure plagiarism stuff
  *
- * @package   plagiarism_turnitin
- * @author    Dan Marsden <dan@danmarsden.com>
- * @copyright 1999 onwards Martin Dougiamas  {@link http://moodle.com}
+ * @package   plagiarism_safeassign
+ * @copyright Copyright (c) 2017 Blackboard Inc.
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -67,7 +66,8 @@ if (($data = $mform->get_data()) && confirm_sesskey()) {
             }
         }
     }
-    notify(get_string('savedconfigsuccess', 'plagiarism_new'), 'notifysuccess');
+    echo $OUTPUT->notification(get_string('savedconfigsuccess', 'plagiarism_safeassign'),
+        \core\output\notification::NOTIFY_SUCCESS);
 }
 $plagiarismsettings = (array)get_config('plagiarism');
 $mform->set_data($plagiarismsettings);

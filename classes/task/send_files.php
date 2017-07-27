@@ -14,15 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * SafeAssign task - Send queued files to SafeAssign.
+ *
+ * @package    plagiarism_safeassign
+ * @copyright  Copyright (c) 2017 Blackboard Inc.
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+namespace plagiarism_safeassign\task;
+
 defined('MOODLE_INTERNAL') || die();
 
-/**
- * Backup class for the SafeAssign plugin.
- *
- * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2017 Blackboard Inc.
- * @licence   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-class backup_plagiarism_safeassign_plugin extends backup_plagiarism_plugin {
+class send_files extends \core\task\scheduled_task {
+
+    public function get_name() {
+        // Shown in admin screens.
+        return get_string('sendfiles', 'plagiarism_safeassign');
+    }
+
+    public function execute() {
+
+    }
 
 }
