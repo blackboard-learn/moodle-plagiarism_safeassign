@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,10 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-$plugin->version =  2017080705;
-$plugin->release = "3.2+";
-$plugin->requires = 2016120503;
-$plugin->component = 'plagiarism_safeassign';
-$plugin->maturity  = MATURITY_BETA;
+/**
+ * MUC cache defintion.
+ *
+ * @package   plagiarism_safeassign
+ * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.moodlerooms.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
-$plugin->cron     = 0;
+defined('MOODLE_INTERNAL') || die();
+
+$definitions = [
+    'request' => [
+        'mode'               => cache_store::MODE_APPLICATION,
+        'simplekeys'         => true,
+        'staticacceleration' => false,
+    ],
+];

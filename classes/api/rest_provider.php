@@ -1,0 +1,659 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Convenient wrappers and helper for using the SafeAssign web service API.
+ *
+ * @package   plagiarism_safeassign
+ * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.moodlerooms.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+namespace plagiarism_safeassign\api;
+
+defined('MOODLE_INTERNAL') || die();
+
+/**
+ * A helper class to access REST api
+ *
+ * @package   plagiarism_safeassign
+ * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.moodlerooms.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class rest_provider {
+    const HTTP_GET     = 'GET';
+    const HTTP_POST    = 'POST';
+    const HTTP_PUT     = 'PUT';
+    const HTTP_HEAD    = 'HEAD';
+    const HTTP_DELETE  = 'DELETE';
+
+    const ERR_UNKNOWN  = 1010;
+    const ERR_JSON     = 1020;
+    const PLUGIN       = 'plagiarism_safeassign';
+    const TOKEN        = 'plagiarism_safeassign_token';
+
+    const STR_HTTP     = 'HTTP'; // Raw HTTP response parsing.
+
+    /**
+     * @var null|rest_provider
+     */
+    private static $instance = null;
+    /**
+     * @var null|string
+     */
+    private $token = null;
+
+    /**
+     * @var null|string
+     */
+    private $error = null;
+    /**
+     * @var int
+     */
+    private $errorno = 0;
+
+    /**
+     * @var null|string
+     */
+    private $errorstring = null;
+
+    /**
+     * @var null|memfile
+     */
+    private $memfile = null;
+
+    /**
+     * @var null|string
+     */
+    private $rawresponse = null;
+
+    /**
+     * @var null|string
+     */
+    private $respheaders = null;
+
+    /**
+     * @var null|int
+     */
+    private $lasthttpcode = null;
+
+    /**
+     * @var null|array
+     */
+    private $curlinfo = null;
+
+    /**
+     * @var null|cache
+     */
+    private $cache = null;
+
+    /**
+     * @var null|string|int
+     */
+    private $currentuserid = null;
+
+    /**
+     * @throws nocurl_exception
+     */
+    private function __construct() {
+        // Something.
+        if (!function_exists('curl_init')) {
+            throw new nocurl_exception();
+        }
+
+        $this->memfile = new memfile();
+        $this->cache = new cache();
+    }
+
+    private function __clone() {
+        // Prevent cloning.
+    }
+
+    /**
+     * @return rest_provider|null
+     * @throws nocurl_exception
+     */
+    public static function instance() {
+        if (self::$instance === null) {
+            $c = __CLASS__;
+            self::$instance = new $c();
+        }
+        return self::$instance;
+    }
+
+    /**
+     * Reset cURL cache for current user.
+     */
+    public function reset_cache() {
+        $this->cache->refresh();
+    }
+
+    /**
+     *
+     * @param array $custopts
+     * @return array
+     */
+    public function getopts(array $custopts = array()) {
+        $this->memfile->reset();
+        $this->rawresponse  = null;
+        $this->lasthttpcode = null;
+        $this->respheaders  = null;
+        $this->error        = null;
+        $this->errorno      = 0;
+        $this->errorstring  = null;
+        $this->curlinfo     = null;
+
+        $standard = array(
+            'CURLOPT_FOLLOWLOCATION' => false,
+            'CURLOPT_MAXREDIRS'      => 0,
+            'CURLOPT_PROTOCOLS'      => CURLPROTO_HTTP | CURLPROTO_HTTPS,
+            'CURLOPT_RETURNTRANSFER' => false,
+            'CURLOPT_FILE'           => $this->memfile->get(),
+            'CURLOPT_SSL_VERIFYPEER' => false,
+            'CURLOPT_CONNECTTIMEOUT' => 1,
+            'CURLOPT_USERAGENT'      => 'MoodleSafeAssignClient/1.0',
+            'CURLOPT_ENCODING'       => '',
+            'CURLOPT_HEADER'         => true,
+            'CURLOPT_NOPROGRESS'     => true,
+            'CURLOPT_FAILONERROR'    => false,
+        );
+
+        // Set $CFG->forced_plugin_settings['plagiarism_safeassign'][connecttimeout] to custom connect timeout.
+        // For more details on this option take a look at
+        // CURLOPT_CONNECTTIMEOUT on http://php.net/manual/en/function.curl-setopt.php .
+        $connecttimeout = get_config('plagiarism_safeassign', 'connecttimeout');
+        if ($connecttimeout !== false) {
+            $standard['CURLOPT_CONNECTTIMEOUT'] = $connecttimeout;
+        }
+
+        // Set $CFG->forced_plugin_settings['plagiarism_safeassign'][timeout] to custom timeout.
+        // For more details on this option take a look at
+        // CURLOPT_TIMEOUT on http://php.net/manual/en/function.curl-setopt.php .
+        $timeout = get_config('plagiarism_safeassign', 'timeout');
+        if ($timeout !== false) {
+            $standard['CURLOPT_TIMEOUT'] = $timeout;
+        }
+
+        $options = $standard + $custopts;
+
+        return $options;
+    }
+
+    /**
+     * Request to webservice.
+     *
+     * If you are running behat test, this simulates a call to a webservice loading the response from a local json file.
+     *
+     * @param string $url
+     * @param string $method
+     * @param array $custheaders
+     * @param array $options
+     * @return mixed
+     * @throws \Exception
+     * @throws norequestmethod_exception
+     * @throws nourl_exception
+     */
+    public function request($url, $method, array $custheaders = array(), array $options = array()) {
+        if (empty($url)) {
+            throw new nourl_exception();
+        }
+        if (empty($method)) {
+            throw new norequestmethod_exception();
+        }
+
+        /*
+         * Running behat test.
+         */
+        if (defined('BEHAT_SITE_RUNNING')) {
+            return $this->request_behat($url);
+        }
+
+        $ctype = 'application/json; charset=UTF-8';
+        $standardheader = array("Accept: {$ctype}", "Content-Type: {$ctype}");
+        $headers = array_merge($standardheader, $custheaders);
+        $useopts = array(
+            'CURLOPT_CUSTOMREQUEST' => $method,
+            'CURLOPT_URL'           => $url,
+            'CURLOPT_HTTPHEADER'    => $headers,
+        );
+        $fullopts = $options + $useopts;
+        $curlopts = $this->getopts($fullopts);
+        if (!defined('SAFEASSIGN_OMIT_CACHE') && $ret = $this->cache->get($url)) {
+            $this->rawresponse = $ret;
+            return true;
+        }
+
+        $response = null;
+        $curl = new \curl();
+        switch($method) {
+            case self::HTTP_GET:
+                $response = $curl->get($url, null, $curlopts);
+                break;
+            case self::HTTP_POST:
+                $params = !empty($curlopts['CURLOPT_POSTFIELDS']) ? $curlopts['CURLOPT_POSTFIELDS'] : '';
+                $response = $curl->post($url, $params, $curlopts);
+                break;
+        }
+
+        $this->error = $response; // If there was an error, it may be contained in the response.
+        $this->errorno = $curl->get_errno();
+        $this->curlinfo = $curl->get_info();
+        $rawresponse = $this->memfile->get_content();
+        $this->memfile->close();
+        if (!empty($rawresponse)) {
+            $responselist = explode("\r\n\r\n", $rawresponse);
+            // Get last header and response.
+            foreach ($responselist as $responseval) {
+                if (strpos($responseval, self::STR_HTTP) === 0) {
+                    $this->respheaders = $responseval;
+                } else {
+                    $this->rawresponse = $responseval;
+                }
+            }
+        }
+        if ($response) {
+            $httpcode = isset($this->curlinfo['http_code']) ? $this->curlinfo['http_code'] : false;
+            if ($httpcode !== false) {
+                $this->lasthttpcode = $httpcode;
+                if ($httpcode >= 400) {
+                    $response = false;
+                    $contentype = isset($this->curlinfo['content_type']) ? $this->curlinfo['content_type'] : false;
+                    if ($contentype && (stripos($contentype, 'application/json') !== false)) {
+                        $decode = json_decode($this->rawresponse);
+                        if ($decode === false) {
+                            $this->errorno     = json_last_error();
+                            $this->error       = json_last_error_msg();
+                            $this->errorstring = 'error_generic';
+                        } else if (property_exists($decode, 'error')) {
+                            $this->errorno     = self::ERR_UNKNOWN;
+                            $this->error       = $decode->error;
+                            $this->errorstring = 'rest_error_server';
+                        }
+                    }
+                }
+            }
+        } else {
+            if ($this->errorno) {
+                $this->errorstring = 'rest_error_curl';
+            }
+        }
+
+        if ($response && !defined('SAFEASSIGN_OMIT_CACHE')) {
+            $this->cache->set($url, $this->rawresponse);
+        }
+
+        return $response;
+    }
+
+    /**
+     * Simulated request handling for behat tests.
+     *
+     * @param $url
+     * @return bool|string
+     */
+    private function request_behat($url) {
+        global $CFG;
+        $result = ""; // Return json from file or empty.
+        $parse = parse_url($url);
+        $params = explode("/", $parse["path"]);
+
+        if (isset($params[1]) && $params[1] == "error") {
+            // With this name of instance, we simulate a error in connection to SafeAssign.
+            $this->errorno     = self::ERR_UNKNOWN;
+            $this->errorstring = 'error_generic';
+            $this->error       = get_string("error_behat_instancefail", self::PLUGIN);
+
+        } else {
+
+            // Get filename of json to return.
+            $filename = $this->behat_getjsonfile($params);
+            if (!empty($filename)) {
+                // Get json file.
+                $result = file_get_contents($CFG->dirroot."/plagiarism/safeassign/tests/fixtures/$filename");
+                if ($result) {
+                    // Call to user/login, set cookie required.
+                    if (isset($params[1]) && isset($params[2]) && ($params[1] == "user") && ($params[2] == "login")) {
+                        $this->settoken(0, "behat_test");
+                    }
+                }
+            }
+
+            if (empty($result)) {
+                // Json file dont found. Set error for debug.
+                $this->errorno     = self::ERR_UNKNOWN;
+                $this->error       = get_string("error_behat_getjson", "plagiarism_safeassign", $filename);
+                $this->errorstring = 'error_generic';
+            }
+        }
+        // Set rawresponse , this will be used in generic_call.
+        $this->rawresponse = $result;
+        return $result;
+    }
+
+    /**
+     * Function used for behat tests.
+     * Get filename to return in call of webservice when behat is running.
+     *
+     * @param array $params
+     * @return string
+     */
+    private function behat_getjsonfile(array $params) {
+        $filename = "";
+
+        // Call to user/login or user/accesstoken.
+        if (isset($params[1]) && isset($params[2]) && ($params[1] == "user") &&
+            ($params[2] == "accesstoken" || $params[2] == "login")) {
+            $filename = sprintf('%s-%s-final.json', $params[1], $params[2]);
+        }
+
+        return $filename;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function lastresponse() {
+        return $this->rawresponse;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function response_headers() {
+        return $this->respheaders;
+    }
+
+    /**
+     * @return string
+     */
+    public function request_headers() {
+        return isset($this->curlinfo['request_header']) ? $this->curlinfo['request_header'] : '';
+    }
+
+    /**
+     * Method should be used for printing Exception based error status.
+     * @param bool $extrainfoondebug
+     * @return string
+     */
+    public function errorinfo($extrainfoondebug = true) {
+        $lasterrormsg = $this->geterrormsg();
+        // In case debug mode is on show extra debug information.
+        if ($extrainfoondebug) {
+            $lasterrorcode = sprintf("Error code: %s", $this->geterrorcode());
+            if (get_config('core', 'debug') == DEBUG_DEVELOPER) {
+                if (CLI_SCRIPT) {
+                    $lasterrormsg .= $lasterrorcode. "\n";
+                    $lasterrormsg .= "Web Service request time: ";
+                    $lasterrormsg .= $this->curlinfo['total_time']." s \n";
+                    $requestheaders = $this->request_headers();
+                    if (!empty($requestheaders)) {
+                        $lasterrormsg .= "Request headers:\n";
+                        $lasterrormsg .= $this->request_headers();
+                        $lasterrormsg .= "\n\n";
+                        $lasterrormsg .= "Response headers:\n";
+                        $lasterrormsg .= $this->response_headers();
+                        $lasterrormsg .= "\n\n";
+                        $lasterrormsg .= "Response body:\n";
+                        $lasterrormsg .= $this->lastresponse();
+                        $lasterrormsg .= "\n";
+                    }
+                } else {
+                    $lasterrormsg  = \html_writer::tag('h3', $this->geterrormsg()) . \html_writer::empty_tag('br');
+                    $lasterrormsg .= \html_writer::tag('h3', $lasterrorcode) . \html_writer::empty_tag('br');
+                    $calltitle = \html_writer::tag('h4','Web Service request time:');
+                    $calltime = \html_writer::span(" ".$this->curlinfo['total_time']." s");
+                    $lasterrormsg .= \html_writer::div($calltitle . $calltime);
+                    $requestheaders = $this->request_headers();
+                    if (!empty($requestheaders)) {
+                        $lasterrormsg .= \html_writer::empty_tag('br');
+                        $rtitle = \html_writer::tag('h4','Request headers:');
+                        $request = \html_writer::tag('pre', s($this->request_headers()), array('title' => 'Request headers'));
+                        $lasterrormsg .= \html_writer::div($rtitle . $request);
+                        $lasterrormsg .= \html_writer::empty_tag('br');
+                        $rstitle = \html_writer::tag('h4','Response headers:');
+                        $response = \html_writer::tag('pre', s($this->response_headers()), array('title' => 'Response headers'));
+                        $lasterrormsg .= \html_writer::div($rstitle . $response);
+                        $lasterrormsg .= \html_writer::empty_tag('br');
+                        $responsebody = \html_writer::tag('pre', s($this->lastresponse()), array('title' => 'Response body'));
+                        $rsbodytitle = \html_writer::tag('h4','Response body:');
+                        $lasterrormsg .= \html_writer::div($rsbodytitle . $responsebody);
+                    }
+                }
+            }
+        }
+        return $lasterrormsg;
+    }
+
+    /**
+     * Throws an exception with all data
+     * @throws \moodle_exception
+     */
+    public function print_error() {
+        print_error($this->errorstring, self::PLUGIN, '', $this->errorinfo());
+    }
+
+
+    /**
+     * @param $url
+     * @param null $data
+     * @param array $custheaders
+     * @param array $options
+     * @return mixed
+     * @throws curlerror_exception
+     * @throws jsonerror_exception
+     * @throws norequestmethod_exception
+     * @throws nourl_exception
+     */
+    public function post($url, $data = null, array $custheaders = array(), array $options = array()) {
+        if (!empty($data)) {
+            $jdata = json_encode($data);
+            if ($jdata === false) {
+                throw new jsonerror_exception();
+            }
+            $custheaders[] = 'Content-Length: ' . strlen($jdata);
+            $options['CURLOPT_POSTFIELDS'] = $jdata;
+        }
+        return $this->request($url, self::HTTP_POST, $custheaders, $options);
+    }
+
+    /**
+     * @param string $url
+     * @param array $custheaders
+     * @param array $options
+     * @return mixed
+     * @throws curlerror_exception
+     * @throws norequestmethod_exception
+     * @throws nourl_exception
+     */
+    public function get($url, array $custheaders = array(), array $options = array()) {
+        return $this->request($url, self::HTTP_GET, $custheaders, $options);
+    }
+
+    /**
+     * @param string $url
+     * @param int $userid
+     * @param string $method
+     * @param array $custheaders
+     * @param array $options
+     * @return mixed
+     * @throws curlerror_exception
+     * @throws norequestmethod_exception
+     * @throws nourl_exception
+     */
+    public function request_withtoken($url, $userid, $method, array $custheaders = array(), array $options = array()) {
+        if ($this->hastoken($userid)) {
+            if (!isset($custheaders)) {
+                $custheaders = array();
+            }
+            $custheaders[] = 'Authorization: Bearer '.$this->token;
+        }
+        return $this->request($url, $method, $custheaders, $options);
+    }
+
+    /**
+     * @param string $url
+     * @param string $username
+     * @param string $password
+     * @param string $method
+     * @param array $custheaders
+     * @param array $options
+     * @return mixed
+     * @throws curlerror_exception
+     * @throws norequestmethod_exception
+     * @throws nourl_exception
+     */
+    public function request_withauth($url, $username, $password, $method, array $custheaders = array(), array $options = array()) {
+        if (!isset($custheaders)) {
+            $custheaders = array();
+        }
+        $custheaders[] = 'Authorization: Basic '.base64_encode($username.':'.$password);
+        return $this->request($url, $method, $custheaders, $options);
+    }
+
+    /**
+     * @param string $url
+     * @param int $userid
+     * @param array $custheaders
+     * @param array $options
+     * @return mixed
+     */
+    public function get_withtoken($url, $userid,  array $custheaders = array(), array $options = array()) {
+        return $this->request_withtoken($url, $userid, self::HTTP_GET, $custheaders, $options);
+    }
+
+    /**
+     * @param string $url
+     * @param int $userid
+     * @param array $custheaders
+     * @param array $options
+     * @param string $postdata
+     * @return mixed
+     */
+    public function post_withtoken($url, $userid, array $custheaders = array(), array $options = array(), $postdata = null) {
+        if (isset($postdata)) {
+            $options['CURLOPT_POSTFIELDS'] = $postdata;
+        }
+
+        return $this->request_withtoken($url, $userid, self::HTTP_POST, $custheaders, $options);
+    }
+
+    /**
+     * @param string $url
+     * @param string $username
+     * @param string $password
+     * @param array $custheaders
+     * @param array $options
+     * @param string $postdata
+     * @return mixed
+     */
+    public function post_withauth($url, $username, $password, array $custheaders = array(), array $options = array(), $postdata = null) {
+        if (isset($postdata)) {
+            $options['CURLOPT_POSTFIELDS'] = $postdata;
+        }
+
+        return $this->request_withauth($url, $username, $password, self::HTTP_POST, $custheaders, $options);
+    }
+
+    /**
+     * @return int
+     */
+    public function geterrorcode() {
+        return $this->errorno;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function geterrormsg() {
+        return $this->error;
+    }
+
+    /**
+     * @param int $userid
+     * @return null|string
+     */
+    public function gettoken($userid = null) {
+        if (!PHPUNIT_TEST) {
+            if (empty($this->token)) {
+                if (!empty($userid)) {
+                    $this->currentuserid = $userid;
+                }
+                if (!empty($this->currentuserid)) {
+                    $value = $this->cache->get(self::TOKEN.'_'.$userid);
+                    if (!empty($value)) {
+                        $this->token = $value;
+                    }
+                }
+            }
+        }
+        return $this->token;
+    }
+
+    /**
+     * @param int $userid
+     */
+    public function resettoken($userid) {
+        $this->cache->delete(self::TOKEN.'_'.$userid);
+        $this->currentuserid = null;
+        $this->token = null;
+    }
+
+    /**
+     * Clears the current token if there is one.
+     */
+    public function cleartoken() {
+        $this->cache->delete(self::TOKEN.'_'.$this->currentuserid);
+        $this->currentuserid = null;
+        $this->token = null;
+    }
+
+    /**
+     * @param int $userid
+     * @param string $value
+     */
+    public function settoken($userid, $value) {
+        if (!empty($value)) {
+            $this->cache->set(self::TOKEN.'_'.$userid, $value);
+            $this->currentuserid = $userid;
+            $this->token = $value;
+        }
+    }
+
+    /**
+     * @param string $opt
+     * @return mixed
+     */
+    public function getinfo($opt = null) {
+        $result = ($opt === null) ? $this->curlinfo : $this->curlinfo[$opt];
+        return $result;
+    }
+
+    /**
+     * @param int $userid
+     * @return bool
+     */
+    public function hastoken($userid) {
+        $value = $this->gettoken($userid);
+        return !empty($value);
+    }
+
+    /**
+     * @return int|null
+     */
+    public function lasthttpcode() {
+        return $this->lasthttpcode;
+    }
+}

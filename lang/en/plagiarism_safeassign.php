@@ -35,10 +35,14 @@ $string['usesafeassign'] ='Enable SafeAssign';
 $string['savedconfigsuccess'] = 'Plagiarism Settings Saved';
 $string['safeassign_api']= 'Safeassign integration URL';
 $string['safeassign_api_help']= 'This is the address of the Safeassign API.';
-$string['safeassign_username']= 'Username';
-$string['safeassign_username_help']= 'Username provided by Safeassign.';
-$string['safeassign_password']= 'Password';
-$string['safeassign_password_help']= 'Password provided by Safeassign.';
+$string['safeassign_instructor_username']= 'Instructor Username';
+$string['safeassign_instructor_username_help']= 'Username provided by Safeassign.';
+$string['safeassign_instructor_password']= 'Instructor Password';
+$string['safeassign_instructor_password_help']= 'Password provided by Safeassign.';
+$string['safeassign_student_username']= 'Student Username';
+$string['safeassign_student_username_help']= 'Username provided by Safeassign.';
+$string['safeassign_student_password']= 'Student Password';
+$string['safeassign_student_password_help']= 'Password provided by Safeassign.';
 $string['safeassign_enableplugin'] = 'Enable SafeAssign for {$a}';
 $string['safeassign_institutioninfo'] = 'Institution name: ';
 $string['safeassign_contactname'] = 'Contact First Name: ';
@@ -55,3 +59,21 @@ $string['disclaimer']= '<br>Submitting to the SafeAssign Global Reference Databa
 $string['settings'] = 'SafeAssign Settings';
 $string['timezone_help'] = 'The timezone set in your Moodlerooms environment.';
 $string['timezone'] = 'Timezone';
+
+// Rest provider.
+$string['error_generic'] = '{$a}';
+$string['error_behat_getjson'] = 'Timezone';
+$string['safeassign_curlcache'] = 'Cache timeout';
+$string['safeassign_curlcache_help'] = 'Web service cache timeout.';
+$string['rest_error_nocurl'] = 'cURL module must be present and enabled!';
+$string['rest_error_nourl'] = 'You must specify URL!';
+$string['rest_error_nomethod'] = 'You must specify request method!';
+$string['rest_error_server'] = '{$a}';
+$string['rest_error_curl'] = '{$a}';
+
+$string['cachedef_request'] = 'SafeAssign request cache';
+
+// Behat test.
+$string['error_behat_getjson'] = 'Error to get json file "{$a}" from folder plagiarism/safeassign/tests/fixtures for '.
+    'simulating a call to SafeAssign webservices when running behat tests.';
+$string['error_behat_instancefail'] = 'This is an instance configured to fail with behat tests.';

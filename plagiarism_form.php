@@ -42,15 +42,30 @@ class plagiarism_setup_form extends moodleform {
         $mform->setDefault('safeassign_api', 'https://secure.safeassign.com/api/submissions');
         $mform->setType('safeassign_api', PARAM_URL);
 
-        $mform->addElement('text', 'safeassign_username', get_string('safeassign_username', 'plagiarism_safeassign'));
-        $mform->addHelpButton('safeassign_username', 'safeassign_username', 'plagiarism_safeassign');
-        $mform->addRule('safeassign_username', null, 'required', null, 'client');
-        $mform->setType('safeassign_username', PARAM_TEXT);
+        $mform->addElement('text', 'safeassign_instructor_username', get_string('safeassign_instructor_username', 'plagiarism_safeassign'));
+        $mform->addHelpButton('safeassign_instructor_username', 'safeassign_instructor_username', 'plagiarism_safeassign');
+        $mform->addRule('safeassign_instructor_username', null, 'required', null, 'client');
+        $mform->setType('safeassign_instructor_username', PARAM_TEXT);
 
-        $mform->addElement('passwordunmask', 'safeassign_password', get_string('safeassign_password', 'plagiarism_safeassign'));
-        $mform->addHelpButton('safeassign_password', 'safeassign_password', 'plagiarism_safeassign');
-        $mform->addRule('safeassign_password', null, 'required', null, 'client');
-        $mform->setType('safeassign_password', PARAM_TEXT);
+        $mform->addElement('passwordunmask', 'safeassign_instructor_password', get_string('safeassign_instructor_password', 'plagiarism_safeassign'));
+        $mform->addHelpButton('safeassign_instructor_password', 'safeassign_instructor_password', 'plagiarism_safeassign');
+        $mform->addRule('safeassign_instructor_password', null, 'required', null, 'client');
+        $mform->setType('safeassign_instructor_password', PARAM_TEXT);
+
+        $mform->addElement('text', 'safeassign_student_username', get_string('safeassign_student_username', 'plagiarism_safeassign'));
+        $mform->addHelpButton('safeassign_student_username', 'safeassign_student_username', 'plagiarism_safeassign');
+        $mform->addRule('safeassign_student_username', null, 'required', null, 'client');
+        $mform->setType('safeassign_student_username', PARAM_TEXT);
+
+        $mform->addElement('passwordunmask', 'safeassign_student_password', get_string('safeassign_student_password', 'plagiarism_safeassign'));
+        $mform->addHelpButton('safeassign_student_password', 'safeassign_student_password', 'plagiarism_safeassign');
+        $mform->addRule('safeassign_student_password', null, 'required', null, 'client');
+        $mform->setType('safeassign_student_password', PARAM_TEXT);
+
+        $mform->addElement('duration', 'safeassign_curlcache', get_string('safeassign_curlcache', 'plagiarism_safeassign'));
+        $mform->addHelpButton('safeassign_curlcache', 'safeassign_curlcache', 'plagiarism_safeassign');
+        $mform->addRule('safeassign_curlcache', null, 'required', null, 'client');
+        $mform->setType('safeassign_curlcache', PARAM_INT);
 
         $mform->addElement('header', 'moodle', get_string('general'));
 
