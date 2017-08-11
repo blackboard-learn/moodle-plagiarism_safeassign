@@ -151,4 +151,44 @@ abstract class safeassign_api {
 
         return $result;
     }
+
+    /**
+     * Creates a course in SafeAssign.
+     *
+     * @param int $userid User id of an instructor of this course.
+     * @param int $courseid
+     * @return bool|mixed
+     */
+    public static function create_course($userid, $courseid) {
+        $course = get_course($courseid);
+        $baseurl  = get_config(self::PLUGIN, 'safeassign_api');
+        if (empty($baseurl)) {
+            return false;
+        }
+        $url = new \moodle_url($baseurl.'/api/v1/courses');
+
+        $postparams = array(
+            'id' => $courseid,
+            'title' => $course->fullname
+        );
+
+        return self::generic_postcall($url->out(), $userid, json_encode($postparams), true);
+    }
+
+    /**
+     * Creates a course in SafeAssign.
+     *
+     * @param int $userid User id of an instructor of this course.
+     * @param int $courseid
+     * @return bool|mixed
+     */
+    public static function get_course($userid, $courseid) {
+        $baseurl  = get_config(self::PLUGIN, 'safeassign_api');
+        if (empty($baseurl)) {
+            return false;
+        }
+        $url = new \moodle_url($baseurl.'/api/v1/courses', array('id' => $courseid));
+
+        return self::generic_getcall($url->out(), $userid, true);
+    }
 }

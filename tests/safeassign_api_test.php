@@ -29,6 +29,9 @@ use plagiarism_safeassign\api\testhelper;
  * @group plagiarism_safeassign
  */
 class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassign_base_testcase {
+
+    private $user;
+
     /**
      * @return void
      */
@@ -49,21 +52,42 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
     }
 
     /**
+     * @return string
+     */
+    private function create_course_url() {
+        $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
+        $courseurl = '%s/api/v1/courses';
+        $courseurl = sprintf($courseurl, $baseapiurl);
+        return $courseurl;
+    }
+
+    /**
+     * Attempts a login with a specified fixture response file.
+     * User attribute is populated with logged in user.
+     * @param $filename
+     * @return bool
+     */
+    private function attempt_login($filename) {
+        $this->user = $this->getDataGenerator()->create_user([
+            'firstname' => 'Teacher',
+            'lastname' => 'WhoTeaches'
+        ]);
+
+        // Tell the cache to load specific fixture for login url.
+        $loginurl = $this->create_login_url($this->user);
+        testhelper::push_pair($loginurl, $filename);
+        $result = safeassign_api::login($this->user->id);
+        return $result;
+    }
+
+    /**
      * @return void
      */
     public function test_login_configured_ok() {
         $this->resetAfterTest(true);
         $this->config_set_ok();
 
-        $user = $this->getDataGenerator()->create_user([
-            'firstname' => 'Teacher',
-            'lastname' => 'WhoTeaches'
-        ]);
-
-        // Tell the cache to load specific fixture for login url.
-        $loginurl = $this->create_login_url($user);
-        testhelper::push_pair($loginurl, 'user-login-final.json');
-        $result = safeassign_api::login($user->id);
+        $result = $this->attempt_login('user-login-final.json');
         $this->assertTrue($result);
     }
 
@@ -74,15 +98,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
         $this->resetAfterTest(true);
         $this->config_set_ok();
 
-        $user = $this->getDataGenerator()->create_user([
-            'firstname' => 'Teacher',
-            'lastname' => 'WhoTeaches'
-        ]);
-
-        // Tell the cache to load specific fixture for login url.
-        $loginurl = $this->create_login_url($user);
-        testhelper::push_pair($loginurl, 'user-login-fail-final.json');
-        $result = safeassign_api::login($user->id);
+        $result = $this->attempt_login('user-login-fail-final.json');
         $this->assertFalse($result);
     }
 
@@ -95,6 +111,60 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
 
         $user = $this->getDataGenerator()->create_user();
         $this->assertFalse( safeassign_api::login($user->id) );
+    }
+
+    /**
+     * @return void
+     */
+    public function test_create_course_ok() {
+        $this->resetAfterTest(true);
+        $this->config_set_ok();
+
+        $this->attempt_login('user-login-final.json');
+        $course = $this->getDataGenerator()->create_course([
+            'fullname' => 'AwesomeCourse'
+        ]);
+
+        // Push fixtures as cached responses.
+        $courseurl = $this->create_course_url();
+        testhelper::push_pair($courseurl, 'create-course-final.json');
+        testhelper::push_pair($courseurl.'?id='.$course->id, 'create-course-final.json');
+
+        // Test creating the course.
+        $result = safeassign_api::create_course($this->user->id, $course->id);
+        $this->assertTrue(!empty($result->uuid));
+
+        // Test verifying the course.
+        $result = safeassign_api::get_course($this->user->id, $course->id);
+        $this->assertTrue(!empty($result->uuid));
+    }
+
+    /**
+     * @return void
+     */
+    public function test_create_course_fail() {
+        $this->resetAfterTest(true);
+        $this->config_set_ok();
+
+        $this->attempt_login('user-login-final.json');
+        $course = $this->getDataGenerator()->create_course([
+            'fullname' => 'AwesomeCourse'
+        ]);
+
+        // Push fixtures as cached responses.
+        $courseurl = $this->create_course_url();
+        testhelper::push_pair($courseurl, 'create-course-fail-final.json');
+        testhelper::push_pair($courseurl.'?id='.$course->id, 'create-course-fail-final.json');
+
+        // Test creating the course.
+        $result = safeassign_api::create_course($this->user->id, $course->id);
+        $this->assertTrue(empty($result->uuid));
+        $this->assertTrue(!empty($result->ERROR_ID) && !empty($result->ERROR_CODE));
+
+        // Test verifying the course.
+        $result = safeassign_api::get_course($this->user->id, $course->id);
+        $this->assertTrue(empty($result->uuid));
+        $this->assertTrue(!empty($result->ERROR_ID) && !empty($result->ERROR_CODE));
     }
 
 }
