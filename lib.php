@@ -69,7 +69,26 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      *   - 'reporturl' - url of originality report - '' if unavailable
      */
     public function get_file_results($cmid, $userid, $file) {
-        return array('analyzed' => '', 'score' => '', 'reporturl' => '');
+        global $DB;
+        $analyzed = 0;
+        $score = '';
+        $reporturl = '';
+
+        $file_query = "SELECT * FROM {plagiarism_safeassign_files} WHERE cm = ? AND userid = ? AND fileid = ?";
+        $file_info = $DB -> get_record_sql($file_query, array($cmid, $userid, $file -> fileid));
+
+        if(!empty($file_info)){
+
+            $subm_query = "SELECT * FROM {plagiarism_safeassign_subm} WHERE submissionid = ?";
+            $subm_info = $DB -> get_record_sql($subm_query, array($file_info -> submissionid));
+
+            if(!empty($file_info) && ($subm_info -> reportgenerated != NULL)){
+                $analyzed = $subm_info -> reportgenerated;
+            }
+            $score = $file_info -> similarityscore;
+            $reporturl = $file_info -> reporturl;
+        }
+        return array('analyzed' => $analyzed, 'score' => $score, 'reporturl' => $reporturl);
     }
 
     /**
