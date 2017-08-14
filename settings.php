@@ -39,37 +39,37 @@ $mform = new plagiarism_setup_form();
 $plagiarismplugin = new plagiarism_plugin_safeassign();
 
 if ($mform->is_cancelled()) {
-    redirect('');
+    redirect(new moodle_url('/plagiarism/safeassign/settings.php'));
 }
 
 echo $OUTPUT->header();
 
 if (($data = $mform->get_data()) && confirm_sesskey()) {
-    if (!isset($data->new_use)) {
-        $data->new_use = 0;
+    if (!isset($data->safeassign)) {
+        $data->safeassign = 0;
     }
     foreach ($data as $field => $value) {
-        if (strpos($field, 'new') ===0) {
-            if ($tiiconfigfield = $DB->get_record('config_plugins', array('name'=>$field, 'plugin'=>'plagiarism'))) {
-                $tiiconfigfield->value = $value;
-                if (! $DB->update_record('config_plugins', $tiiconfigfield)) {
+        if (strpos($field, 'safeassign') === 0) {
+            if ($saconfigfield = $DB->get_record('config_plugins', array('name' => $field, 'plugin' => 'plagiarism_safeassign'))) {
+                $saconfigfield->value = $value;
+                if (!$DB->update_record('config_plugins', $saconfigfield)) {
                     error("errorupdating");
                 }
             } else {
-                $tiiconfigfield = new stdClass();
-                $tiiconfigfield->value = $value;
-                $tiiconfigfield->plugin = 'plagiarism';
-                $tiiconfigfield->name = $field;
-                if (! $DB->insert_record('config_plugins', $tiiconfigfield)) {
+                $saconfigfield = new stdClass();
+                $saconfigfield->value = $value;
+                $saconfigfield->plugin = 'plagiarism_safeassign';
+                $saconfigfield->name = $field;
+                if (!$DB->insert_record('config_plugins', $saconfigfield)) {
                     error("errorinserting");
                 }
             }
         }
     }
-    echo $OUTPUT->notification(get_string('savedconfigsuccess', 'plagiarism_safeassign'),
-        \core\output\notification::NOTIFY_SUCCESS);
+    echo $OUTPUT->notification(get_string('savedconfigsuccess', 'plagiarism_safeassign'), \core\output\notification::NOTIFY_SUCCESS);
 }
-$plagiarismsettings = (array)get_config('plagiarism');
+
+$plagiarismsettings = (array)get_config('plagiarism_safeassign');
 $mform->set_data($plagiarismsettings);
 
 echo $OUTPUT->box_start('generalbox boxaligncenter', 'intro');
