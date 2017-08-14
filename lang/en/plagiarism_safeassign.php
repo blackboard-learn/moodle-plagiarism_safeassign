@@ -73,6 +73,9 @@ $string['rest_error_nourl'] = 'You must specify URL!';
 $string['rest_error_nomethod'] = 'You must specify request method!';
 $string['rest_error_server'] = '{$a}';
 $string['rest_error_curl'] = '{$a}';
+$string['test_credentials'] = 'Test Credentials';
+$string['connectionfailed'] = 'Connection Failed';
+$string['connectionverified'] = 'Connection Verified';
 $string['cachedef_request'] = 'SafeAssign request cache';
 // Behat test.
 $string['error_behat_getjson'] = 'Error to get json file "{$a}" from folder plagiarism/safeassign/tests/fixtures for '.

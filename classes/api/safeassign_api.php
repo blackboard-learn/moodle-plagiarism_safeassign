@@ -45,19 +45,19 @@ abstract class safeassign_api {
      * @throws \dml_exception
      * @throws jsonerror_exception
      */
-    public static function login($userid, $isinstructor = false) {
+    public static function login($userid, $isinstructor = false, $username = null, $password = null) {
         if (rest_provider::instance()->hastoken($userid)) {
             return true;
         }
         // DB is declared here for efficiency, if token exists, it should not be declared.
         global $DB;
-
-        list($username, $password) = self::get_login_credentials($isinstructor);
-        $baseurl  = get_config(self::PLUGIN, 'safeassign_api');
-        if (($username === false) || ($password === false) || ($baseurl === false)) {
-            return false;
+        if ($username == null && $password == null) {
+            list($username, $password) = self::get_login_credentials($isinstructor);
+            if (($username === false) || ($password === false) || ($baseurl === false)) {
+                return false;
+            }
         }
-
+        $baseurl  = get_config(self::PLUGIN, 'safeassign_api');
         $firstname = $DB->get_field('user', 'firstname', array('id' => $userid));
         $lastname = $DB->get_field('user', 'lastname', array('id' => $userid));
 
