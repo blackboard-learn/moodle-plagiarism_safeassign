@@ -21,16 +21,24 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+//defined('MOODLE_INTERNAL') || die();
 
 $functions = [
     'plagiarism_safeassign_test_api_credentials' => [
-        'classname' => 'plagiarism_safeassign_test_api_credentials',
-        'methodname'    => 'test_api_credentials',
+        'classname' => 'plagiarism_safeassign_test_api_credentials_external',
+        'methodname'    => 'plagiarism_safeassign_test_api_credentials',
         'description'   => 'Report description show status',
-        'classpath'     => 'plagiarism/safeassign/classes/webservice/test_api.php',
-        'type'          => 'write',
+        'classpath'     => 'plagiarism/safeassign/externallib.php',
+        'type'          => 'read',
         'ajax'          => true,
-        'loginrequired' => true
+        'loginrequired' => false
     ]
 ];
+
+$services = array(
+    'test_safeassign_credentials' => array(
+        'functions' => array ('plagiarism_safeassign_test_api_credentials'),
+        'restrictedusers' => 0,
+        'enabled'=>1,
+    )
+);

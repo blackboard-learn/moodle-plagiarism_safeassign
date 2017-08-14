@@ -45,19 +45,19 @@ abstract class safeassign_api {
      * @throws \dml_exception
      * @throws jsonerror_exception
      */
-    public static function login($userid, $isinstructor = false, $username = null, $password = null) {
+    public static function login($userid, $isinstructor = false) {
         if (rest_provider::instance()->hastoken($userid)) {
             return true;
         }
         // DB is declared here for efficiency, if token exists, it should not be declared.
         global $DB;
-        if ($username == null && $password == null) {
-            list($username, $password) = self::get_login_credentials($isinstructor);
-            if (($username === false) || ($password === false) || ($baseurl === false)) {
-                return false;
-            }
-        }
+
+        list($username, $password) = self::get_login_credentials($isinstructor);
         $baseurl  = get_config(self::PLUGIN, 'safeassign_api');
+        if (($username === false) || ($password === false) || ($baseurl === false)) {
+            return false;
+        }
+
         $firstname = $DB->get_field('user', 'firstname', array('id' => $userid));
         $lastname = $DB->get_field('user', 'lastname', array('id' => $userid));
 
@@ -183,12 +183,35 @@ abstract class safeassign_api {
      * @return bool|mixed
      */
     public static function get_course($userid, $courseid) {
-        $baseurl  = get_config(self::PLUGIN, 'safeassign_api');
+        $baseurl = get_config(self::PLUGIN, 'safeassign_api');
         if (empty($baseurl)) {
             return false;
         }
-        $url = new \moodle_url($baseurl.'/api/v1/courses', array('id' => $courseid));
+        $url = new \moodle_url($baseurl . '/api/v1/courses', array('id' => $courseid));
 
         return self::generic_getcall($url->out(), $userid, true);
+    }
+
+    /**
+     * Test the given credentilas
+     * @param int $userid
+     * @param string $username
+     * @param string $password
+     * @param string $url
+     * @return bool
+     */
+    public static function test_credentials($userid, $username, $password, $baseurl) {
+
+        global $DB;
+        if (!defined('SAFEASSIGN_OMIT_CACHE')) {
+            define('SAFEASSIGN_OMIT_CACHE', true);
+        }
+        $firstname = $DB->get_field('user', 'firstname', array('id' => $userid));
+        $lastname = $DB->get_field('user', 'lastname', array('id' => $userid));
+        $url = sprintf('%s/api/v1/tokens?grant_type=client_credentials&user_id=%s&user_firstname=%s&user_lastname=%s',
+            $baseurl, $userid, urlencode($firstname), urlencode($lastname));
+        $result = rest_provider::instance()->post_withauth($url, $username, $password, array(), array());
+        return $result;
+
     }
 }
