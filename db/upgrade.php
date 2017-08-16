@@ -156,5 +156,6 @@ function xmldb_plagiarism_safeassign_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2017080704, 'plagiarism', 'safeassign');
     }
 
+    return true;
 
 }
