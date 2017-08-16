@@ -34,7 +34,6 @@ $context = context_system::instance();
 
 require_capability('moodle/site:config', $context, $USER->id, true, "nopermissions");
 
-require_once('plagiarism_form.php');
 $mform = new plagiarism_setup_form();
 $plagiarismplugin = new plagiarism_plugin_safeassign();
 
@@ -50,6 +49,7 @@ if (($data = $mform->get_data()) && confirm_sesskey()) {
     }
     foreach ($data as $field => $value) {
         if (strpos($field, 'safeassign') === 0) {
+
             if ($saconfigfield = $DB->get_record('config_plugins', array('name' => $field, 'plugin' => 'plagiarism_safeassign'))) {
                 $saconfigfield->value = $value;
                 if (!$DB->update_record('config_plugins', $saconfigfield)) {
