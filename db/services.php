@@ -17,28 +17,19 @@
 /**
  * Services
  * @author    Jonathan García Gómez
- * @copyright Copyright (c) 2016 Blackboard Inc. (http://www.blackboard.com)
+ * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-//defined('MOODLE_INTERNAL') || die();
 
 $functions = [
     'plagiarism_safeassign_test_api_credentials' => [
         'classname' => 'plagiarism_safeassign_test_api_credentials_external',
         'methodname'    => 'plagiarism_safeassign_test_api_credentials',
-        'description'   => 'Report description show status',
+        'description'   => 'Validates the given credentials against the SafeAssign site',
         'classpath'     => 'plagiarism/safeassign/externallib.php',
         'type'          => 'read',
         'ajax'          => true,
-        'loginrequired' => false
+        'loginrequired' => true
     ]
 ];
-
-$services = array(
-    'test_safeassign_credentials' => array(
-        'functions' => array ('plagiarism_safeassign_test_api_credentials'),
-        'restrictedusers' => 0,
-        'enabled'=>1,
-    )
-);

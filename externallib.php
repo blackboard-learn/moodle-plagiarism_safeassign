@@ -22,16 +22,16 @@
  */
 
 global $CFG;
-use plagiarism_safeassign\local\api\rest_provider;
-use plagiarism_safeassign\local\api\safeassign_api;
-require_once($CFG->libdir . "/externallib.php");
-require_once('../../config.php');
+use plagiarism_safeassign\api\rest_provider;
+use plagiarism_safeassign\api\safeassign_api;
+require_once($CFG->libdir . '/externallib.php');
+require_once($CFG->dirroot  . '/config.php');
 defined('MOODLE_INTERNAL') || die();
 
 /**
  * Test the intructor and student credentiales.
  * @autor Jonathan Garcia
- * @copyright Copyright (c) 2016 Blackboard Inc.
+ * @copyright Copyright (c) 2017 Blackboard Inc.
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

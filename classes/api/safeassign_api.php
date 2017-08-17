@@ -193,11 +193,11 @@ abstract class safeassign_api {
     }
 
     /**
-     * Test the given credentilas
+     * Test the given credentials
      * @param int $userid
      * @param string $username
      * @param string $password
-     * @param string $url
+     * @param string $baseurl
      * @return bool
      */
     public static function test_credentials($userid, $username, $password, $baseurl) {
@@ -208,9 +208,9 @@ abstract class safeassign_api {
         }
         $firstname = $DB->get_field('user', 'firstname', array('id' => $userid));
         $lastname = $DB->get_field('user', 'lastname', array('id' => $userid));
-        $url = sprintf('%s/api/v1/tokens?grant_type=client_credentials&user_id=%s&user_firstname=%s&user_lastname=%s',
-            $baseurl, $userid, urlencode($firstname), urlencode($lastname));
-        $result = rest_provider::instance()->post_withauth($url, $username, $password, array(), array());
+        $url = new \moodle_url($baseurl . '/api/v1/tokens?grant_type=client_credentials', array('user_id' => $userid,
+            'user_firstname' => $firstname, 'user_lastname' => $lastname));
+        $result = rest_provider::instance()->post_withauth($url->out(false), $username, $password, array(), array());
         return $result;
 
     }

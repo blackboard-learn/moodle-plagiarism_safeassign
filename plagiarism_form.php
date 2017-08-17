@@ -42,6 +42,7 @@ class plagiarism_setup_form extends moodleform {
         $mform->setDefault('safeassign_api', 'https://secure.safeassign.com');
         $mform->setType('safeassign_api', PARAM_URL);
 
+        $mform->addElement('header', 'moodle', get_string('instructor_role_credentials', 'plagiarism_safeassign'));
         $mform->addElement('hidden', 'userid', $USER->id);
         $mform->setType('userid', PARAM_INT);
 
@@ -55,6 +56,7 @@ class plagiarism_setup_form extends moodleform {
         $mform->addRule('safeassign_instructor_password', null, 'required', null, 'client');
         $mform->setType('safeassign_instructor_password', PARAM_TEXT);
 
+        $mform->addElement('header', 'moodle', get_string('student_role_credentials', 'plagiarism_safeassign'));
         $mform->addElement('text', 'safeassign_student_username', get_string('safeassign_student_username', 'plagiarism_safeassign'));
         $mform->addHelpButton('safeassign_student_username', 'safeassign_student_username', 'plagiarism_safeassign');
         $mform->addRule('safeassign_student_username', null, 'required', null, 'client');
@@ -64,12 +66,13 @@ class plagiarism_setup_form extends moodleform {
         $mform->addHelpButton('safeassign_student_password', 'safeassign_student_password', 'plagiarism_safeassign');
         $mform->addRule('safeassign_student_password', null, 'required', null, 'client');
         $mform->setType('safeassign_student_password', PARAM_TEXT);
+        $mform->addElement('header');
 
         $mform->addElement('duration', 'safeassign_curlcache', get_string('safeassign_curlcache', 'plagiarism_safeassign'));
         $mform->addHelpButton('safeassign_curlcache', 'safeassign_curlcache', 'plagiarism_safeassign');
         $mform->addRule('safeassign_curlcache', null, 'required', null, 'client');
         $mform->setType('safeassign_curlcache', PARAM_INT);
-        $mform->addElement('submit', 'test_credentials', get_string('test_credentials', 'plagiarism_safeassign'), null, array('class' => ''));
+        $mform->addElement('submit', 'test_credentials', get_string('test_credentials', 'plagiarism_safeassign'), null);
 
 
         $mform->addElement('header', 'moodle', get_string('general'));

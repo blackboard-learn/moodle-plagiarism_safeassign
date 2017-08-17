@@ -43,7 +43,7 @@ if ($mform->is_cancelled()) {
 $PAGE->requires->strings_for_js(array('test_credentials'),
     'plagiarism_safeassign');
 $PAGE->requires->js_call_amd('plagiarism_safeassign/settings', 'init');
-$PAGE->requires->css('/plagiarism/safeassign/styles.css');
+
 echo $OUTPUT->header();
 
 if (($data = $mform->get_data()) && confirm_sesskey()) {

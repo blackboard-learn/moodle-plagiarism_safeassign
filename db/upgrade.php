@@ -166,7 +166,7 @@ function xmldb_plagiarism_safeassign_upgrade($oldversion) {
         $fields[] = new xmldb_field('timecreated', XMLDB_TYPE_INTEGER, '14', null, XMLDB_NOTNULL, null, '0', 'hasonlinetext');
 
         // Go through each field and add if it doesn't already exist.
-        foreach ($fields as $field){
+        foreach ($fields as $field) {
             // Conditionally launch add field.
             if (!$dbman->field_exists($table, $field)) {
                 $dbman->add_field($table, $field);
@@ -175,6 +175,15 @@ function xmldb_plagiarism_safeassign_upgrade($oldversion) {
 
         // Safeassign savepoint reached.
         upgrade_plugin_savepoint(true, 2017081505, 'plagiarism', 'safeassign');
+    }
+
+    if ($oldversion < 2017081507) {
+
+        if (!get_config('plagiarism_safeassign', 'connecttimeout')) {
+            set_config('connecttimeout', 600, 'plagiarism_safeassign');
+        }
+
+        upgrade_plugin_savepoint(true, 2017081507, 'plagiarism', 'safeassign');
     }
 
     return true;

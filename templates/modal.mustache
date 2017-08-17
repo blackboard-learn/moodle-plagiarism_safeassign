@@ -28,24 +28,22 @@
     * none
 
     Context variables required for this template:
-    * title A cleaned string (use clean_text()) to display.
-    * body HTML content for the boday
-    * footer HTML content for the footer
+    * title A localized string.
+    * body HTML content for the body
 
     Example context (json):
     {
         "title": "Example modal",
         "body": "Some example content for the body",
-        "footer": "Footer text, right here!"
     }
 }}
 
 <div data-region="displaytemplate">
-        <p data-region="displaytemplateheader">{{#str}}safeassing_response_header, plagiarism_safeassign{{/str}}</p>
-        <div id="instructor_credentials" class="alert alert-warning alert-block fade in">
-            <p>{{#str}}safeassign_instructor_credentials, plagiarism_safeassign{{/str}}</p> <p id="instructor_result">...</p>
-        </div>
-        <div id="student_credentials" class="alert alert-warning alert-block fade in">
-             <p>{{#str}}safeassign_student_credentials, plagiarism_safeassign{{/str}}</p> <p id="student_result">...</p>
-        </div>
+    <p data-region="displaytemplateheader">{{#str}}safeassing_response_header, plagiarism_safeassign{{/str}}</p>
+    <div id="instructor_credentials" class="alert alert-warning alert-block fade in">
+        <p>{{#str}}safeassign_instructor_credentials, plagiarism_safeassign{{/str}}</p> <p id="instructor_result">...</p>
+    </div>
+    <div id="student_credentials" class="alert alert-warning alert-block fade in">
+         <p>{{#str}}safeassign_student_credentials, plagiarism_safeassign{{/str}}</p> <p id="student_result">...</p>
+    </div>
 </div>
