@@ -39,7 +39,7 @@ class plagiarism_setup_form extends moodleform {
         $mform->addElement('text', 'safeassign_api', get_string('safeassign_api', 'plagiarism_safeassign'));
         $mform->addHelpButton('safeassign_api', 'safeassign_api', 'plagiarism_safeassign');
         $mform->addRule('safeassign_api', null, 'required', null, 'client');
-        $mform->setDefault('safeassign_api', 'https://secure.safeassign.com/api/submissions');
+        $mform->setDefault('safeassign_api', 'https://secure.safeassign.com');
         $mform->setType('safeassign_api', PARAM_URL);
 
         $mform->addElement('text', 'safeassign_instructor_username', get_string('safeassign_instructor_username', 'plagiarism_safeassign'));
