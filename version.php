@@ -15,10 +15,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-$plugin->version =  2017080705;
-$plugin->release = "3.2+";
-$plugin->requires = 2016120503;
+/**
+* @package   plagiarism_safeassign
+* @copyright Copyright (c) 2017 Blackboard Inc.
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+defined('MOODLE_INTERNAL') || die();
+
+$plugin->version   = 2017080705;
+$plugin->release   = "3.2+";
+$plugin->requires  = 2016120503;
 $plugin->component = 'plagiarism_safeassign';
 $plugin->maturity  = MATURITY_BETA;
-
-$plugin->cron     = 0;
+$plugin->cron      = 0;

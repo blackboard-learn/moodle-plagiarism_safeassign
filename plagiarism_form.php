@@ -90,17 +90,11 @@ class plagiarism_setup_form extends moodleform {
         $mform->addRule('safeassign_contactjob', null, 'required', null, 'client');
         $mform->setType('safeassign_contactjob', PARAM_TEXT);
 
-        // Time zone.
-        if (isset($CFG->forcetimezone) and $CFG->forcetimezone != 99) {
-            $choices = core_date::get_list_of_timezones($CFG->forcetimezone);
-            $mform->addElement('static', 'forcedtimezone', get_string('timezone', 'plagiarims_safeassign'), $choices[$CFG->forcetimezone]);
-            $mform->addElement('hidden', 'timezone');
-            $mform->setType('timezone', core_user::get_property_type('timezone'));
-        } else {
-            $choices = core_date::get_list_of_timezones(null, true);
-            $mform->addElement('select', 'timezone', get_string('timezone'), $choices);
-        }
-        $mform->addHelpButton('timezone', 'timezone', 'plagiarism_safeassign');
+        $choices = core_date::get_list_of_timezones(null, true);
+        $mform->addElement('select', 'safeassign_timezone', get_string('timezone'), $choices);
+        $mform->setType('safeassign_timezone', PARAM_TEXT);
+        $mform->addHelpButton('safeassign_timezone', 'timezone', 'plagiarism_safeassign');
+
         $mform->addElement('header', 'moodle', get_string('settings', 'plagiarism_safeassign'));
         $mform->addElement('checkbox', 'safeassign_showid', get_string('safeassign_showid', 'plagiarism_safeassign'));
         $mform->setDefault('safeassign_showid', false);
