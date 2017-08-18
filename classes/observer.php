@@ -68,4 +68,22 @@ class plagiarism_safeassign_observer {
         \assignsubmission_file\event\assessable_uploaded $event) {
 
     }
+
+    /**
+     * Observer for course module creation.
+     *
+     * @param \core\event\course_module_created $event
+     * @return void
+     */
+    public static function course_module_created(\core\event\course_module_created $event) {
+        global $CFG;
+
+        require_once($CFG->dirroot . '/plagiarism/safeassign/lib.php');
+        $eventdata = $event->get_data();
+
+        if ($eventdata['other']['modulename'] === 'assign') {
+            $safeassignclass = new plagiarism_plugin_safeassign();
+            $safeassignclass->assign_dbsaver($eventdata);
+        }
+    }
 }
