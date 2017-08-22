@@ -117,4 +117,28 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     public function plagiarism_cron() {
         debugging('plagiarism_plugin::plagiarism_cron() is deprecated. Please use scheduled tasks instead', DEBUG_DEVELOPER);
     }
+
+    public function assign_dbsaver($eventdata) {
+        global $DB;
+
+        // Check for safeassign configuration.
+        $plagiarismsettings = (array)get_config('plagiarism_safeassign');
+        if (!$plagiarismsettings) {
+            return false;
+        }
+
+        // Call the course saver
+
+        // Let's check that the assignment does not exist previously on db.
+        $instanceid = $eventdata['other']['instanceid'];
+        $confirmexists = $DB->get_records('plagiarism_safeassign_assign', ['assignmentid' => $instanceid]);
+        if (!$confirmexists) {
+            // We have to set the object in safeassign_assign table.
+            $assignmentdata = new stdClass();
+            $assignmentdata->uuid = null;
+            $assignmentdata->assignmentid = $instanceid;
+            $DB->insert_record('plagiarism_safeassign_assign', $assignmentdata);
+        }
+        return true;
+    }
 }
