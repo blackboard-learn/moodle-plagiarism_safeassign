@@ -36,7 +36,7 @@ require_capability('moodle/site:config', $context, $USER->id, true, "nopermissio
 
 $mform = new plagiarism_setup_form();
 $plagiarismplugin = new plagiarism_plugin_safeassign();
-
+$PAGE->requires->css('/plagiarism/safeassign/styles.css');
 if ($mform->is_cancelled()) {
     redirect(new moodle_url('/plagiarism/safeassign/settings.php'));
 }
@@ -44,26 +44,21 @@ if ($mform->is_cancelled()) {
 echo $OUTPUT->header();
 
 if (($data = $mform->get_data()) && confirm_sesskey()) {
-    if (!isset($data->safeassign)) {
-        $data->safeassign = 0;
+    if (!isset($data->safeassign_use)) {
+        $data->safeassign_use = 0;
+    }
+    if (!isset($data->safeassign_showid)) {
+        $data->safeassign_showid = 0;
+    }
+    if (!isset($data->safeassign_alloworganizations)) {
+        $data->safeassign_alloworganizations = 0;
+    }
+    if (!isset($data->safeassign_referencedbactivity)) {
+        $data->safeassign_referencedbactivity = 0;
     }
     foreach ($data as $field => $value) {
         if (strpos($field, 'safeassign') === 0) {
-
-            if ($saconfigfield = $DB->get_record('config_plugins', array('name' => $field, 'plugin' => 'plagiarism_safeassign'))) {
-                $saconfigfield->value = $value;
-                if (!$DB->update_record('config_plugins', $saconfigfield)) {
-                    error("errorupdating");
-                }
-            } else {
-                $saconfigfield = new stdClass();
-                $saconfigfield->value = $value;
-                $saconfigfield->plugin = 'plagiarism_safeassign';
-                $saconfigfield->name = $field;
-                if (!$DB->insert_record('config_plugins', $saconfigfield)) {
-                    error("errorinserting");
-                }
-            }
+            set_config($field, $value, 'plagiarism_safeassign');
         }
     }
     echo $OUTPUT->notification(get_string('savedconfigsuccess', 'plagiarism_safeassign'), \core\output\notification::NOTIFY_SUCCESS);

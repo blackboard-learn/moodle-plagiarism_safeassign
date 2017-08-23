@@ -1,0 +1,4 @@
+#page-admin-plagiarism-safeassign-settings input[type="text"]:not(#id_safeassign_curlcache_number),
+#page-admin-plagiarism-safeassign-settings #id_safeassign_timezone {
+    width:21em;
+}

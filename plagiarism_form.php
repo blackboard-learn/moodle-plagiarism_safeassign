@@ -107,9 +107,9 @@ class plagiarism_setup_form extends moodleform {
         $mform->addElement('checkbox', 'safeassign_referencedbactivity', get_string('safeassign_referencedbactivity', 'plagiarism_safeassign'));
         $mform->setDefault('safeassign_referencedbactivity', false);
 
-        $mform->addElement('textarea', 'new_student_disclosure', get_string('studentdisclosure','plagiarism_safeassign'),'wrap="virtual" rows="6" cols="50"');
-        $mform->addHelpButton('new_student_disclosure', 'studentdisclosure', 'plagiarism_safeassign');
-        $mform->setDefault('new_student_disclosure', get_string('studentdisclosuredefault','plagiarism_safeassign'));
+        $mform->addElement('textarea', 'safeassign_new_student_disclosure', get_string('studentdisclosure','plagiarism_safeassign'),'wrap="virtual" rows="6" cols="50"');
+        $mform->addHelpButton('safeassign_new_student_disclosure', 'studentdisclosure', 'plagiarism_safeassign');
+        $mform->setDefault('safeassign_new_student_disclosure', get_string('studentdisclosuredefault','plagiarism_safeassign'));
 
         $this->add_action_buttons(true);
     }
