@@ -50,8 +50,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     }
 
     /**
-     * hook to allow plagiarism specific information to be displayed beside a submission
-     * @param array  $linkarraycontains all relevant information for the plugin to generate a link
+     * Hook to allow plagiarism specific information to be displayed beside a submission.
      * @return string
      */
     public function get_links($linkarray) {
@@ -59,7 +58,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     }
 
     /**
-     * hook to allow plagiarism specific information to be returned unformatted
+     * Hook to allow plagiarism specific information to be returned unformatted.
      * @param int $cmid
      * @param int $userid
      * @param $file file object
@@ -73,20 +72,15 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         $analyzed = 0;
         $score = '';
         $reporturl = '';
-
-        $file_query = "SELECT * FROM {plagiarism_safeassign_files} WHERE cm = ? AND userid = ? AND fileid = ?";
-        $file_info = $DB -> get_record_sql($file_query, array($cmid, $userid, $file -> fileid));
-
-        if(!empty($file_info)){
-
-            $subm_query = "SELECT * FROM {plagiarism_safeassign_subm} WHERE submissionid = ?";
-            $subm_info = $DB -> get_record_sql($subm_query, array($file_info -> submissionid));
-
-            if(!empty($file_info) && ($subm_info -> reportgenerated != NULL)){
-                $analyzed = $subm_info -> reportgenerated;
-            }
-            $score = $file_info -> similarityscore;
-            $reporturl = $file_info -> reporturl;
+        $filequery="SELECT sub.reportgenerated, fil.similarityscore, fil.reporturl
+                       FROM {plagiarism_safeassign_subm} sub
+                       JOIN {plagiarism_safeassign_files} fil ON sub.submissionid = fil.submissionid
+                      WHERE fil.cm = ? AND fil.userid = ? AND fil.fileid = ?";
+        $fileinfo = $DB->get_record_sql($filequery, array($cmid, $userid, $file->get_id()));
+        if (!empty($fileinfo)) {
+            $analyzed = $fileinfo->reportgenerated;
+            $score = $fileinfo->similarityscore;
+            $reporturl = $fileinfo->reporturl;
         }
         return array('analyzed' => $analyzed, 'score' => $score, 'reporturl' => $reporturl);
     }

@@ -59,7 +59,10 @@ $string['disclaimer']= '<br>Submitting to the SafeAssign Global Reference Databa
 $string['settings'] = 'SafeAssign Settings';
 $string['timezone_help'] = 'The timezone set in your Moodlerooms environment.';
 $string['timezone'] = 'Timezone';
-
+$string['safeassign_status'] = 'SafeAssign status';
+$string['status:pending'] = 'Pending';
+$string['safeassign_score'] = 'SafeAssign score';
+$string['safeassign_reporturl'] = 'Report URL';
 // Rest provider.
 $string['error_generic'] = '{$a}';
 $string['error_behat_getjson'] = 'Timezone';
@@ -70,9 +73,7 @@ $string['rest_error_nourl'] = 'You must specify URL!';
 $string['rest_error_nomethod'] = 'You must specify request method!';
 $string['rest_error_server'] = '{$a}';
 $string['rest_error_curl'] = '{$a}';
-
 $string['cachedef_request'] = 'SafeAssign request cache';
-
 // Behat test.
 $string['error_behat_getjson'] = 'Error to get json file "{$a}" from folder plagiarism/safeassign/tests/fixtures for '.
     'simulating a call to SafeAssign webservices when running behat tests.';
