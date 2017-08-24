@@ -156,6 +156,27 @@ function xmldb_plagiarism_safeassign_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2017080704, 'plagiarism', 'safeassign');
     }
 
+    if ($oldversion < 2017081505) {
+
+        // Define field deprecated to be added to plagiarism_safeassign_subm.
+        $table = new xmldb_table('plagiarism_safeassign_subm');
+        $fields[] = new xmldb_field('deprecated', XMLDB_TYPE_INTEGER, '1', null, null, null, null, 'submissionid');
+        $fields[] = new xmldb_field('hasfile', XMLDB_TYPE_INTEGER, '1', null, null, null, null, 'deprecated');
+        $fields[] = new xmldb_field('hasonlinetext', XMLDB_TYPE_INTEGER, '1', null, null, null, null, 'hasfile');
+        $fields[] = new xmldb_field('timecreated', XMLDB_TYPE_INTEGER, '14', null, XMLDB_NOTNULL, null, '0', 'hasonlinetext');
+
+        // Go through each field and add if it doesn't already exist.
+        foreach ($fields as $field){
+            // Conditionally launch add field.
+            if (!$dbman->field_exists($table, $field)) {
+                $dbman->add_field($table, $field);
+            }
+        }
+
+        // Safeassign savepoint reached.
+        upgrade_plugin_savepoint(true, 2017081505, 'plagiarism', 'safeassign');
+    }
+
     return true;
 
 }

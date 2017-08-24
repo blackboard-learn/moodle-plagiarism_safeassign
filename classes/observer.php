@@ -50,23 +50,27 @@ class plagiarism_safeassign_observer {
     }
 
     /**
-     * Upload a assign online text
+     * Uploads an online submission text.
      * @param  \assignsubmission_onlinetext\event\assessable_uploaded $event Event
      * @return void
      */
     public static function assignsubmission_onlinetext_uploaded(
         \assignsubmission_onlinetext\event\assessable_uploaded $event) {
-
+        $eventdata = $event->get_data();
+        $safeassign = new plagiarism_plugin_safeassign();
+        $safeassign->create_submission($eventdata);
     }
 
     /**
-     * Upload a assign file
+     * Uploads a submission file.
      * @param  \assignsubmission_file\event\assessable_uploaded $event Event
      * @return void
      */
     public static function assignsubmission_file_uploaded(
         \assignsubmission_file\event\assessable_uploaded $event) {
-
+        $eventdata = $event->get_data();
+        $safeassign = new plagiarism_plugin_safeassign();
+        $safeassign->create_submission($eventdata);
     }
 
     /**

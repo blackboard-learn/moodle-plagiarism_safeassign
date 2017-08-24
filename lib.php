@@ -154,4 +154,110 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         }
         return true;
     }
+
+    /**
+     * Checks if submission has a file and creates or updates a record on
+     * plagiarism_safeassign_subm if the submission has or not an associated record.
+     * @param object $evendata
+     */
+    public function create_submission($evendata) {
+        if ($this->check_assignment_config($evendata)) {
+            $this->update_old_submission_records($evendata);
+            $params = array();
+            if (!empty($evendata['other']['pathnamehashes'])) {
+                $params['hasfile'] = 1;
+            }
+            if (!empty($evendata['other']['content'])) {
+                $params['hasonlinetext'] = 1;
+            }
+            $this->validate_submission($evendata, $params);
+        }
+    }
+
+    /**
+     * Check that submissions are made for a valid SafeAssign assignment.
+     * @param object $eventdata
+     * @return bool
+     */
+    private function check_assignment_config($eventdata) {
+        global $DB;
+
+        $sql = "SELECT *
+                  FROM {plagiarism_safeassign_assign} safe_assign
+                  JOIN {assign_submission} assign_sub ON assign_sub.assignment = safe_assign.assignmentid
+                 WHERE assign_sub.id = :submissionid";
+        return $DB->record_exists_sql($sql, array('submissionid' => $eventdata['objectid']));
+    }
+
+    /**
+     * Creates the submission record on plagiarism_safeassign_subm table.
+     * @param object $eventdata
+     */
+    private function create_submission_record($eventdata, $params) {
+        global $DB;
+        $submission = new stdClass();
+        $submission->submissionid = $eventdata['objectid'];
+        $submission->globalcheck = 0;
+        $submission->groupsubmission = 1;
+        $submission->reportgenerated = 0;
+        $submission->submitted = 0;
+        $submission->highscore = 0.0;
+        $submission->avgscore = 0.0;
+        $submission->deprecated = 0;
+        $submission->hasfile = (isset($params['hasfile']))? $params['hasfile']: 0;
+        $submission->hasonlinetext =(isset($params['hasonlinetext']))? $params['hasonlinetext']: 0;
+        $submission->timecreated = $eventdata['timecreated'];
+        $DB->insert_record('plagiarism_safeassign_subm', $submission);
+    }
+
+    /**
+     * Search for old records on plagiarism_safeassign_subm table and updates their
+     * deprecated field. This way, the sync task should know which submissions are valid.
+     * @param object $eventdata
+     */
+    public function update_old_submission_records($eventdata) {
+        global $DB;
+        // Search the submission that are already in plagiarism_safeassign_subm.
+        $sql = "UPDATE {plagiarism_safeassign_subm}
+                   SET deprecated = 1
+                 WHERE submissionid = :submissionid AND timecreated <> :timecreated";
+        $DB->execute($sql, array('submissionid' => $eventdata['objectid'], 'timecreated' => $eventdata['timecreated']));
+    }
+
+    /**
+     * Checks if submission already has a record on plagiarism_safeassign_subm for
+     * not creating a duplicate record.
+     * @param object $eventdata
+     * @param array $params
+     */
+    private function validate_submission($eventdata, $params) {
+        global $DB;
+        $record = $DB->get_record('plagiarism_safeassign_subm', array('submissionid' => $eventdata['objectid'],
+            'timecreated' => $eventdata['timecreated']));
+        if (empty($record)) {
+            $this->create_submission_record($eventdata, $params);
+        } else {
+            $originalhasfile = $record->hasfile;
+            $originalhasonlinesubmission = $record->hasonlinetext;
+            if (isset($params['hasfile'])) {
+                $record->hasfile = $params['hasfile'];
+            }
+            if (isset($params['hasonlinetext'])) {
+                $record->hasonlinetext = $params['hasonlinetext'];
+            }
+            if ($originalhasfile != $record->hasfile || $originalhasonlinesubmission != $record->hasonlinetext) {
+                $this->update_submission($record);
+            }
+        }
+    }
+
+    /**
+     * Updates a submission record on plagiarism_safeassign_subm table.
+     * @param object $submission
+     */
+    private function update_submission($submission) {
+        global $DB;
+        $DB->update_record('plagiarism_safeassign_subm', $submission);
+    }
+
 }
