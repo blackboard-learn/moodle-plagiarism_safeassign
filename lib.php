@@ -131,6 +131,12 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         debugging('plagiarism_plugin::plagiarism_cron() is deprecated. Please use scheduled tasks instead', DEBUG_DEVELOPER);
     }
 
+    /**
+     * Adds assignments to plagiarism_safeassign_assign table when an assignment is created on a course.
+     *
+     * @param object $eventdata
+     * @return boolean
+     */
     public function assign_dbsaver($eventdata) {
         global $DB;
 
@@ -140,12 +146,12 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             return false;
         }
 
-        // Call the course saver
+        // Call the course saver.
+        $this->safeassign_course_dbsaver($eventdata);
 
         // Let's check that the assignment does not exist previously on db.
         $instanceid = $eventdata['other']['instanceid'];
-        $confirmexists = $DB->get_records('plagiarism_safeassign_assign', ['assignmentid' => $instanceid]);
-        if (!$confirmexists) {
+        if (!$DB->record_exists('plagiarism_safeassign_assign', ['assignmentid' => $instanceid])) {
             // We have to set the object in safeassign_assign table.
             $assignmentdata = new stdClass();
             $assignmentdata->uuid = null;
@@ -153,6 +159,25 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $DB->insert_record('plagiarism_safeassign_assign', $assignmentdata);
         }
         return true;
+    }
+
+    /**
+     * Adds courses to plagiarism_safeassign_course table when a cm is created in that course.
+     *
+     * @param object $eventdata
+     */
+    private function safeassign_course_dbsaver($eventdata) {
+        global $DB;
+
+        // Let's check that the course does not exist previously on db.
+        $courseid = $eventdata['courseid'];
+        if (!$DB->record_exists('plagiarism_safeassign_course', ['courseid' => $courseid])) {
+            // We have to set the object in safeassign_course table.
+            $coursedata = new stdClass();
+            $coursedata->uuid = null;
+            $coursedata->courseid = $courseid;
+            $DB->insert_record('plagiarism_safeassign_course', $coursedata);
+        }
     }
 
     /**

@@ -43,8 +43,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $this->user = $USER;
     }
 
-    public function test_assigndbsaver_new_assignment()
-    {
+    public function test_assigndbsaver_assignments() {
         global $DB;
 
         $this->resetAfterTest(true);
@@ -69,17 +68,66 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
             )
         ));
 
-        $sink = $this->redirectEvents();
-        $event->trigger();
-        $result = $sink->get_events();
-        $event = reset($result);
-        $sink->close();
-
         plagiarism_safeassign_observer::course_module_created($event);
 
-        $confirmdb = $DB->get_record('plagiarism_safeassign_assign', array('assignmentid'=>$instance->id));
+        $confirmdbassign = $DB->get_record('plagiarism_safeassign_assign', array('assignmentid' => $instance->id));
+        $confirmdbcourse = $DB->get_record('plagiarism_safeassign_course', array('courseid' => $course1->id));
 
-        $this->assertEquals($instance->id, $confirmdb->assignmentid);
+        $this->assertEquals($instance->id, $confirmdbassign->assignmentid);
+        $this->assertEquals($course1->id, $confirmdbcourse->courseid);
+
+        // Now let's add a second assign on the same course and see that course records are not being duplicated.
+        $instance2 = $generator->create_instance(array('course' => $course1->id));
+        $cm2 = get_coursemodule_from_instance('assign', $instance2->id);
+        $modcontext2 = context_module::instance($instance2->cmid);
+
+        $event2 = \core\event\course_module_created::create(array(
+            'courseid' => $course1->id,
+            'context'  => $modcontext2,
+            'objectid' => $cm2->id,
+            'other'    => array(
+                'modulename' => 'assign',
+                'name'       => 'My second assignment',
+                'instanceid' => $instance2->id
+            )
+        ));
+
+        plagiarism_safeassign_observer::course_module_created($event2);
+
+        $confirmdbassign2 = $DB->get_record('plagiarism_safeassign_assign', array('assignmentid' => $instance2->id));
+        $confirmdbcourse2 = $DB->count_records('plagiarism_safeassign_course', array('courseid' => $course1->id));
+
+        $this->assertEquals($instance2->id, $confirmdbassign2->assignmentid);
+        $this->assertEquals(1, $confirmdbcourse2);
+
+        // Now let's add a third assign on a different course and check that course records are being saved.
+
+        $course2 = $this->getDataGenerator()->create_course();
+
+        $instance3 = $generator->create_instance(array('course' => $course2->id));
+        $cm3 = get_coursemodule_from_instance('assign', $instance3->id);
+        $modcontext3 = context_module::instance($instance3->cmid);
+
+        $event3 = \core\event\course_module_created::create(array(
+            'courseid' => $course2->id,
+            'context'  => $modcontext3,
+            'objectid' => $cm3->id,
+            'other'    => array(
+                'modulename' => 'assign',
+                'name'       => 'My third assignment',
+                'instanceid' => $instance3->id
+            )
+        ));
+
+        plagiarism_safeassign_observer::course_module_created($event3);
+
+        $confirmdbassign3 = $DB->get_record('plagiarism_safeassign_assign', array('assignmentid' => $instance3->id));
+        $confirmdbcourse3 = $DB->get_record('plagiarism_safeassign_course', array('courseid' => $course2->id));
+
+        $this->assertEquals($instance3->id, $confirmdbassign3->assignmentid);
+        $this->assertEquals($course2->id, $confirmdbcourse3->courseid);
+        $this->assertEquals(3, $DB->count_records('plagiarism_safeassign_assign'));
+        $this->assertEquals(2, $DB->count_records('plagiarism_safeassign_course'));
     }
 
     /**
