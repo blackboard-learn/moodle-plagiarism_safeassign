@@ -1,4 +1,12 @@
 #page-admin-plagiarism-safeassign-settings input[type="text"]:not(#id_safeassign_curlcache_number),
 #page-admin-plagiarism-safeassign-settings #id_safeassign_timezone {
-    width:21em;
+    width: 21em;
+}
+
+#page-admin-plagiarism-safeassign-settings #instructor_credentials p, #student_credentials p {
+    display: inline-block;
+}
+
+#page-admin-plagiarism-safeassign-settings .modal-footer {
+    display: none;
 }

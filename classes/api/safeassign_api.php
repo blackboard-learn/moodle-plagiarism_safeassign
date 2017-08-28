@@ -183,12 +183,35 @@ abstract class safeassign_api {
      * @return bool|mixed
      */
     public static function get_course($userid, $courseid) {
-        $baseurl  = get_config(self::PLUGIN, 'safeassign_api');
+        $baseurl = get_config(self::PLUGIN, 'safeassign_api');
         if (empty($baseurl)) {
             return false;
         }
-        $url = new \moodle_url($baseurl.'/api/v1/courses', array('id' => $courseid));
+        $url = new \moodle_url($baseurl . '/api/v1/courses', array('id' => $courseid));
 
         return self::generic_getcall($url->out(), $userid, true);
+    }
+
+    /**
+     * Test the given credentials
+     * @param int $userid
+     * @param string $username
+     * @param string $password
+     * @param string $baseurl
+     * @return bool
+     */
+    public static function test_credentials($userid, $username, $password, $baseurl) {
+
+        global $DB;
+        if (!defined('SAFEASSIGN_OMIT_CACHE')) {
+            define('SAFEASSIGN_OMIT_CACHE', true);
+        }
+        $firstname = $DB->get_field('user', 'firstname', array('id' => $userid));
+        $lastname = $DB->get_field('user', 'lastname', array('id' => $userid));
+        $url = new \moodle_url($baseurl . '/api/v1/tokens?grant_type=client_credentials', array('user_id' => $userid,
+            'user_firstname' => $firstname, 'user_lastname' => $lastname));
+        $result = rest_provider::instance()->post_withauth($url->out(false), $username, $password, array(), array());
+        return $result;
+
     }
 }

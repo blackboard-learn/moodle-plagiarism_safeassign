@@ -40,6 +40,9 @@ $PAGE->requires->css('/plagiarism/safeassign/styles.css');
 if ($mform->is_cancelled()) {
     redirect(new moodle_url('/plagiarism/safeassign/settings.php'));
 }
+$PAGE->requires->strings_for_js(array('test_credentials'),
+    'plagiarism_safeassign');
+$PAGE->requires->js_call_amd('plagiarism_safeassign/settings', 'init');
 
 echo $OUTPUT->header();
 

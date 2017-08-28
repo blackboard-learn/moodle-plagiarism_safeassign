@@ -1,0 +1,49 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template plagiarism_safeassign/modal
+
+    Moodle modal template for SafeAssign test credentials function.
+
+    The purpose of this template is to render a modal
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Context variables required for this template:
+    * title A localized string.
+    * body HTML content for the body
+
+    Example context (json):
+    {
+        "title": "Example modal",
+        "body": "Some example content for the body",
+    }
+}}
+
+<div data-region="displaytemplate">
+    <p data-region="displaytemplateheader">{{#str}}safeassing_response_header, plagiarism_safeassign{{/str}}</p>
+    <div id="instructor_credentials" class="alert alert-warning alert-block fade in">
+        <p>{{#str}}safeassign_instructor_credentials, plagiarism_safeassign{{/str}}</p> <p id="instructor_result">...</p>
+    </div>
+    <div id="student_credentials" class="alert alert-warning alert-block fade in">
+         <p>{{#str}}safeassign_student_credentials, plagiarism_safeassign{{/str}}</p> <p id="student_result">...</p>
+    </div>
+</div>
