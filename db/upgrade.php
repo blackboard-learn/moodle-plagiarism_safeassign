@@ -160,6 +160,7 @@ function xmldb_plagiarism_safeassign_upgrade($oldversion) {
 
         // Define field deprecated to be added to plagiarism_safeassign_subm.
         $table = new xmldb_table('plagiarism_safeassign_subm');
+        $fields = [];
         $fields[] = new xmldb_field('deprecated', XMLDB_TYPE_INTEGER, '1', null, null, null, null, 'submissionid');
         $fields[] = new xmldb_field('hasfile', XMLDB_TYPE_INTEGER, '1', null, null, null, null, 'deprecated');
         $fields[] = new xmldb_field('hasonlinetext', XMLDB_TYPE_INTEGER, '1', null, null, null, null, 'hasfile');
