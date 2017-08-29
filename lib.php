@@ -86,6 +86,23 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     }
 
     /**
+     * Retrieve submission information and results.
+     * @param int $submid submission ID.
+     * @return bool|\stdClass submission object, False if not found.
+     */
+    public function get_submission_results($submid) {
+        global $DB;
+        $submquery="SELECT *
+                      FROM {plagiarism_safeassign_subm}
+                     WHERE submissionid = ? AND deprecated != 1";
+        $subminfo = $DB->get_record_sql($submquery, array($submid));
+        if (!empty($subminfo)) {
+            return $subminfo;
+        }
+        return false;
+    }
+
+    /**
      * hook to add plagiarism specific settings to a module settings page
      * @param object $mform  - Moodle form
      * @param object $context - current context
