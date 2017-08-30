@@ -61,9 +61,14 @@ abstract class safeassign_api {
         $firstname = $DB->get_field('user', 'firstname', array('id' => $userid));
         $lastname = $DB->get_field('user', 'lastname', array('id' => $userid));
 
-        $url = sprintf('%s/api/v1/tokens?grant_type=client_credentials&user_id=%s&user_firstname=%s&user_lastname=%s',
-            $baseurl, $userid, urlencode($firstname), urlencode($lastname));
-        $result = rest_provider::instance()->post_withauth($url, $username, $password, array(), array());
+        $url = new \moodle_url($baseurl . '/api/v1/tokens', array(
+            'grant_type' => 'client_credentials',
+            'user_id' => urlencode($userid),
+            'user_firstname' => urlencode($firstname),
+            'user_lastname' => urlencode($lastname)
+        ));
+
+        $result = rest_provider::instance()->post_withauth($url->out(false), $username, $password, array(), array());
         if ($result) {
             $data = json_decode(rest_provider::instance()->lastresponse());
             $result = (!is_null($data) && isset($data->access_token));
@@ -79,7 +84,7 @@ abstract class safeassign_api {
     }
 
     /**
-     * Gets the credentials for logging into the SafeAssign API
+     * Gets the credentials for logging into the SafeAssign API.
      * @param bool $isinstructor
      * @return array
      */
@@ -94,6 +99,7 @@ abstract class safeassign_api {
     }
 
     /**
+     * Generic http get call.
      * @param string $url
      * @param int $userid
      * @param bool $isinstructor
@@ -122,7 +128,7 @@ abstract class safeassign_api {
     }
 
     /**
-     * Generic http post call
+     * Generic http post call.
      * @param string $url
      * @param int $userid
      * @param string $postdata
@@ -152,6 +158,101 @@ abstract class safeassign_api {
         return $result;
     }
 
+
+    /**
+     * Generic http put call.
+     * @param string $url
+     * @param int $userid
+     * @param bool $isinstructor
+     * @return bool|mixed
+     */
+    protected static function generic_putcall($url, $userid, $isinstructor = false) {
+        if (empty($url)) {
+            return false;
+        }
+
+        if (!rest_provider::instance()->hastoken($userid)) {
+            if (!self::login($userid, $isinstructor)) {
+                return false;
+            }
+        }
+        $result = rest_provider::instance()->put_withtoken($url, $userid);
+        if ($result) {
+            $data = json_decode(rest_provider::instance()->lastresponse());
+            if ($data === false) {
+                return false;
+            } else if (empty($data) && rest_provider::instance()->lasthttpcode() < 400) {
+                return true;
+            }
+            $result = $data;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Generic http delete call.
+     * @param string $url
+     * @param int $userid
+     * @param bool $isinstructor
+     * @return bool|mixed
+     */
+    protected static function generic_deletecall($url, $userid, $isinstructor = false) {
+        if (empty($url)) {
+            return false;
+        }
+
+        if (!rest_provider::instance()->hastoken($userid)) {
+            if (!self::login($userid, $isinstructor)) {
+                return false;
+            }
+        }
+        $result = rest_provider::instance()->delete_withtoken($url, $userid);
+        if ($result) {
+            $data = json_decode(rest_provider::instance()->lastresponse());
+            if ($data === false) {
+                return false;
+            } else if (empty($data) && rest_provider::instance()->lasthttpcode() < 400) {
+                return true;
+            }
+            $result = $data;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Puts an instructor to a course inside SafeAssign.
+     * @param int $userid
+     * @param int $courseuuid
+     * @return bool|mixed|null
+     */
+    public static function put_instructor_to_course($userid, $courseuuid) {
+
+        $baseurl = get_config(self::PLUGIN, 'safeassign_api');
+
+        if (empty($baseurl)) {
+            return false;
+        }
+        $url = new \moodle_url($baseurl . '/api/v1/courses/' . $courseuuid . '/members');
+        return self::generic_putcall($url->out(false), $userid, true);
+    }
+
+    /**
+     * Deletes an instructor from a course inside SafeAssign.
+     * @param int $userid
+     * @param int $courseuuid
+     * @return bool|mixed|null
+     */
+    public static function delete_instructor_from_course($userid, $courseuuid) {
+        $baseurl = get_config(self::PLUGIN, 'safeassign_api');
+        if (empty($baseurl)) {
+            return false;
+        }
+        $url = new \moodle_url($baseurl . '/api/v1/courses/' . $courseuuid . '/members');
+        return self::generic_deletecall($url->out(false), $userid, true);
+    }
+
     /**
      * Creates a course in SafeAssign.
      *
@@ -166,13 +267,11 @@ abstract class safeassign_api {
             return false;
         }
         $url = new \moodle_url($baseurl.'/api/v1/courses');
-
         $postparams = array(
             'id' => $courseid,
             'title' => $course->fullname
         );
-
-        return self::generic_postcall($url->out(), $userid, json_encode($postparams), true);
+        return self::generic_postcall($url->out(false), $userid, json_encode($postparams), true);
     }
 
     /**
@@ -188,12 +287,12 @@ abstract class safeassign_api {
             return false;
         }
         $url = new \moodle_url($baseurl . '/api/v1/courses', array('id' => $courseid));
-
-        return self::generic_getcall($url->out(), $userid, true);
+        return self::generic_getcall($url->out(false), $userid, true);
     }
 
+
     /**
-     * Test the given credentials
+     * Test the given credentials.
      * @param int $userid
      * @param string $username
      * @param string $password
@@ -213,5 +312,44 @@ abstract class safeassign_api {
         $result = rest_provider::instance()->post_withauth($url->out(false), $username, $password, array(), array());
         return $result;
 
+    }
+
+    /**
+     * Creates an assignment inside SafeAssign.
+     * @param $userid
+     * @param $courseuuid
+     * @param $assignmentid
+     * @param $assignmenttitle
+     * @return bool|mixed
+     */
+    public static function create_assignment($userid, $courseuuid, $assignmentid, $assignmenttitle) {
+        $baseurl = get_config(self::PLUGIN, 'safeassign_api');
+        if (empty($baseurl)) {
+            return false;
+        }
+        $url = new \moodle_url($baseurl . '/api/v1/courses/' . $courseuuid . '/assignments');
+        $postparams = array(
+            'id' => $assignmentid,
+            'title' => $assignmenttitle
+        );
+        $postdata = json_encode($postparams);
+        return self::generic_postcall($url->out(false), $userid, $postdata, true);
+    }
+
+    /**
+     * Check if the assignment exists inside SafeAssign.
+     * @param $userid
+     * @param $courseuuid
+     * @param $assignmentid
+     * @return bool|mixed
+     */
+    public static function check_assignment($userid, $courseuuid, $assignmentid) {
+        $baseurl = get_config(self::PLUGIN, 'safeassign_api');
+        if (empty($baseurl)) {
+            return false;
+        }
+        $url = new \moodle_url($baseurl . '/api/v1/courses/' . $courseuuid . '/assignments', array('id' => $assignmentid));
+        $result = self::generic_getcall($url->out(false), $userid, true);
+        return $result;
     }
 }

@@ -41,6 +41,12 @@ abstract class testhelper {
     protected static $fixturestash = [];
 
     /**
+     * Save the codes stash
+     * @var array
+     */
+    protected static $codestash = [];
+
+    /**
      * @param  string $rpath
      * @param  string $name
      * @return null|string
@@ -74,12 +80,22 @@ abstract class testhelper {
     }
 
     /**
+     * @param $url
+     * @return int
+     */
+    public static function get_code_data($url) {
+        return self::$codestash[$url];
+    }
+    
+    /**
      * @param string $url
      * @param string $filename
+     * @param int $httpcode
      * @return void
      */
-    public static function push_pair($url, $filename) {
+    public static function push_pair($url, $filename, $httpcode = 200) {
         self::$fixturestash[$url] = $filename;
+        self::$codestash[$url] = $httpcode;
     }
 
     /**
@@ -98,6 +114,7 @@ abstract class testhelper {
      */
     public static function reset_stash() {
         self::$fixturestash = [];
+        self::$codestash = [];
     }
 
 }

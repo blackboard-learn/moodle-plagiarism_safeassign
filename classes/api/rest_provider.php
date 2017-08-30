@@ -233,11 +233,25 @@ class rest_provider {
         $curlopts = $this->getopts($fullopts);
         if (!defined('SAFEASSIGN_OMIT_CACHE') && $ret = $this->cache->get($url)) {
             $this->rawresponse = $ret;
+            if (PHPUNIT_TEST) {
+                $this->lasthttpcode = testhelper::get_code_data($url);
+                if ($this->lasthttpcode >= 400) {
+                    return false;
+                }
+            }
             return true;
+        } else if (PHPUNIT_TEST) {
+            $this->lasthttpcode = testhelper::get_code_data($url);
+            if ($this->lasthttpcode >= 400) {
+                return false;
+            } else {
+                return true;
+            }
         }
 
+
         $response = null;
-        $curl = new \curl();
+        $curl = new safeassign_curl();
         switch($method) {
             case self::HTTP_GET:
                 $response = $curl->get($url, null, $curlopts);
@@ -245,6 +259,12 @@ class rest_provider {
             case self::HTTP_POST:
                 $params = !empty($curlopts['CURLOPT_POSTFIELDS']) ? $curlopts['CURLOPT_POSTFIELDS'] : '';
                 $response = $curl->post($url, $params, $curlopts);
+                break;
+            case self::HTTP_PUT:
+                $response = $curl->put($url, null, $curlopts);
+                break;
+            case self::HTTP_DELETE:
+                $response = $curl->delete($url, null, $curlopts);
                 break;
         }
 
@@ -484,6 +504,32 @@ class rest_provider {
 
     /**
      * @param string $url
+     * @param array $custheaders
+     * @param array $options
+     * @return mixed
+     * @throws curlerror_exception
+     * @throws norequestmethod_exception
+     * @throws nourl_exception
+     */
+    public function put($url, array $custheaders = array(), array $options = array()) {
+        return $this->request($url, self::HTTP_PUT, $custheaders, $options);
+    }
+
+    /**
+     * @param string $url
+     * @param array $custheaders
+     * @param array $options
+     * @return mixed
+     * @throws curlerror_exception
+     * @throws norequestmethod_exception
+     * @throws nourl_exception
+     */
+    public function delete($url, array $custheaders = array(), array $options = array()) {
+        return $this->request($url, self::HTTP_DELETE, $custheaders, $options);
+    }
+
+    /**
+     * @param string $url
      * @param int $userid
      * @param string $method
      * @param array $custheaders
@@ -548,6 +594,28 @@ class rest_provider {
         }
 
         return $this->request_withtoken($url, $userid, self::HTTP_POST, $custheaders, $options);
+    }
+
+    /**
+     * @param string $url
+     * @param int $userid
+     * @param array $custheaders
+     * @param array $options
+     * @return mixed
+     */
+    public function put_withtoken($url, $userid,  array $custheaders = array(), array $options = array()) {
+        return $this->request_withtoken($url, $userid, self::HTTP_PUT, $custheaders, $options);
+    }
+
+    /**
+     * @param string $url
+     * @param int $userid
+     * @param array $custheaders
+     * @param array $options
+     * @return mixed
+     */
+    public function delete_withtoken($url, $userid,  array $custheaders = array(), array $options = array()) {
+        return $this->request_withtoken($url, $userid, self::HTTP_DELETE, $custheaders, $options);
     }
 
     /**

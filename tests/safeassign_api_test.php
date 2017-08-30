@@ -20,6 +20,7 @@ require_once(__DIR__.'/base.php');
 
 use plagiarism_safeassign\api\safeassign_api;
 use plagiarism_safeassign\api\testhelper;
+use plagiarism_safeassign\api\rest_provider;
 
 /**
  * Class plagiarism_safeassign_safeassign_api_testcase
@@ -78,6 +79,42 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
         testhelper::push_pair($loginurl, $filename);
         $result = safeassign_api::login($this->user->id);
         return $result;
+    }
+
+    /**
+     * Creates an url to put/delete an instructor to/from the course with the given uuid.
+     * @param $courseuuid
+     * @return string
+     */
+    private function create_put_delete_instructor_url($courseuuid) {
+        $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
+        $courseurl = '%s/api/v1/courses/%s/members';
+        $courseurl = sprintf($courseurl, $baseapiurl, $courseuuid);
+        return $courseurl;
+    }
+
+    /**
+     * Creates an url to create an assignment in a course.
+     * @param $courseuuid
+     * @return string
+     */
+    private function create_assignment_url($courseuuid) {
+        $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
+        $assignmenturl = '%s/api/v1/courses/%s/assignments';
+        $assignmenturl = sprintf($assignmenturl, $baseapiurl, $courseuuid);
+        return $assignmenturl;
+    }
+
+    /**
+     * Creates an assignment for testing.
+     * @return stdClass
+     */
+    private function create_assignment() {
+        $assignment = new stdClass();
+        $assignment->id = "1234567890";
+        $assignment->title = "Test assignment for creation";
+
+        return $assignment;
     }
 
     /**
@@ -165,6 +202,219 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
         $result = safeassign_api::get_course($this->user->id, $course->id);
         $this->assertTrue(empty($result->uuid));
         $this->assertTrue(!empty($result->ERROR_ID) && !empty($result->ERROR_CODE));
+    }
+
+    /**
+     * @return void
+     */
+    public function test_put_delete_instructor_to_course_ok() {
+        $this->resetAfterTest(true);
+        $this->config_set_ok();
+
+        // Login to Safe Assign.
+        $this->attempt_login('user-login-final.json');
+        $course = $this->getDataGenerator()->create_course([
+            'fullname' => 'AwesomeCourse'
+        ]);
+        // Create a course.
+        // Push fixtures as cached responses.
+        $courseurl = $this->create_course_url();
+        testhelper::push_pair($courseurl, 'create-course-final.json');
+        $result = safeassign_api::create_course($this->user->id, $course->id);
+        $this->assertNotEmpty($result->uuid);
+        $courseuuid = $result->uuid;
+
+        // Put instructor to created course.
+        // Push fixtures for put-delete as cached responses.
+        $putdeleteinstructorurl = $this->create_put_delete_instructor_url($courseuuid);
+        testhelper::push_pair($putdeleteinstructorurl, 'put-delete-instructor-ok.json');
+
+        // Test for adding instructor to course.
+        $result = safeassign_api::put_instructor_to_course($this->user->id, $courseuuid);
+        $this->assertTrue($result);
+        $httpcode = rest_provider::instance()->lasthttpcode();
+        $this->assertEquals($httpcode, 200);
+
+        // Test for deleting instructor from course.
+        $result = safeassign_api::delete_instructor_from_course($this->user->id, $courseuuid);
+        $this->assertTrue($result);
+        $httpcode = rest_provider::instance()->lasthttpcode();
+        $this->assertEquals($httpcode, 200);
+    }
+
+    /**
+     * @return void
+     */
+    public function test_put_instructor_to_course_fail_wrong_token() {
+        $this->resetAfterTest(true);
+        $this->config_set_ok();
+
+        // Login to Safe Assign.
+        $this->attempt_login('user-login-final.json');
+        $course = $this->getDataGenerator()->create_course([
+            'fullname' => 'AwesomeCourse'
+        ]);
+        // Create a course.
+        // Push fixtures as cached responses.
+        $courseurl = $this->create_course_url();
+        testhelper::push_pair($courseurl, 'create-course-final.json');
+        $result = safeassign_api::create_course($this->user->id, $course->id);
+        $this->assertNotEmpty($result->uuid);
+        $courseuuid = $result->uuid;
+
+        // Put instructor to created course.
+        // Push fixtures for put-delete as cached responses.
+        $putdeleteinstructorurl = $this->create_put_delete_instructor_url($courseuuid);
+        testhelper::push_pair($putdeleteinstructorurl, 'put-delete-instructor-fail-wrong-token.json', 401);
+
+        // Test for put intructor to course.
+        $result = safeassign_api::put_instructor_to_course($this->user->id, $courseuuid);
+        $this->assertFalse($result);
+        $httpcode = rest_provider::instance()->lasthttpcode();
+        $this->assertTrue($httpcode >= 400);
+
+        // Test for deleting instructor from course.
+        $result = safeassign_api::delete_instructor_from_course($this->user->id, $courseuuid);
+        $this->assertFalse($result);
+        $httpcode = rest_provider::instance()->lasthttpcode();
+        $this->assertTrue($httpcode >= 400);
+    }
+
+    /**
+     * @return void
+     */
+    public function test_create_assignment_ok() {
+        $this->resetAfterTest(true);
+        $this->config_set_ok();
+
+        // Login to Safe Assign.
+        $this->attempt_login('user-login-final.json');
+        $course = $this->getDataGenerator()->create_course([
+            'fullname' => 'AwesomeCourse'
+        ]);
+        // Create a course.
+        // Push fixtures as cached responses.
+        $courseurl = $this->create_course_url();
+        testhelper::push_pair($courseurl, 'create-course-final.json');
+        $result = safeassign_api::create_course($this->user->id, $course->id);
+        $this->assertNotEmpty($result->uuid);
+        $courseuuid = $result->uuid;
+
+        // Create an assignment.
+        $assignment = self::create_assignment();
+
+        // Push fixture for assignment creation.
+        $assignmenturl = $this->create_assignment_url($courseuuid);
+        testhelper::push_pair($assignmenturl, 'create-assignment-ok.json');
+        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->id, $assignment->title);
+        $this->assertTrue(!empty($result->id) && !empty($result->uuid) && !empty($result->title));
+        $this->assertEquals(rest_provider::instance()->lasthttpcode(), 200);
+    }
+
+    /**
+     * @return void
+     */
+    public function test_create_assignment_fail() {
+        $this->resetAfterTest(true);
+        $this->config_set_ok();
+
+        // Login to Safe Assign.
+        $this->attempt_login('user-login-final.json');
+        $course = $this->getDataGenerator()->create_course([
+            'fullname' => 'AwesomeCourse'
+        ]);
+        // Create a course.
+        // Push fixtures as cached responses.
+        $courseurl = $this->create_course_url();
+        testhelper::push_pair($courseurl, 'create-course-final.json');
+        $result = safeassign_api::create_course($this->user->id, $course->id);
+        $this->assertNotEmpty($result->uuid);
+        $courseuuid = $result->uuid;
+
+        // Create an assignment.
+        $assignment = self::create_assignment();
+
+        // Push fixture for assignment creation.
+        $assignmenturl = $this->create_assignment_url($courseuuid);
+        testhelper::push_pair($assignmenturl, 'create-assignment-fail.json', 401);
+        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->id, $assignment->title);
+        $this->assertFalse($result);
+        $this->assertTrue(rest_provider::instance()->lasthttpcode() >= 400);
+    }
+
+
+    /**
+     * @return void
+     */
+    public function test_check_assignment_ok() {
+        $this->resetAfterTest(true);
+        $this->config_set_ok();
+
+        // Login to Safe Assign.
+        $this->attempt_login('user-login-final.json');
+        $course = $this->getDataGenerator()->create_course([
+            'fullname' => 'AwesomeCourse'
+        ]);
+        // Create a course.
+        // Push fixtures as cached responses.
+        $courseurl = $this->create_course_url();
+        testhelper::push_pair($courseurl, 'create-course-final.json');
+        $result = safeassign_api::create_course($this->user->id, $course->id);
+        $this->assertNotEmpty($result->uuid);
+        $courseuuid = $result->uuid;
+        // Create an assignment.
+        $assignment = self::create_assignment();
+
+        // Push fixture for assignment creation.
+        $assignmenturl = $this->create_assignment_url($courseuuid);
+        testhelper::push_pair($assignmenturl, 'create-assignment-ok.json');
+        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->id, $assignment->title);
+        $this->assertTrue(!empty($result->id) && !empty($result->uuid) && !empty($result->title));
+
+        // Check created assignment.
+        $assignmentid = $result->id;
+        $assignurl = $this->create_assignment_url($courseuuid, $assignmentid);
+        testhelper::push_pair($assignurl . '?id=' . $assignment->id, "create-assignment-ok.json");
+        $result = safeassign_api::check_assignment($this->user->id, $courseuuid, $assignment->id);
+        $this->assertTrue(!empty($result->id) && !empty($result->uuid) && !empty($result->title));
+        $this->assertEquals(rest_provider::instance()->lasthttpcode(), 200);
+    }
+
+    /**
+     * @return void
+     */
+    public function test_check_assignment_fail() {
+        $this->resetAfterTest(true);
+        $this->config_set_ok();
+
+        // Login to Safe Assign.
+        $this->attempt_login('user-login-final.json');
+        $course = $this->getDataGenerator()->create_course([
+            'fullname' => 'AwesomeCourse'
+        ]);
+        // Create a course.
+        // Push fixtures as cached responses.
+        $courseurl = $this->create_course_url();
+        testhelper::push_pair($courseurl, 'create-course-final.json');
+        $result = safeassign_api::create_course($this->user->id, $course->id);
+        $this->assertNotEmpty($result->uuid);
+        $courseuuid = $result->uuid;
+
+        // Create an assignment.
+        $assignment = self::create_assignment();
+        // Push fixture for assignment creation.
+        $assignmenturl = $this->create_assignment_url($courseuuid);
+        testhelper::push_pair($assignmenturl, 'create-assignment-ok.json');
+        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->id, $assignment->title);
+        $this->assertTrue(!empty($result->id) && !empty($result->uuid) && !empty($result->title));
+
+        // Check created assignment.
+        $assignmentid = $result->id;
+        $assignurl = $this->create_assignment_url($courseuuid);
+        testhelper::push_pair($assignurl . '?id=' . $assignment->id, "create-assignment-fail.json", 401);
+        $result = safeassign_api::check_assignment($this->user->id, $courseuuid, $assignment->id);
+        $this->assertFalse($result);
+        $this->assertTrue(rest_provider::instance()->lasthttpcode() >= 400);
     }
 
 }
