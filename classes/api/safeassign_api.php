@@ -53,7 +53,7 @@ abstract class safeassign_api {
         global $DB;
 
         list($username, $password) = self::get_login_credentials($isinstructor);
-        $baseurl  = get_config(self::PLUGIN, 'safeassign_api');
+        $baseurl = get_config(self::PLUGIN, 'safeassign_api');
         if (($username === false) || ($password === false) || ($baseurl === false)) {
             return false;
         }
@@ -93,8 +93,8 @@ abstract class safeassign_api {
         if ($isinstructor) {
             $type = 'instructor';
         }
-        $username = get_config(self::PLUGIN, 'safeassign_'.$type.'_username');
-        $password = get_config(self::PLUGIN, 'safeassign_'.$type.'_password');
+        $username = get_config(self::PLUGIN, 'safeassign_' . $type . '_username');
+        $password = get_config(self::PLUGIN, 'safeassign_' . $type . '_password');
         return array($username, $password);
     }
 
@@ -262,11 +262,11 @@ abstract class safeassign_api {
      */
     public static function create_course($userid, $courseid) {
         $course = get_course($courseid);
-        $baseurl  = get_config(self::PLUGIN, 'safeassign_api');
+        $baseurl = get_config(self::PLUGIN, 'safeassign_api');
         if (empty($baseurl)) {
             return false;
         }
-        $url = new \moodle_url($baseurl.'/api/v1/courses');
+        $url = new \moodle_url($baseurl . '/api/v1/courses');
         $postparams = array(
             'id' => $courseid,
             'title' => $course->fullname
@@ -338,9 +338,9 @@ abstract class safeassign_api {
 
     /**
      * Check if the assignment exists inside SafeAssign.
-     * @param $userid
-     * @param $courseuuid
-     * @param $assignmentid
+     * @param int $userid
+     * @param string $courseuuid
+     * @param string $assignmentid
      * @return bool|mixed
      */
     public static function check_assignment($userid, $courseuuid, $assignmentid) {
@@ -350,6 +350,34 @@ abstract class safeassign_api {
         }
         $url = new \moodle_url($baseurl . '/api/v1/courses/' . $courseuuid . '/assignments', array('id' => $assignmentid));
         $result = self::generic_getcall($url->out(false), $userid, true);
+        return $result;
+    }
+
+    /**
+     * Creates a submission inside SafeAssign
+     * @param int $userid
+     * @param string $courseuuid
+     * @param string $assignmentuuid
+     * @param array $filepaths
+     * @param bool $globalcheck
+     * @param bool $groupsubmission
+     * @return bool
+     */
+    public static function create_submission($userid, $courseuuid, $assignmentuuid,
+                                             array $filepaths, $globalcheck = false, $groupsubmission = false) {
+        $baseurl = get_config(self::PLUGIN, 'safeassign_api');
+        if (empty($baseurl)) {
+            return false;
+        }
+        $url = new \moodle_url($baseurl . '/api/v1/courses/' . $courseuuid . '/assignments/' . $assignmentuuid . '/submissions');
+
+        if (!rest_provider::instance()->hastoken($userid)) {
+            if (!self::login($userid, false)) {
+                return false;
+            }
+        }
+        $result = rest_provider::instance()->post_submission_to_safeassign($userid, $url->out(false),
+            $filepaths, $globalcheck, $groupsubmission);
         return $result;
     }
 }
