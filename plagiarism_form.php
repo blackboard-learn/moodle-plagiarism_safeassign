@@ -72,6 +72,8 @@ class plagiarism_setup_form extends moodleform {
         $mform->addHelpButton('safeassign_curlcache', 'safeassign_curlcache', 'plagiarism_safeassign');
         $mform->addRule('safeassign_curlcache', null, 'required', null, 'client');
         $mform->setType('safeassign_curlcache', PARAM_INT);
+
+        $mform->addElement('html', get_string('safeassign_cachedefault', 'plagiarism_safeassign'));
         $mform->addElement('submit', 'test_credentials', get_string('test_credentials', 'plagiarism_safeassign'), null);
 
 
