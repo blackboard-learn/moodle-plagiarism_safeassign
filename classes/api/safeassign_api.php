@@ -380,4 +380,21 @@ abstract class safeassign_api {
             $filepaths, $globalcheck, $groupsubmission);
         return $result;
     }
+
+    /**
+     * Get the originality report basic data from SafeAssign.
+     * @param int $userid
+     * @param string $submissionuuid
+     * @return bool|mixed
+     */
+    public static function get_originality_report_basic_data($userid, $submissionuuid) {
+        $baseurl = get_config(self::PLUGIN, 'safeassign_api');
+        if (empty($baseurl)) {
+            return false;
+        }
+        $url = new \moodle_url($baseurl . '/api/v1/submissions/' . $submissionuuid . '/report/metadata');
+
+        $result = self::generic_getcall($url->out(false), $userid, true);
+        return $result;
+    }
 }
