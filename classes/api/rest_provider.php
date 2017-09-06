@@ -47,6 +47,14 @@ class rest_provider {
 
     const STR_HTTP     = 'HTTP'; // Raw HTTP response parsing.
 
+    const HEADER_KEY_CONTENT_TYPE = "Content-Type";
+    const HEADER_KEY_ACCEPT = "Accept";
+    const HEADER_KEY_AUTHORIZATION = "Authorization";
+    const HEADER_KEY_CONTENT_LENGTH = "Content-length";
+
+    const HEADER_VAL_MULTIPART_FORM = "multipart/form-data";
+    const HEADER_VAL_APP_JSON = "Application/json";
+
     /**
      * @var null|rest_provider
      */
@@ -724,4 +732,105 @@ class rest_provider {
     public function lasthttpcode() {
         return $this->lasthttpcode;
     }
+
+    /**
+     * Post a submission to SafeAssign using curl
+     * @param int $userid
+     * @param string $url
+     * @param array $filenames
+     * @param bool $globalcheck
+     * @param bool $groupsubmission
+     * @return bool|mixed
+     */
+    public function post_submission_to_safeassign($userid, $url, array $filenames, $globalcheck = false, $groupsubmission = false) {
+
+        if (PHPUNIT_TEST) {
+            $this->lasthttpcode = testhelper::get_code_data($url);
+            if ($this->lasthttpcode >= 400) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        $fields = array(
+            "attributes" => json_encode(
+                array(
+                    "global_check" => ($globalcheck == "" ? "false" : "true"),
+                    "group_submission" => ($groupsubmission == "" ? "false" : "true")
+                )
+            )
+        );
+
+        $files = array();
+        foreach ($filenames as $f) {
+            $files[$f] = file_get_contents($f);
+        }
+
+        $boundary = uniqid();
+        $delimiter = '-------------' . $boundary;
+        $postdata = $this->build_data_files($boundary, $fields, $files);
+        $postlength = strlen($postdata);
+
+        $headers[self::HEADER_KEY_CONTENT_TYPE] = self::HEADER_VAL_MULTIPART_FORM . '; boundary=' . $delimiter;
+        $headers[self::HEADER_KEY_ACCEPT] = self::HEADER_VAL_APP_JSON;
+        $headers[self::HEADER_KEY_AUTHORIZATION] = "Bearer " . $this->gettoken($userid);
+        $headers[self::HEADER_KEY_CONTENT_LENGTH] = $postlength;
+
+        $headersstring = array();
+        foreach ($headers as $k => $v) {
+            array_push($headersstring, $k . ": " . $v);
+        }
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLINFO_HEADER_OUT, false);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headersstring);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_FILETIME, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_SAFE_UPLOAD, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
+
+        $serveroutput = curl_exec ($ch);
+        $this->lasthttpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close ($ch);
+        $this->rawresponse = $serveroutput;
+
+        return !($this->lasthttpcode() >= 400);
+    }
+
+    /**
+     * Transforms an array of files and fields into text to send through curl.
+     * @param string $boundary
+     * @param array $fields
+     * @param array $files
+     * @return string
+     */
+    private function build_data_files($boundary, array $fields, array $files) {
+        $data = '';
+        $eol = "\r\n";
+        $delimiter = '-------------' . $boundary;
+
+        foreach ($fields as $name => $content) {
+            $data .= "--" . $delimiter . $eol
+                . 'Content-Disposition: form-data; name="' . $name . "\"".$eol.$eol
+                . $content . $eol;
+        }
+
+        foreach ($files as $name => $content) {
+            $data .= "--" . $delimiter . $eol
+                . 'Content-Disposition: form-data; name="files"; filename="' . $name . '"' . $eol
+                . 'Content-Transfer-Encoding: binary'.$eol;
+            $data .= $eol;
+            $data .= $content . $eol;
+        }
+        $data .= "--" . $delimiter . "--".$eol;
+
+        return $data;
+    }
+
 }

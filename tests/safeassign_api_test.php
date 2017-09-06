@@ -106,6 +106,19 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
     }
 
     /**
+     * Creates an url to create a submission in an assignment
+     * @param string $courseuuid
+     * @param string $assignmentuuid
+     * @return string
+     */
+    private function create_submission_url($courseuuid, $assignmentuuid) {
+        $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
+        $submissionurl = '%s/api/v1/courses/%s/assignments/%s/submissions';
+        $submissionurl = sprintf($submissionurl, $baseapiurl, $courseuuid, $assignmentuuid);
+        return $submissionurl;
+    }
+
+    /**
      * Creates an assignment for testing.
      * @return stdClass
      */
@@ -416,5 +429,84 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
         $this->assertFalse($result);
         $this->assertTrue(rest_provider::instance()->lasthttpcode() >= 400);
     }
+
+    /**
+     * @return void
+     */
+    public function test_create_submission_ok() {
+        $this->resetAfterTest(true);
+        $this->config_set_ok();
+
+        // Login to Safe Assign.
+        $this->attempt_login('user-login-final.json');
+        $course = $this->getDataGenerator()->create_course([
+            'fullname' => 'AwesomeCourse'
+        ]);
+        // Create a course.
+        // Push fixtures as cached responses.
+        $courseurl = $this->create_course_url();
+        testhelper::push_pair($courseurl, 'create-course-final.json');
+        $result = safeassign_api::create_course($this->user->id, $course->id);
+        $this->assertNotEmpty($result->uuid);
+        $courseuuid = $result->uuid;
+
+        // Create an assignment.
+        $assignment = self::create_assignment();
+        // Push fixture for assignment creation.
+        $assignmenturl = $this->create_assignment_url($courseuuid);
+        testhelper::push_pair($assignmenturl, 'create-assignment-ok.json');
+        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->id, $assignment->title);
+        $this->assertNotEmpty($result->uuid);
+        $assignmentuuid = $result->uuid;
+
+        // Push fixture for submission creation.
+        $submissionurl = $this->create_submission_url($courseuuid, $assignmentuuid);
+        testhelper::push_pair($submissionurl, 'create-submission-ok.json');
+        // Create a submission with an array of files for an assignment.
+        $filepaths = array('/path/file1.txt', '/path/file2.txt', '/path/file3.json', '/path/file4.zip', '/path/file5.pdf');
+        $result = safeassign_api::create_submission($this->user->id, $courseuuid, $assignmentuuid, $filepaths, false, false);
+        $this->assertTrue($result);
+        $this->assertEquals(rest_provider::instance()->lasthttpcode(), 200);
+    }
+
+    /**
+     * @return void
+     */
+    public function test_create_submission_fail() {
+        $this->resetAfterTest(true);
+        $this->config_set_ok();
+
+        // Login to Safe Assign.
+        $this->attempt_login('user-login-final.json');
+        $course = $this->getDataGenerator()->create_course([
+            'fullname' => 'AwesomeCourse'
+        ]);
+        // Create a course.
+        // Push fixtures as cached responses.
+        $courseurl = $this->create_course_url();
+        testhelper::push_pair($courseurl, 'create-course-final.json');
+        $result = safeassign_api::create_course($this->user->id, $course->id);
+        $this->assertNotEmpty($result->uuid);
+        $courseuuid = $result->uuid;
+
+        // Create an assignment.
+        $assignment = self::create_assignment();
+        // Push fixture for assignment creation.
+        $assignmenturl = $this->create_assignment_url($courseuuid);
+        testhelper::push_pair($assignmenturl, 'create-assignment-ok.json');
+        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->id, $assignment->title);
+        $this->assertNotEmpty($result->uuid);
+        $assignmentuuid = $result->uuid;
+
+        // Push fixture for submission creation.
+        $submissionurl = $this->create_submission_url($courseuuid, $assignmentuuid);
+        testhelper::push_pair($submissionurl, 'create-submission-fail.json', 400);
+        // Create a submission with an array of files for an assignment.
+        $filepaths = array('/path/file1.txt', '/path/file2.txt', '/path/file3.json', '/path/file4.zip', '/path/file5.pdf');
+        $result = safeassign_api::create_submission($this->user->id, $courseuuid, $assignmentuuid, $filepaths, false, false);
+        $this->assertFalse($result);
+        $this->assertTrue(rest_provider::instance()->lasthttpcode() >= 400);
+    }
+
 
 }
