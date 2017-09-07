@@ -39,10 +39,6 @@ $observers = array (
         'callback' => 'plagiarism_safeassign_observer::forum_file_uploaded'
     ),
     array(
-        'eventname' => '\core\event\course_module_created',
-        'callback'  => 'plagiarism_safeassign_observer::course_module_created',
-    ),
-    array(
         'eventname' => '\assignsubmission_onlinetext\event\assessable_uploaded',
         'callback' => 'plagiarism_safeassign_observer::assignsubmission_onlinetext_uploaded'
     )

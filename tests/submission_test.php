@@ -45,10 +45,13 @@ class plagiarism_safeassign_submission_test extends advanced_testcase  {
     /** @var stdClass $data General data for the assignment submission. */
     protected $data;
 
+    const GLOBALCHECK = 1;
+
     /**
      * Setup all the various parts of an assignment activity including creating an onlinetext submission.
      */
     protected function setUp() {
+        global $DB;
         $this->user = $this->getDataGenerator()->create_user();
         $this->course = $this->getDataGenerator()->create_course();
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_assign');
@@ -59,6 +62,17 @@ class plagiarism_safeassign_submission_test extends advanced_testcase  {
         $this->assign = new testable_assign($this->context, $this->cm, $this->course);
         $this->setUser($this->user->id);
         $this->submission = $this->assign->get_user_submission($this->user->id, true);
+        // Enable SafeAssign in the platform.
+        set_config('safeassign_use', 1, 'plagiarism');
+        // Enable SafeAssign in the assignment.
+        $record = new stdClass();
+        $record->cm = $this->cm->id;
+        $record->name = 'safeassign_enabled';
+        $record->value = 1;
+        $DB->insert_record('plagiarism_safeassign_config', $record);
+        $record->name = 'safeassign_global_reference';
+        $record->value = self::GLOBALCHECK;
+        $DB->insert_record('plagiarism_safeassign_config', $record);
     }
 
     /**
@@ -172,7 +186,7 @@ class plagiarism_safeassign_submission_test extends advanced_testcase  {
 
     private function evaluate_safeassign_subm_recor($record, $deprecated) {
         $this->assertNull($record->uuid);
-        $this->assertEquals(0, $record->globalcheck);
+        $this->assertEquals(self::GLOBALCHECK, $record->globalcheck);
         $this->assertEquals(1, $record->groupsubmission);
         $this->assertEquals(0, $record->reportgenerated);
         $this->assertEquals(0, $record->submitted);
