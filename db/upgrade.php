@@ -187,6 +187,21 @@ function xmldb_plagiarism_safeassign_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2017081507, 'plagiarism', 'safeassign');
     }
 
+    if ($oldversion < 2017091107) {
+
+        // Define field instructorid to be added to plagiarism_safeassign_course.
+        $table = new xmldb_table('plagiarism_safeassign_course');
+        $field = new xmldb_field('instructorid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0, 'courseid');
+
+        // Conditionally launch add field instructorid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Safeassign savepoint reached.
+        upgrade_plugin_savepoint(true, 2017091107, 'plagiarism', 'safeassign');
+    }
+
     return true;
 
 }

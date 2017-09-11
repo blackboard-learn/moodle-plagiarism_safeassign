@@ -30,8 +30,10 @@ if (!defined('MOODLE_INTERNAL')) {
 // Get global class.
 global $CFG;
 require_once($CFG->dirroot.'/plagiarism/lib.php');
-
+require_once($CFG->dirroot.'/mod/assign/externallib.php');
 use plagiarism_safeassign\api\safeassign_api;
+use plagiarism_safeassign\api\rest_provider;
+use plagiarism_safeassign\event\sync_content_log;
 use plagiarism_safeassign\event\score_sync_log;
 use plagiarism_safeassign\event\score_sync_fail;
 
@@ -256,7 +258,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      * @param object $eventdata
      */
     private function safeassign_course_dbsaver($eventdata) {
-        global $DB;
+        global $DB, $USER;
 
         // Let's check that the course does not exist previously on db.
         $courseid = $eventdata->courseid;
@@ -265,6 +267,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $coursedata = new stdClass();
             $coursedata->uuid = null;
             $coursedata->courseid = $courseid;
+            $coursedata->instructorid = $USER->id;
             $DB->insert_record('plagiarism_safeassign_course', $coursedata);
         }
     }
@@ -420,8 +423,8 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             }
 
             if ($result) {
-                $convhighscore = floatval($result->highest_score/100);
-                $convavgscore = floatval($result->average_score/100);
+                $convhighscore = floatval($result->highest_score / 100);
+                $convavgscore = floatval($result->average_score / 100);
                 $submission->highscore = $convhighscore;
                 $submission->avgscore = $convavgscore;
                 $submission->reportgenerated = 1;
@@ -434,6 +437,293 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         }
         $event = score_sync_log::create();
         $event->trigger();
+    }
+
+    /**
+     * Gets the courses that already have been synced.
+     *
+     * @returns @array object
+     */
+    public function get_valid_courses() {
+        global $DB;
+
+        $sql = 'SELECT courseid, instructorid
+                  FROM {plagiarism_safeassign_course}
+                 WHERE uuid IS NOT NULL';
+
+        return $DB->get_records_sql($sql, array());
+    }
+
+    /**
+     * Gets the assignments that already have been synced.
+     *
+     * @returns array object
+     */
+    public function get_valid_assignments() {
+        global $DB;
+
+        $sql = 'SELECT *
+                  FROM {plagiarism_safeassign_assign}
+                 WHERE uuid IS NOT NULL';
+
+        return $DB->get_records_sql($sql, array());
+    }
+
+    /**
+     * Syncs the local SafeAssign course table with the identifier from the SafeAssign service.
+     *
+     * @param object array $courses
+     */
+    public function sync_courses($courses) {
+        global $DB;
+        foreach ($courses as $course) {
+            if ($course->instructorid != 0) {
+                $validation = safeassign_api::get_course($course->instructorid, $course->courseid);
+                if ($validation === false) {
+                    $response = safeassign_api::create_course($course->instructorid, $course->courseid);
+                    if ($response) {
+                        $lastresponse = json_decode(rest_provider::instance()->lastresponse());
+                        if (isset($lastresponse->uuid)) {
+                            $course->uuid = $lastresponse->uuid;
+                            $DB->update_record('plagiarism_safeassign_course', $course);
+                            safeassign_api::put_instructor_to_course($course->instructorid, $course->uuid);
+                            continue;
+                        } else {
+                            $event = sync_content_log::create_log_message('Course', $course->courseid);
+                            $event->trigger();
+                        }
+                    }
+                } else if (isset($validation->uuid)) {
+                    $course->uuid = $validation->uuid;
+                    $DB->update_record('plagiarism_safeassign_course', $course);
+                    safeassign_api::put_instructor_to_course($course->instructorid, $course->uuid);
+                } else {
+                    $event = sync_content_log::create_log_message('Course', $course->courseid);
+                    $event->trigger();
+                }
+            }
+        }
+    }
+
+    /**
+     * Syncs the existing assignments. It is necessary that the course have the corresponding uuid.
+     */
+    public function sync_course_assignments() {
+        global $DB;
+        $courses = $this->get_valid_courses();
+        if (!empty($courses)) {
+            foreach ($courses as $course) {
+                $ids[] = $course->courseid;
+            }
+            $sql = "SELECT sa_assign.assignmentid, sa_course.courseid, sa_course.uuid AS courseuuid, a.name AS assignmentname
+                      FROM {assign} a
+                      JOIN {plagiarism_safeassign_assign} sa_assign ON sa_assign.assignmentid = a.id 
+                      JOIN {plagiarism_safeassign_course} sa_course ON sa_course.courseid = a.course 
+                      JOIN {course_modules} cm ON cm.course = a.course
+                      JOIN {modules} m ON m.id = cm.module
+                      JOIN {plagiarism_safeassign_config} sa_config ON sa_config.cm = cm.id 
+                     WHERE sa_assign.uuid IS NULL
+                       AND cm.instance=a.id
+                       AND sa_course.uuid IS NOT NULL
+                       AND sa_config.name = 'safeassign_enabled'
+                       AND sa_config.value = 1
+                       AND m.name = 'assign'
+                       AND a.course ";
+
+            list($sqlin, $params) = $DB->get_in_or_equal($ids);
+            $assignments = $DB->get_records_sql($sql . $sqlin, $params);
+            foreach ($assignments as $assignment) {
+
+                // Check that the assignment does not exits in the SafeAssign database.
+                $validation = safeassign_api::check_assignment($courses[$assignment->courseid]->instructorid, $assignment->courseuuid, $assignment->assignmentid);
+                if ($validation === false) {
+                    $response = safeassign_api::create_assignment($courses[$assignment->courseid]->instructorid,
+                        $assignment->courseuuid, $assignment->assignmentid, $assignment->assignmentname);
+                    if ($response) {
+                        $lastresponse = json_decode(rest_provider::instance()->lastresponse());
+                        if (isset($lastresponse->uuid)) {
+                            $DB->set_field('plagiarism_safeassign_assign', 'uuid', $lastresponse->uuid, array('assignmentid' => $assignment->assignmentid));
+                        }
+                    } else if ($response === false) {
+                        $event = sync_content_log::create_log_message('Assignment', $assignment->assignmentid);
+                        $event->trigger();
+                    }
+                } else if ($validation) {
+                    $lastresponse = json_decode(rest_provider::instance()->lastresponse());
+                    if (isset($lastresponse->uuid)) {
+                        $DB->set_field('plagiarism_safeassign_assign', 'uuid', $lastresponse->uuid, array('assignmentid' => $assignment->assignmentid));
+                    } else {
+                        $event = sync_content_log::create_log_message('Assignment', $assignment->assignmentid);
+                        $event->trigger();
+                    }
+                }
+            }
+            $event = sync_content_log::create_log_message('Assignments', null, false);
+            $event->trigger();
+        }
+    }
+
+    /**
+     * Gets the courseuuid and the assignmentuuid for the given assignments.
+     * @param array $assignments
+     * @return array object
+     */
+    public function get_course_credentials($assignments) {
+        global $DB;
+
+        $sql = "SELECT sa_assign.assignmentid, sa_course.uuid AS courseuuid, sa_assign.uuid AS assignuuid, sa_course.courseid
+                  FROM {plagiarism_safeassign_assign} sa_assign
+                  JOIN {assign} a ON a.id = sa_assign.assignmentid 
+                  JOIN {plagiarism_safeassign_course} sa_course ON sa_course.courseid = a.course
+                 WHERE sa_assign.assignmentid ";
+        $params = array();
+        list($sqlin, $params) = $DB->get_in_or_equal($assignments);
+        return $DB->get_records_sql($sql . $sqlin, $params);
+    }
+
+    /**
+     * Returns the submissions that needs to be synced.
+     * @return array object
+     */
+    public function get_unsynced_submissions() {
+        global $DB;
+
+        $sql = "SELECT s.submissionid, s.hasfile, s.hasonlinetext, s.groupsubmission
+                  FROM {plagiarism_safeassign_subm} s
+                 WHERE s.deprecated = 0
+                   AND s.uuid IS NULL
+                   AND s.globalcheck = 1
+                   AND s.submitted = 0";
+        return $DB->get_records_sql($sql, array());
+    }
+
+    /**
+     *  Sync the assignment submissions.
+     *  @return bool
+     */
+    public function sync_assign_submissions() {
+        $assignments = $this->get_valid_assignments();
+        if (empty($assignments)) {
+            return false;
+        }
+        $ids = [];
+        foreach ($assignments as $assignment) {
+            $ids[] = $assignment->assignmentid;
+        }
+        $credentials = $this->get_course_credentials($ids);
+        // Can't sync anything without credentials for courses and assignments.
+        if (!empty($credentials)) {
+            $submissions = mod_assign_external::get_submissions($ids, 'submitted');
+            $unsynced = $this->get_unsynced_submissions();
+            if (empty($unsynced)) {
+                return false;
+            }
+            if (isset($submissions['assignments'])) {
+                // Go on each assign submissions.
+                foreach ($submissions['assignments'] as $submission) {
+                    if (isset($submission['submissions'][0]) && (count($submission['submissions'][0]) > 0 )) {
+                        $arraydata = $submission['submissions'];
+                        // Go on each submission.
+                        foreach ($arraydata as $data) {
+                            if (isset($unsynced[$data['id']])) {
+                                $this->sync_submission($data, $credentials, $submission);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Sends the submission info for the given assignment to the SafeAssign service.
+     * @param array object $data
+     * @param array object $credentials
+     * @param object $submission
+     */
+    public function sync_submission($data, $credentials, $submission) {
+        global $DB;
+        // Build the object to pass in to service.
+        $wrapper = new stdClass();
+        $wrapper->userid = (int) $data['userid'];
+        $wrapper->courseuuid = $credentials[$submission['assignmentid']]->courseuuid;
+        $wrapper->assignuuid = $credentials[$submission['assignmentid']]->assignuuid;
+        $wrapper->filepaths = array();
+        $files = $data['plugins'][0]['fileareas'][0]['files'];
+        if (!empty($files)) {
+            foreach ($files as $file) {
+                $wrapper->filepaths[] = $file['fileurl'];
+                $wrapper->filenames[] = $file['filename'];
+            }
+            $wrapper->globalcheck = false;
+            $wrapper->grouppermission = true;
+            $result = safeassign_api::create_submission($wrapper->userid, $wrapper->courseuuid,
+                $wrapper->assignuuid, $wrapper->filepaths, $wrapper->globalcheck, $wrapper->grouppermission);
+            $responsedata =json_decode(rest_provider::instance()->lastresponse());
+            if ($result === true) {
+                if (isset($responsedata->submissions[0]) && !empty($responsedata->submissions[0])) {
+                    $record = $DB->get_record('plagiarism_safeassign_subm', array('submissionid' => $data['id'],
+                        'uuid' => null, 'submitted' => 0, 'deprecated' => 0));
+                    $record->uuid = $responsedata->submissions[0]->submission_uuid;
+                    $record->submitted = 1;
+                    $DB->update_record('plagiarism_safeassign_subm', $record);
+                    $this->sync_submission_files($data['id'], $responsedata, $wrapper->filenames,
+                        $wrapper->userid, $credentials[$submission['assignmentid']]->courseid);
+                }
+            } else {
+                $event = sync_content_log::create_log_message('Assignment', $data['id']);
+                $event->trigger();
+            }
+        }
+
+    }
+
+    /**
+     *  Sends the files to the SafeAssign server and updates its uuid's.
+     *  @param int $submissionid
+     *  @param object $responsedata
+     *  @param array $filenames
+     *  @param int $userid
+     *  @param int $courseid
+     */
+    public function sync_submission_files($submissionid, $responsedata, $filenames, $userid, $courseid) {
+        global $DB;
+        $sql = "SELECT f.filename, f.id AS fileid, cm.id AS cmid
+                  FROM {files} f
+                  JOIN {assign_submission} sub ON sub.id = f.itemid
+                  JOIN {course_modules} cm ON cm.instance = sub.assignment 
+                 WHERE f.filearea = ?
+                   AND f.itemid = ?
+                   AND cm.course = ?
+                   AND f.filename ";
+        $params = array('submission_files', $submissionid, $courseid);
+        list($sqlin, $params2) = $DB->get_in_or_equal($filenames);
+        $sentfiles = $DB->get_records_sql($sql . $sqlin, array_merge($params, $params2));
+        if ($sentfiles) {
+            $record = new stdClass();
+            $record->userid = $userid;
+            $record->timesubmitted = time();
+            $record->submissionid = (int) $submissionid;
+            foreach ($responsedata->submissions[0]->submission_files as $file) {
+                $record->uuid = null;
+                if (isset($sentfiles[urldecode($file->file_name)])) {
+                    $record->fileid = $sentfiles[urldecode($file->file_name)]->fileid;
+                    $record->supported = 1;
+                    $record->uuid = $file->file_uuid;
+                    $record->cm = (int) $sentfiles[urldecode($file->file_name)]->cmid;
+                    $DB->insert_record('plagiarism_safeassign_files', $record);
+                }
+            }
+            foreach ($responsedata->unprocessed_file_names as $unsupportedfilename) {
+                if (isset($sentfiles[urldecode($unsupportedfilename)])) {
+                    $record->uuid = null;
+                    $record->supported = 0;
+                    $record->cm = (int) $sentfiles[urldecode($unsupportedfilename)]->cmid;
+                    $record->fileid = $sentfiles[urldecode($unsupportedfilename)]->fileid;
+                    $DB->insert_record('plagiarism_safeassign_files', $record);
+                }
+            }
+        }
     }
 }
 

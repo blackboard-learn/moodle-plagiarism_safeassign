@@ -111,3 +111,12 @@ $string['error_api_generic'] = 'There was an error processing your request.';
 $string['error_api_unauthorized'] = 'There was an authentication error processing your request.';
 $string['error_api_forbidden'] = 'There was an authorization error processing your request.';
 $string['error_api_not_found'] = 'The requested resource was not found.';
+$string['sync_assignments'] = 'Sends the available information to the SafeAssign server.';
+$string['api_call_log_event'] = 'SafeAssign log for API calls.';
+$string['course_error_sync'] = 'An error occurred trying to sync the Course with ID: {$a} into SafeAssign: <br>';
+$string['assign_error_sync'] = 'An error occurred trying to sync the Assignment with ID: {$a} into SafeAssign: <br>';
+$string['submission_error_sync'] = 'An error ocurred trying to sync the Submission with ID: {$a} into SafeAssign: <br>';
+$string['submission_success_sync'] = 'Submissions synced successfully';
+$string['assign_success_sync'] = 'Assignments synced successfully';
+$string['course_success_sync'] = 'Courses synced successfully';
+

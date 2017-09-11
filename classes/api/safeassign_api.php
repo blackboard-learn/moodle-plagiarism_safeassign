@@ -301,7 +301,7 @@ abstract class safeassign_api {
     }
 
     /**
-     * Creates a course in SafeAssign.
+     * Retrieves a course from SafeAssign.
      *
      * @param int $userid User id of an instructor of this course.
      * @param int $courseid

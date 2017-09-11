@@ -56,7 +56,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
     /**
      * @return string
      */
-    private function create_course_url() {
+    public function create_course_url() {
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
         $courseurl = '%s/api/v1/courses';
         $courseurl = sprintf($courseurl, $baseapiurl);
@@ -69,7 +69,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
      * @param $filename
      * @return bool
      */
-    private function attempt_login($filename) {
+    public function attempt_login($filename) {
         $this->user = $this->getDataGenerator()->create_user([
             'firstname' => 'Teacher',
             'lastname' => 'WhoTeaches'
@@ -87,7 +87,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
      * @param $courseuuid
      * @return string
      */
-    private function create_put_delete_instructor_url($courseuuid) {
+    public function create_put_delete_instructor_url($courseuuid) {
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
         $courseurl = '%s/api/v1/courses/%s/members';
         $courseurl = sprintf($courseurl, $baseapiurl, $courseuuid);
@@ -99,7 +99,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
      * @param $courseuuid
      * @return string
      */
-    private function create_assignment_url($courseuuid) {
+    public function create_assignment_url($courseuuid) {
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
         $assignmenturl = '%s/api/v1/courses/%s/assignments';
         $assignmenturl = sprintf($assignmenturl, $baseapiurl, $courseuuid);
@@ -112,7 +112,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
      * @param string $assignmentuuid
      * @return string
      */
-    private function create_submission_url($courseuuid, $assignmentuuid) {
+    public function create_submission_url($courseuuid, $assignmentuuid) {
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
         $submissionurl = '%s/api/v1/courses/%s/assignments/%s/submissions';
         $submissionurl = sprintf($submissionurl, $baseapiurl, $courseuuid, $assignmentuuid);
@@ -500,7 +500,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
         $submissionurl = $this->create_submission_url($courseuuid, $assignmentuuid);
         testhelper::push_pair($submissionurl, 'create-submission-ok.json');
         // Create a submission with an array of files for an assignment.
-        $filepaths = array('/path/file1.txt', '/path/file2.txt', '/path/file3.json', '/path/file4.zip', '/path/file5.pdf');
+        $filepaths = array('/path/file1.txt', '/path/file2.txt', '/path/file3.json', '/path/file4.zip', '/path/file5.csv');
         $result = safeassign_api::create_submission($this->user->id, $courseuuid, $assignmentuuid, $filepaths, false, false);
         $this->assertTrue($result);
         $this->assertEquals(rest_provider::instance()->lasthttpcode(), 200);
@@ -539,7 +539,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
         $submissionurl = $this->create_submission_url($courseuuid, $assignmentuuid);
         testhelper::push_pair($submissionurl, 'create-submission-fail.json', 400);
         // Create a submission with an array of files for an assignment.
-        $filepaths = array('/path/file1.txt', '/path/file2.txt', '/path/file3.json', '/path/file4.zip', '/path/file5.pdf');
+        $filepaths = array('/path/file1.txt', '/path/file2.txt', '/path/file3.json', '/path/file4.zip', '/path/file5.csv');
         $result = safeassign_api::create_submission($this->user->id, $courseuuid, $assignmentuuid, $filepaths, false, false);
 
         $this->assertFalse($result);

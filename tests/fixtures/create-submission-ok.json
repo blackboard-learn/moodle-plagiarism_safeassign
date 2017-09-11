@@ -12,11 +12,11 @@
           "file_uuid": "5140a223-8cbc-7a85-3cb4-f52d959ee067"
         }
       ]
-    },
+    }
   ],
   "unprocessed_file_names": [
     "file3.json",
     "file4.zip",
-    "file5.pdf",
+    "file5.csv"
   ]
 }

@@ -686,7 +686,7 @@ class rest_provider {
      */
     public function gettoken($userid = null) {
         if (!PHPUNIT_TEST) {
-            if (empty($this->token)) {
+            if (empty($this->token) || isset($userid)) {
                 if (!empty($userid)) {
                     $this->currentuserid = $userid;
                 }
@@ -769,6 +769,7 @@ class rest_provider {
 
         if (PHPUNIT_TEST) {
             $this->lasthttpcode = testhelper::get_code_data($url);
+            $this->rawresponse = testhelper::get_fixture_data($url);
             if ($this->lasthttpcode >= 400) {
                 return false;
             } else {
