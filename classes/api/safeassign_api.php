@@ -128,6 +128,32 @@ abstract class safeassign_api {
     }
 
     /**
+     * Generic http get call. This get call does not parse json reponses.
+     * @param string $url
+     * @param int $userid
+     * @param bool $isinstructor
+     * @param array $headers
+     * @return bool|mixed
+     */
+    protected static function generic_getcall_raw($url, $userid, $isinstructor = false, $headers = []) {
+        if (empty($url)) {
+            return false;
+        }
+
+        if (!rest_provider::instance()->hastoken($userid)) {
+            if (!self::login($userid, $isinstructor)) {
+                return false;
+            }
+        }
+        $result = rest_provider::instance()->get_withtoken($url, $userid, $headers);
+        if ($result) {
+            $result = rest_provider::instance()->lastresponse();
+        }
+
+        return $result;
+    }
+
+    /**
      * Generic http post call.
      * @param string $url
      * @param int $userid
@@ -395,6 +421,43 @@ abstract class safeassign_api {
         $url = new \moodle_url($baseurl . '/api/v1/submissions/' . $submissionuuid . '/report/metadata');
 
         $result = self::generic_getcall($url->out(false), $userid, true);
+        return $result;
+    }
+
+    /**
+     * Get the originality report from SafeAssign.
+     * @param int $userid
+     * @param string $submissionuuid
+     * @param bool $print For getting a print version of the report
+     * @param bool|string $cssurl to add some custom report styling
+     * @param bool|string $logourl to use custom logo
+     * @return bool|mixed
+     */
+    public static function get_originality_report($userid, $submissionuuid, $print = false, $cssurl = false, $logourl = false) {
+        $baseurl = get_config(self::PLUGIN, 'safeassign_api');
+        if (empty($baseurl)) {
+            return false;
+        }
+
+        $params = [];
+        if ($print) {
+            $params['print'] = true;
+        }
+        if (!empty($cssurl)) {
+            $params['css_url'] = $cssurl;
+        }
+        if (!empty($logourl)) {
+            $params['logo_url'] = $logourl;
+        }
+
+        $url = new \moodle_url($baseurl . '/api/v1/submissions/' . $submissionuuid . '/report', $params);
+
+        // This request needs special headers.
+        $headers = [
+            'Accept: text/html'
+        ];
+
+        $result = self::generic_getcall_raw($url->out(false), $userid, true, $headers);
         return $result;
     }
 }

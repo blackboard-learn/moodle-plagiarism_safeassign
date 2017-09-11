@@ -229,13 +229,35 @@ class rest_provider {
             return $this->request_behat($url);
         }
 
-        $ctype = 'application/json; charset=UTF-8';
-        $standardheader = array("Accept: {$ctype}", "Content-Type: {$ctype}");
-        $headers = array_merge($standardheader, $custheaders);
+        // Default content type.
+        $defaultctype = 'application/json; charset=UTF-8';
+
+        // Review custom headers to see if Accept and Content-Type are already present.
+        $hasaccept = false;
+        $hasctype = false;
+        foreach ($custheaders as $header) {
+            if (strpos($header, 'Accept:') !== false) {
+                $hasaccept = true;
+            }
+
+            if (strpos($header, 'Content-Type:') !== false) {
+                $hasctype = true;
+            }
+        }
+
+        // Add Accept or Content-Type if missing.
+        if (!$hasaccept) {
+            $custheaders[] = "Content-Type: {$defaultctype}";
+        }
+
+        if (!$hasctype) {
+            $custheaders[] = "Accept: {$defaultctype}";
+        }
+
         $useopts = array(
             'CURLOPT_CUSTOMREQUEST' => $method,
             'CURLOPT_URL'           => $url,
-            'CURLOPT_HTTPHEADER'    => $headers,
+            'CURLOPT_HTTPHEADER'    => $custheaders,
         );
         $fullopts = $options + $useopts;
         $curlopts = $this->getopts($fullopts);
