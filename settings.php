@@ -65,7 +65,6 @@ if (($data = $mform->get_data()) && confirm_sesskey()) {
                 set_config($field, $value, 'plagiarism');
             }
             set_config($field, $value, 'plagiarism_safeassign');
-
         }
     }
     echo $OUTPUT->notification(get_string('savedconfigsuccess', 'plagiarism_safeassign'), \core\output\notification::NOTIFY_SUCCESS);

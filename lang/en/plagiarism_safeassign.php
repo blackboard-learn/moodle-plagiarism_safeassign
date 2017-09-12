@@ -101,3 +101,4 @@ $string['submissions_global_reference'] = 'Exclude submissions from institutiona
 $string['plagiarism_tools'] = 'Plagiarism Tools';
 $string['files_accepted'] = 'SafeAssign accepts files in .doc, .docx, .docm, .ppt, .pptx, .odt, .txt, .rtf, .pdf and .html file formats only. Files of any other format will not be checked through SafeAssign.';
 $string['agreement'] = 'I agree to submit my paper(s) to the Global Reference Database.';
+
