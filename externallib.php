@@ -73,3 +73,32 @@ class plagiarism_safeassign_test_api_credentials_external extends external_api {
         return ['success' => $result];
     }
 }
+
+class plagiarism_safeassign_external extends external_api {
+
+    public static function plagiarism_safeassign_parameters() {
+        $parameters = [
+            'cmid' => new \external_value(PARAM_INT, 'test', VALUE_REQUIRED),
+            'userid' => new \external_value(PARAM_INT, 'test', VALUE_REQUIRED),
+            'flag'  => new \external_value(PARAM_INT, 'test', VALUE_REQUIRED)
+        ];
+        return new \external_function_parameters($parameters);
+    }
+
+    public static function plagiarism_safeassign_returns() {
+        $keys = [
+            'success' => new \external_value(PARAM_BOOL, 'Credential verified', VALUE_REQUIRED)
+        ];
+        return new \external_single_structure($keys, 'confirmed');
+    }
+
+    public static function plagiarism_safeassign($cmid,$userid,$flag) {
+        global $DB;
+        $config = new stdClass();
+        $config->cm = (int)$cmid;
+        $config->name= (string)$userid;
+        $config->value= (string)$flag;
+        $DB->insert_record('plagiarism_safeassign_config', $config);
+        return ['success' => True];
+    }
+}

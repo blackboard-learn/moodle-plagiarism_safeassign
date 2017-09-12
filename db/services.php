@@ -31,5 +31,14 @@ $functions = [
         'type'          => 'read',
         'ajax'          => true,
         'loginrequired' => true
+    ],
+    'plagiarism_safeassign' => [
+        'classname' => 'plagiarism_safeassign_external',
+        'methodname'    => 'plagiarism_safeassign',
+        'description'   => 'test',
+        'classpath'     => 'plagiarism/safeassign/externallib.php',
+        'type'          => 'read',
+        'ajax'          => true,
+        'loginrequired' => true
     ]
 ];

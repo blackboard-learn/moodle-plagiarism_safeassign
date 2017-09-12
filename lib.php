@@ -176,6 +176,13 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      * @return string
      */
     public function print_disclosure($cmid) {
+        global $USER,$PAGE;
+        $col1 = html_writer::tag('div', get_string('plagiarism_tools', 'plagiarism_safeassign'), array('class' => 'col-md-2'));
+        $checkbox = html_writer::checkbox('agreement', 'agree', false, get_string('agreement', 'plagiarism_safeassign'));
+        $col2 = html_writer::tag('div', get_string('files_accepted', 'plagiarism_safeassign').'<br><br>'.$checkbox, array('class' => 'col-md-9'));
+        $output = html_writer::tag('div', $col1.$col2, array('class' => 'row generalbox boxaligncenter intro'));
+        $PAGE->requires->js_call_amd('plagiarism_safeassign/disclosure', 'init', array($cmid,$USER->id));
+        return $output;
     }
 
     /**
