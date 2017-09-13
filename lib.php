@@ -176,9 +176,20 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      * @return string
      */
     public function print_disclosure($cmid) {
-        global $USER,$PAGE;
+        global $USER,$PAGE,$DB;
+        $checked=false;
+
+        $query="SELECT value 
+                  FROM {plagiarism_safeassign_config} 
+                 WHERE cm=? AND name=?";
+        $info = $DB->get_record_sql($query, array($cmid, $USER->id));
+
+        if($info->value=1){
+            $checked=true;
+        }
+
         $col1 = html_writer::tag('div', get_string('plagiarism_tools', 'plagiarism_safeassign'), array('class' => 'col-md-2'));
-        $checkbox = html_writer::checkbox('agreement', 'agree', false, get_string('agreement', 'plagiarism_safeassign'));
+        $checkbox = html_writer::checkbox('agreement', 'agree', $checked, get_string('agreement', 'plagiarism_safeassign'));
         $col2 = html_writer::tag('div', get_string('files_accepted', 'plagiarism_safeassign').'<br><br>'.$checkbox, array('class' => 'col-md-9'));
         $output = html_writer::tag('div', $col1.$col2, array('class' => 'row generalbox boxaligncenter intro'));
         $PAGE->requires->js_call_amd('plagiarism_safeassign/disclosure', 'init', array($cmid,$USER->id));

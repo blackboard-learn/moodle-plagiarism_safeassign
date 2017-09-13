@@ -96,9 +96,19 @@ class plagiarism_safeassign_external extends external_api {
         global $DB;
         $config = new stdClass();
         $config->cm = (int)$cmid;
-        $config->name= (string)$userid;
-        $config->value= (string)$flag;
-        $DB->insert_record('plagiarism_safeassign_config', $config);
-        return ['success' => True];
+        $config->name = (string)$userid;
+        $config->value = (string)$flag;
+        $query="SELECT * 
+                  FROM {plagiarism_safeassign_config} 
+                 WHERE cm = ? AND name = ?";
+        $info = $DB->get_record_sql($query, array($cmid, $userid));
+        if(empty($info)){
+            $res = $DB->insert_record('plagiarism_safeassign_config', $config);
+        }
+        if(!empty($info)){
+            $info->value=(string)$flag;
+            $res = $DB->update_record('plagiarism_safeassign_config', $info);
+        }
+        return ['success' => $res];
     }
 }
