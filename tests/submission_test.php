@@ -186,7 +186,7 @@ class plagiarism_safeassign_submission_test extends advanced_testcase  {
 
     private function evaluate_safeassign_subm_recor($record, $deprecated) {
         $this->assertNull($record->uuid);
-        $this->assertEquals(self::GLOBALCHECK, $record->globalcheck);
+        $this->assertEquals(0, $record->globalcheck);
         $this->assertEquals(1, $record->groupsubmission);
         $this->assertEquals(0, $record->reportgenerated);
         $this->assertEquals(0, $record->submitted);

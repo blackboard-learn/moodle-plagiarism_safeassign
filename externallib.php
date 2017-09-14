@@ -65,7 +65,7 @@ class plagiarism_safeassign_test_api_credentials_external extends external_api {
      * @param string $password
      * @param string $baseurl
      * @param int $userid
-     * @return @boleean
+     * @return @boolean
      */
     public static function plagiarism_safeassign_test_api_credentials($username, $password, $baseurl, $userid) {
         rest_provider::instance()->reset_cache();
@@ -74,38 +74,53 @@ class plagiarism_safeassign_test_api_credentials_external extends external_api {
     }
 }
 
-class plagiarism_safeassign_external extends external_api {
+/**
+ * Save the global check flag state in the DB.
+ * @autor Juan Felipe Martinez Ramos
+ * @copyright Copyright (c) 2017 Blackboard Inc.
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class plagiarism_safeassign_update_flag_external extends external_api {
 
-    public static function plagiarism_safeassign_parameters() {
+    /**
+     * @return \external_function_parameters
+     */
+    public static function plagiarism_safeassign_update_flag_parameters() {
         $parameters = [
-            'cmid' => new \external_value(PARAM_INT, 'test', VALUE_REQUIRED),
-            'userid' => new \external_value(PARAM_INT, 'test', VALUE_REQUIRED),
-            'flag'  => new \external_value(PARAM_INT, 'test', VALUE_REQUIRED)
+            'cmid' => new \external_value(PARAM_INT, 'Course module ID', VALUE_REQUIRED),
+            'userid' => new \external_value(PARAM_INT, 'User ID', VALUE_REQUIRED),
+            'flag'  => new \external_value(PARAM_INT, 'Global check flag 1 or 0', VALUE_REQUIRED)
         ];
         return new \external_function_parameters($parameters);
     }
 
-    public static function plagiarism_safeassign_returns() {
+    /**
+     * @return \external_single_structure
+     */
+    public static function plagiarism_safeassign_update_flag_returns() {
         $keys = [
-            'success' => new \external_value(PARAM_BOOL, 'Credential verified', VALUE_REQUIRED)
+            'success' => new \external_value(PARAM_BOOL, 'Flag updated', VALUE_REQUIRED)
         ];
         return new \external_single_structure($keys, 'confirmed');
     }
 
-    public static function plagiarism_safeassign($cmid,$userid,$flag) {
+    /**
+     * Saves and updates the state of the global check flag.
+     * @param int $cmid
+     * @param int $userid
+     * @param int $flag
+     * @return @boolean
+     */
+    public static function plagiarism_safeassign_update_flag($cmid, $userid, $flag) {
         global $DB;
         $config = new stdClass();
-        $config->cm = (int)$cmid;
-        $config->name = (string)$userid;
-        $config->value = (string)$flag;
-        $query="SELECT * 
-                  FROM {plagiarism_safeassign_config} 
-                 WHERE cm = ? AND name = ?";
-        $info = $DB->get_record_sql($query, array($cmid, $userid));
-        if(empty($info)){
+        $config->cm = (int) $cmid;
+        $config->name = (string) $userid;
+        $config->value = (string) $flag;
+        $info = $DB->get_record('plagiarism_safeassign_config', array('cm' => $cmid, 'name' => $userid));
+        if (empty($info)) {
             $res = $DB->insert_record('plagiarism_safeassign_config', $config);
-        }
-        if(!empty($info)){
+        } else {
             $info->value=(string)$flag;
             $res = $DB->update_record('plagiarism_safeassign_config', $info);
         }

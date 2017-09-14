@@ -32,12 +32,12 @@ $functions = [
         'ajax'          => true,
         'loginrequired' => true
     ],
-    'plagiarism_safeassign' => [
-        'classname' => 'plagiarism_safeassign_external',
-        'methodname'    => 'plagiarism_safeassign',
-        'description'   => 'test',
+    'plagiarism_safeassign_update_flag' => [
+        'classname' => 'plagiarism_safeassign_update_flag_external',
+        'methodname'    => 'plagiarism_safeassign_update_flag',
+        'description'   => 'Saves the global check flag in the DB',
         'classpath'     => 'plagiarism/safeassign/externallib.php',
-        'type'          => 'read',
+        'type'          => 'write',
         'ajax'          => true,
         'loginrequired' => true
     ]
