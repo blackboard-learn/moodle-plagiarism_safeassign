@@ -131,6 +131,18 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
     }
 
     /**
+     * Creates an url to get the originality report.
+     * @param string $submissionuuid
+     * @return string
+     */
+    private function create_get_originality_report_url($submissionuuid) {
+        $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
+        $getreporturl = '%s/api/v1/submissions/%s/report';
+        $getreporturl = sprintf($getreporturl, $baseapiurl, $submissionuuid);
+        return $getreporturl;
+    }
+
+    /**
      * Creates an assignment for testing.
      * @return stdClass
      */
@@ -597,9 +609,98 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
         // Get originality report basic data.
         // Push fixtures as cached responses.
         $getreporturl = $this->create_get_originality_report_basic_data_url($submissionuuid);
-        testhelper::push_pair($getreporturl, 'get-originality-report-basic-data-fail.json', 401);
+        testhelper::push_pair($getreporturl, 'get-originality-report-basic-data-fail.json', 404);
         $result = safeassign_api::get_originality_report_basic_data($this->user->id, $submissionuuid);
         $this->assertFalse($result);
         $this->assertTrue(rest_provider::instance()->lasthttpcode() >= 400);
+    }
+
+    /**
+     * @return void
+     */
+    public function test_get_originality_report_ok() {
+        $this->resetAfterTest(true);
+        $this->config_set_ok();
+
+        // Login to Safe Assign.
+        $this->attempt_login('user-login-final.json');
+        $course = $this->getDataGenerator()->create_course([
+            'fullname' => 'AwesomeCourse'
+        ]);
+        // Create a course.
+        // Push fixtures as cached responses.
+        $courseurl = $this->create_course_url();
+        testhelper::push_pair($courseurl, 'create-course-final.json');
+        $result = safeassign_api::create_course($this->user->id, $course->id);
+        $this->assertNotEmpty($result->uuid);
+        $courseuuid = $result->uuid;
+
+        // Create an assignment.
+        $assignment = self::create_assignment();
+        // Push fixture for assignment creation.
+        $assignmenturl = $this->create_assignment_url($courseuuid);
+        testhelper::push_pair($assignmenturl, 'create-assignment-ok.json');
+        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->id, $assignment->title);
+        $this->assertNotEmpty($result->uuid);
+        $assignmentuuid = $result->uuid;
+
+        // Create a submission.
+        $submissionuuid = "c93e61c6-be1f-6c49-5c86-76d8f04f3f2f";
+
+        // Get originality report.
+        // Push fixtures as cached responses.
+        $getreporturl = $this->create_get_originality_report_url($submissionuuid);
+        testhelper::push_pair($getreporturl, 'get-originality-report-ok.html');
+        $result = safeassign_api::get_originality_report($this->user->id, $submissionuuid);
+        $this->assertEquals(rest_provider::instance()->lasthttpcode(), 200);
+
+        // Result should have html tags.
+        $this->assertNotEquals(strip_tags($result), $result);
+    }
+
+    /**
+     * @return void
+     */
+    public function test_get_originality_report_fail() {
+        $this->resetAfterTest(true);
+        $this->config_set_ok();
+
+        // Login to Safe Assign.
+        $this->attempt_login('user-login-final.json');
+        $course = $this->getDataGenerator()->create_course([
+            'fullname' => 'AwesomeCourse'
+        ]);
+        // Create a course.
+        // Push fixtures as cached responses.
+        $courseurl = $this->create_course_url();
+        testhelper::push_pair($courseurl, 'create-course-final.json');
+        $result = safeassign_api::create_course($this->user->id, $course->id);
+        $this->assertNotEmpty($result->uuid);
+        $courseuuid = $result->uuid;
+
+        // Create an assignment.
+        $assignment = self::create_assignment();
+        // Push fixture for assignment creation.
+        $assignmenturl = $this->create_assignment_url($courseuuid);
+        testhelper::push_pair($assignmenturl, 'create-assignment-ok.json');
+        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->id, $assignment->title);
+        $this->assertNotEmpty($result->uuid);
+        $assignmentuuid = $result->uuid;
+
+        // Create a submission.
+        $submissionuuid = "c93e61c6-be1f-6c49-5c86-76d8f04f3f2f";
+
+        // Get originality report.
+        // Push fixtures as cached responses.
+        $getreporturl = $this->create_get_originality_report_url($submissionuuid);
+        testhelper::push_pair($getreporturl, 'get-originality-report-basic-data-fail.json', 404);
+        $result = safeassign_api::get_originality_report($this->user->id, $submissionuuid);
+        $domdoc = new DOMDocument();
+        $domdoc->loadHTML(rest_provider::instance()->lastresponse(), LIBXML_HTML_NODEFDTD | LIBXML_HTML_NOIMPLIED);
+        $this->assertFalse($result);
+
+        $lastresponse = rest_provider::instance()->lastresponse();
+        // Result should not have html tags.
+        $this->assertEquals(strip_tags($lastresponse), $lastresponse);
     }
 }
