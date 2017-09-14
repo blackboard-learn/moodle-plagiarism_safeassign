@@ -61,6 +61,9 @@ if (($data = $mform->get_data()) && confirm_sesskey()) {
     }
     foreach ($data as $field => $value) {
         if (strpos($field, 'safeassign') === 0) {
+            if ($field == 'safeassign_use') {
+                set_config($field, $value, 'plagiarism');
+            }
             set_config($field, $value, 'plagiarism_safeassign');
         }
     }
