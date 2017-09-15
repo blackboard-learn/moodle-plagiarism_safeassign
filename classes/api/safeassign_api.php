@@ -460,4 +460,30 @@ abstract class safeassign_api {
         $result = self::generic_getcall_raw($url->out(false), $userid, true, $headers);
         return $result;
     }
+
+
+    /**
+     * Resubmit files from a submission.
+     * @param $userid
+     * @param $submissionuuid
+     * @param array $urls
+     * @param array $engines
+     * @return bool | mixed
+     */
+    public static function resubmit_file($userid, $submissionuuid, $fileuuid, array $urls, array $engines) {
+        $baseurl = get_config(self::PLUGIN, 'safeassign_api');
+        $putparams = array(
+            'file_uuid' => $fileuuid,
+            'skipped_citations' => array()
+        );
+        for ($i = 0; $i < count($urls); $i++) {
+            array_push($putparams['skipped_citations'], array('url' => $urls[$i], 'engine_name' => $engines[$i]));
+        }
+        $putdata = json_encode($putparams);
+        var_dump($putdata);
+
+        $url = new \moodle_url($baseurl . '/api/v1/submissions/' . $submissionuuid);
+        $result = self::generic_putcall($url->out(false), $userid, true);
+        return $result;
+    }
 }
