@@ -190,19 +190,19 @@ abstract class safeassign_api {
      * @param string $url
      * @param int $userid
      * @param bool $isinstructor
+     * @param array $postdata
      * @return bool|mixed
      */
-    protected static function generic_putcall($url, $userid, $isinstructor = false) {
+    protected static function generic_putcall($url, $userid, $isinstructor = false, array $postdata = array()) {
         if (empty($url)) {
             return false;
         }
-
         if (!rest_provider::instance()->hastoken($userid)) {
             if (!self::login($userid, $isinstructor)) {
                 return false;
             }
         }
-        $result = rest_provider::instance()->put_withtoken($url, $userid);
+        $result = rest_provider::instance()->put_withtoken($url, $userid, [], $postdata);
         if ($result) {
             $data = json_decode(rest_provider::instance()->lastresponse());
             if ($data === false) {
@@ -464,8 +464,8 @@ abstract class safeassign_api {
 
     /**
      * Resubmit files from a submission.
-     * @param $userid
-     * @param $submissionuuid
+     * @param int $userid
+     * @param string $submissionuuid
      * @param array $urls
      * @param array $engines
      * @return bool | mixed
@@ -480,10 +480,8 @@ abstract class safeassign_api {
             array_push($putparams['skipped_citations'], array('url' => $urls[$i], 'engine_name' => $engines[$i]));
         }
         $putdata = json_encode($putparams);
-        var_dump($putdata);
-
         $url = new \moodle_url($baseurl . '/api/v1/submissions/' . $submissionuuid);
-        $result = self::generic_putcall($url->out(false), $userid, true);
+        $result = self::generic_putcall($url->out(false), $userid, true, [], $putdata);
         return $result;
     }
 }

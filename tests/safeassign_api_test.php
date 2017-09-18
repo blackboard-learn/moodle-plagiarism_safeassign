@@ -143,6 +143,18 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
     }
 
     /**
+     * Creates an url to resubmit a file.
+     * @param string $submissionuuid
+     * @return string
+     */
+    private function create_resubmit_file_url($submissionuuid) {
+        $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
+        $resubmitfileurl = '%s/api/v1/submissions/%s';
+        $resubmitfileurl = sprintf($resubmitfileurl, $baseapiurl, $submissionuuid);
+        return $resubmitfileurl;
+    }
+
+    /**
      * Creates an assignment for testing.
      * @return stdClass
      */
@@ -702,5 +714,87 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
         $lastresponse = rest_provider::instance()->lastresponse();
         // Result should not have html tags.
         $this->assertEquals(strip_tags($lastresponse), $lastresponse);
+    }
+
+    /**
+     * @return void
+     */
+    public function test_resubmit_file_ok() {
+        $this->resetAfterTest(true);
+        $this->config_set_ok();
+
+        // Login to Safe Assign.
+        $this->attempt_login('user-login-final.json');
+        $course = $this->getDataGenerator()->create_course([
+            'fullname' => 'AwesomeCourse'
+        ]);
+        // Create a course.
+        // Push fixtures as cached responses.
+        $courseurl = $this->create_course_url();
+        testhelper::push_pair($courseurl, 'create-course-final.json');
+        $result = safeassign_api::create_course($this->user->id, $course->id);
+        $this->assertNotEmpty($result->uuid);
+        $courseuuid = $result->uuid;
+
+        // Create an assignment.
+        $assignment = self::create_assignment();
+        // Push fixture for assignment creation.
+        $assignmenturl = $this->create_assignment_url($courseuuid);
+        testhelper::push_pair($assignmenturl, 'create-assignment-ok.json');
+        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->id, $assignment->title);
+        $this->assertNotEmpty($result->uuid);
+        $assignmentuuid = $result->uuid;
+
+        // Create a submission.
+        $submissionuuid = "c93e61c6-be1f-6c49-5c86-76d8f04f3f2f";
+        $resubmitfileurl = $this->create_resubmit_file_url($submissionuuid);
+        testhelper::push_pair($resubmitfileurl, 'resubmit-file-ok.json');
+        $fileuuid = "4db799a8-418b-7315-0323-75ab5f4e30cd";
+        $urls = array("url_1", "url_2");
+        $engines = array("engine_name_1", "engine_name_2");
+        $result = safeassign_api::resubmit_file($this->user->id, $submissionuuid, $fileuuid, $urls, $engines);
+        $this->assertTrue(!empty($result->status) && $result->status == "SUCCESS");
+        $this->assertEquals(rest_provider::instance()->lasthttpcode(), 200);
+    }
+
+    /**
+     * @return void
+     */
+    public function test_resubmit_file_fail() {
+        $this->resetAfterTest(true);
+        $this->config_set_ok();
+
+        // Login to Safe Assign.
+        $this->attempt_login('user-login-final.json');
+        $course = $this->getDataGenerator()->create_course([
+            'fullname' => 'AwesomeCourse'
+        ]);
+        // Create a course.
+        // Push fixtures as cached responses.
+        $courseurl = $this->create_course_url();
+        testhelper::push_pair($courseurl, 'create-course-final.json');
+        $result = safeassign_api::create_course($this->user->id, $course->id);
+        $this->assertNotEmpty($result->uuid);
+        $courseuuid = $result->uuid;
+
+        // Create an assignment.
+        $assignment = self::create_assignment();
+        // Push fixture for assignment creation.
+        $assignmenturl = $this->create_assignment_url($courseuuid);
+        testhelper::push_pair($assignmenturl, 'create-assignment-ok.json');
+        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->id, $assignment->title);
+        $this->assertNotEmpty($result->uuid);
+        $assignmentuuid = $result->uuid;
+
+        // Create a submission.
+        $submissionuuid = "c93e61c6-be1f-6c49-5c86-76d8f04f3f2f";
+        $resubmitfileurl = $this->create_resubmit_file_url( $submissionuuid);
+        testhelper::push_pair($resubmitfileurl, 'resubmit-file-fail.json', 400);
+        $fileuuid = "4db799a8-418b-7315-0323-75ab5f4e30cd";
+        $urls = array("url_1", "url_2");
+        $engines = array("engine_name_1", "engine_name_2");
+        $result = safeassign_api::resubmit_file($this->user->id, $submissionuuid, $fileuuid, $urls, $engines);
+        $this->assertFalse($result);
+        $this->assertTrue(rest_provider::instance()->lasthttpcode() >= 400);
     }
 }

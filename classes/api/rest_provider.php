@@ -291,6 +291,7 @@ class rest_provider {
                 $response = $curl->post($url, $params, $curlopts);
                 break;
             case self::HTTP_PUT:
+                $params = !empty($curlopts['CURLOPT_POSTFIELDS']) ? $curlopts['CURLOPT_POSTFIELDS'] : '';
                 $response = $curl->put($url, null, $curlopts);
                 break;
             case self::HTTP_DELETE:
