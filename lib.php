@@ -119,13 +119,13 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             '', 'name, value');
 
         if (has_capability('plagiarism/safeassign:enable', $context)) {
-            saveassign_get_form_elements($mform);
+            safeassign_get_form_elements($mform);
 
             foreach ($plagiarismelements as $element) {
 
                 // Disable all plagiarism elements if use_plagiarism eg 0.
                 if ($element != 'safeassign_enabled') { // Ignore this var.
-                    $mform->disabledIf($element, 'safeassign_enabled', 'eq', 0);
+                    $mform->disabledIf($element, 'safeassign_enabled');
                 }
 
                 // Load old configuration values for this assignment.
@@ -160,8 +160,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 $DB->insert_record('plagiarism_safeassign_config', $newelement);
             }
         }
-
-        if ($data->safeassign_enabled) {
+        if (isset($data->safeassign_enabled) && $data->safeassign_enabled) {
             $eventdata = new stdClass();
             $eventdata->courseid = $data->course;
             $eventdata->assignmentid = $data->instance;
@@ -358,10 +357,10 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
  *
  * @param object $mform - Moodle form object.
  */
-function saveassign_get_form_elements($mform) {
+function safeassign_get_form_elements($mform) {
     $mform->addElement('header', 'plagiarismdesc', get_string('safeassign', 'plagiarism_safeassign'));
-    $mform->addElement('advcheckbox' ,'safeassign_enabled', get_string('assignment_check_submissions', 'plagiarism_safeassign'));
+    $mform->addElement('checkbox' ,'safeassign_enabled', get_string('assignment_check_submissions', 'plagiarism_safeassign'));
     $mform->addHelpButton('safeassign_enabled', 'assignment_check_submissions', 'plagiarism_safeassign');
-    $mform->addElement('advcheckbox' ,'safeassign_originality_report', get_string('students_originality_report', 'plagiarism_safeassign'));
-    $mform->addElement('advcheckbox' ,'safeassign_global_reference', get_string('submissions_global_reference', 'plagiarism_safeassign'));
+    $mform->addElement('checkbox' ,'safeassign_originality_report', get_string('students_originality_report', 'plagiarism_safeassign'));
+    $mform->addElement('checkbox' ,'safeassign_global_reference', get_string('submissions_global_reference', 'plagiarism_safeassign'));
 }
