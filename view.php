@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -16,16 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * View renderer
+ *
  * @package   plagiarism_safeassign
  * @copyright Copyright (c) 2017 Blackboard Inc.
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+require_once('../../config.php');
+require($CFG->dirroot.'/local/mr/bootstrap.php');
 
-$plugin->version =  2017111555;
-$plugin->release = "3.2+";
-$plugin->requires = 2016120503;
-$plugin->component = 'plagiarism_safeassign';
-$plugin->maturity  = MATURITY_BETA;
-$plugin->cron      = 0;
+mr_controller::render('plagiarism/safeassign', 'pluginname', 'plagiarism_safeassign');
