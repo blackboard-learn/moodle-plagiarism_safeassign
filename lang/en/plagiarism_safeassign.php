@@ -97,8 +97,13 @@ $string['assignment_check_submissions_help'] = 'SafeAssign Originality Reports w
 <br>N.B. SafeAssign currently only supports English-language submissions.';
 $string['students_originality_report'] = 'Allow students to view originality report';
 $string['submissions_global_reference'] = 'Exclude submissions from institutional and global reference database';
+
 // Disclosure agreement.
 $string['plagiarism_tools'] = 'Plagiarism Tools';
 $string['files_accepted'] = 'SafeAssign accepts files in .doc, .docx, .docm, .ppt, .pptx, .odt, .txt, .rtf, .pdf and .html file formats only. Files of any other format will not be checked through SafeAssign.';
 $string['agreement'] = 'I agree to submit my paper(s) to the Global Reference Database.';
 
+$string['error_api_generic'] = 'There was an error processing your request.';
+$string['error_api_unauthorized'] = 'There was an authentication error processing your request.';
+$string['error_api_forbidden'] = 'There was an authorization error processing your request.';
+$string['error_api_not_found'] = 'The requested resource was not found.';

@@ -21,6 +21,7 @@ require_once(__DIR__.'/base.php');
 use plagiarism_safeassign\api\safeassign_api;
 use plagiarism_safeassign\api\testhelper;
 use plagiarism_safeassign\api\rest_provider;
+use plagiarism_safeassign\api\error_handler;
 
 /**
  * Class plagiarism_safeassign_safeassign_api_testcase
@@ -796,5 +797,53 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
         $result = safeassign_api::resubmit_file($this->user->id, $submissionuuid, $fileuuid, $urls, $engines);
         $this->assertFalse($result);
         $this->assertTrue(rest_provider::instance()->lasthttpcode() >= 400);
+    }
+
+    /**
+     * @return void
+     */
+    public function test_process_last_api_error_skip() {
+        $this->resetAfterTest(true);
+        $this->config_set_ok();
+
+        $this->attempt_login('user-login-final.json');
+        $course = $this->getDataGenerator()->create_course([
+            'fullname' => 'AwesomeCourse'
+        ]);
+
+        // Push fixtures as cached responses.
+        $courseurl = $this->create_course_url();
+        testhelper::push_pair($courseurl, 'create-course-final.json');
+        testhelper::push_pair($courseurl.'?id='.$course->id, 'create-course-final.json');
+
+        // Test creating the course.
+        safeassign_api::create_course($this->user->id, $course->id);
+        $this->assertNull(error_handler::process_last_api_error());
+    }
+
+    /**
+     * @return void
+     */
+    public function test_process_last_api_error_process() {
+        $this->resetAfterTest(true);
+        $this->config_set_ok();
+
+        $this->attempt_login('user-login-final.json');
+        $course = $this->getDataGenerator()->create_course([
+            'fullname' => 'AwesomeCourse'
+        ]);
+
+        // Push fixtures as cached responses.
+        $courseurl = $this->create_course_url();
+        testhelper::push_pair($courseurl, 'create-course-fail-final.json', 401);
+
+        // Test creating the course.
+        safeassign_api::create_course($this->user->id, $course->id);
+
+        $expected = get_string('error_api_unauthorized', 'plagiarism_safeassign').PHP_EOL;
+        $expected .= 'ERROR_ID: b53ad9d2-6e83-4592-8c04-18dada86b14b'.PHP_EOL;
+        $expected .= 'ERROR_CODE: WRONG_PARAMETER'.PHP_EOL;
+
+        $this->assertEquals($expected, error_handler::process_last_api_error(false, true));
     }
 }
