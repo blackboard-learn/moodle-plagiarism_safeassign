@@ -30,9 +30,13 @@ Feature: Enable SafeAssign in an assignment
     And the following "courses" exist:
       | fullname | shortname | format | category | groupmode | enablecompletion |
       | Course 1 | C1        | topics | 0        | 1         | 1                |
+    And the following "users" exist:
+      | username | firstname | lastname | email |
+      | student1 | Student | 1 | student1@example.com |
     And the following "course enrolments" exist:
       | user     | course | role    |
       | admin    | C1     | teacher |
+      | student1 | C1     | student |
 
   Scenario: Enable an assignment with SafeAssign Plagiarism plugin
     Given I log in as "admin"
@@ -63,4 +67,69 @@ Feature: Enable SafeAssign in an assignment
       And the field "safeassign_originality_report" matches value "1"
       And the field "safeassign_global_reference" does not match value "1"
       And I log out
+
+  @javascript
+  Scenario: Disclosure agreement checkbox should appear and maintain value
+    Given I log in as "admin"
+     Then the following config values are set as admin:
+        | safeassign_use   | 1 | plagiarism |
+      And I am on homepage
+      And I follow "Course 1"
+     Then I turn editing mode on
+      And I add a "Assignment" to section "1"
+      And I should see "Safeassign Plagiarism plugin"
+     Then I set the field "Assignment name" to "Assignment One"
+      And I set the field "Description" to "Assignmnet One"
+      And I press "Expand all"
+      And I set the field "safeassign_enabled" to "1"
+      And I set the field "safeassign_originality_report" to "1"
+      And I set the field "safeassign_global_reference" to "0"
+      And I press "Save and return to course"
+     Then I follow "Assignment One"
+      And I log out
+      And I log in as "student1"
+      And I follow "Course 1"
+     Then I follow "Assignment One"
+      And I press "Add submission"
+      And I should see "Plagiarism Tools"
+      And I should see "I agree to submit my paper(s) to the Global Reference Database."
+      And I set the field "agreement" to "1"
+      And I follow "Course 1"
+     Then I follow "Assignment One"
+      And I press "Add submission"
+      And the field "agreement" matches value "1"
+      And I set the field "agreement" to "0"
+      And I follow "Course 1"
+     Then I follow "Assignment One"
+      And I press "Add submission"
+      And the field "agreement" matches value "0"
+
+  @javascript
+  Scenario: Disclosure agreement checkbox should not appear
+    Given I log in as "admin"
+     Then the following config values are set as admin:
+        | safeassign_use   | 1 | plagiarism |
+      And I am on homepage
+      And I follow "Course 1"
+     Then I turn editing mode on
+      And I add a "Assignment" to section "1"
+      And I should see "Safeassign Plagiarism plugin"
+     Then I set the field "Assignment name" to "Assignment One"
+      And I set the field "Description" to "Assignmnet One"
+      And I press "Expand all"
+      And I set the field "safeassign_enabled" to "0"
+      And I set the field "safeassign_originality_report" to "0"
+      And I set the field "safeassign_global_reference" to "0"
+      And I press "Save and return to course"
+     Then I follow "Assignment One"
+      And I log out
+      And I log in as "student1"
+      And I follow "Course 1"
+     Then I follow "Assignment One"
+      And I press "Add submission"
+      And I should not see "Plagiarism Tools"
+      And I should not see "I agree to submit my paper(s) to the Global Reference Database."
+
+
+
 

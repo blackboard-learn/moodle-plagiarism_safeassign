@@ -31,5 +31,14 @@ $functions = [
         'type'          => 'read',
         'ajax'          => true,
         'loginrequired' => true
+    ],
+    'plagiarism_safeassign_update_flag' => [
+        'classname' => 'plagiarism_safeassign_update_flag_external',
+        'methodname'    => 'plagiarism_safeassign_update_flag',
+        'description'   => 'Saves the global check flag in the DB',
+        'classpath'     => 'plagiarism/safeassign/externallib.php',
+        'type'          => 'write',
+        'ajax'          => true,
+        'loginrequired' => true
     ]
 ];

@@ -170,11 +170,34 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     }
 
     /**
-     * hook to allow a disclosure to be printed notifying users what will happen with their submission
-     * @param int $cmid - course module id
-     * @return string
+     * hook to allow a disclosure to be printed notifying users what will happen with their submission.
+     * @param int $cmid - course module id.
+     * @return string $output - HTMl to be rendered.
      */
     public function print_disclosure($cmid) {
+        global $USER, $PAGE, $DB;
+        $checked = false;
+        $value = 0;
+        $cmenabled = $DB->get_record('plagiarism_safeassign_config', array('cm' => $cmid, 'name' => 'safeassign_enabled'));
+        $cmglobalref = $DB->get_record('plagiarism_safeassign_config', array('cm' => $cmid, 'name' => 'safeassign_global_reference'));
+        if ($cmenabled->value == 0) {
+            return '';
+        }
+        if ($cmglobalref->value == 1) {
+            return '';
+        }
+        $info = $DB->get_record('plagiarism_safeassign_config', array('cm' => $cmid, 'name' => $USER->id));
+        if (!empty($info->value)) {
+            $checked = true;
+            $value = $info->value;
+        }
+        $col1 = html_writer::tag('div', get_string('plagiarism_tools', 'plagiarism_safeassign'), array('class' => 'col-md-2'));
+        $checkbox = html_writer::checkbox('agreement', $value, $checked, get_string('agreement', 'plagiarism_safeassign'));
+        $col2 = html_writer::tag('div', get_string('files_accepted', 'plagiarism_safeassign').'<br><br>'.$checkbox, array('class' => 'col-md-9'));
+        $output = html_writer::tag('div', $col1.$col2, array('class' => 'row generalbox boxaligncenter intro'));
+        $form = html_writer::tag('form',$output);
+        $PAGE->requires->js_call_amd('plagiarism_safeassign/disclosure', 'init', array($cmid,$USER->id));
+        return $form;
     }
 
     /**
@@ -280,6 +303,27 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     }
 
     /**
+     * Returns the stored state of the globalcheck flag.
+     * @param object $eventdata
+     * @return int $globalcheck state of the flag, 1 or 0.
+     */
+    private function get_global_check_flag($eventdata) {
+        global $DB, $USER;
+        $query = "SELECT saconf.value
+                    FROM {course_modules} cm
+                    JOIN {assign_submission} asub
+                      ON cm.instance = asub.assignment
+                    JOIN {plagiarism_safeassign_config} saconf
+                      ON saconf.cm = cm.id
+                   WHERE asub.id = ? AND cm.course = ? AND saconf.name = ?";
+        $globalcheck = $DB->get_record_sql($query, array($eventdata['objectid'], $eventdata['courseid'], $USER->id));
+        if(!empty($globalcheck->value)) {
+            return $globalcheck->value;
+        }
+        return 0;
+    }
+
+    /**
      * Creates the submission record on plagiarism_safeassign_subm table.
      * @param object $eventdata
      */
@@ -287,7 +331,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         global $DB;
         $submission = new stdClass();
         $submission->submissionid = $eventdata['objectid'];
-        $submission->globalcheck = $params['globalcheck'];
+        $submission->globalcheck = $this->get_global_check_flag($eventdata);
         $submission->groupsubmission = 1;
         $submission->reportgenerated = 0;
         $submission->submitted = 0;
