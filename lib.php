@@ -56,39 +56,145 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     }
 
     /**
+     * This function should be used to initialise settings and check if plagiarism is enabled.
+     *
+     * @returned mixed - false if not enabled, or return an array of relevenat settings.
+     */
+    static public function get_settings() {
+        static $plagiarismsettings;
+        if (!empty($plagiarismsettings) || $plagiarismsettings === false) {
+            return $plagiarismsettings;
+        }
+        $safeassignenabled = get_config('plagiarism', 'safeassign_use');
+        // Check if enabled.
+        if (!empty($safeassignenabled)) {
+            // Now check to make sure required settings are set.
+            $plagiarismsettings = (array)get_config('plagiarism_safeassign');
+            if (empty($plagiarismsettings['safeassign_api'])) {
+                debugging("SafeAssign API URL not set!");
+                return false;
+            }
+            return $plagiarismsettings;
+        } else {
+            return false;
+        }
+    }
+
+
+    /**
      * Hook to allow plagiarism specific information to be displayed beside a submission.
      * @return string
      */
     public function get_links($linkarray) {
-        return '';
+        global $DB;
+
+        $cmid = $linkarray['cmid'];
+
+        // Check if the user has the right capabilities to see the report.
+        $cm = context_module::instance($cmid);
+        if (!has_capability('plagiarism/safeassign:viewreport', $cm)) {
+            return '';
+        }
+
+        // Check if SafeAssign is enabled and configured at global level.
+        $plagiarismsettings = $this->get_settings();
+        if (!$plagiarismsettings) {
+            return '';
+        }
+
+        // Check that the activity has SafeAssign enabled.
+        $courseconfiguration = $DB->get_records_menu('plagiarism_safeassign_config', array('cm' => $cmid), '', 'name, value');
+
+        if (!empty($courseconfiguration) && $courseconfiguration['safeassign_enabled']) {
+            // The activity has SafeAssign enabled.
+            $message = '';
+            $userid = $linkarray['userid'];
+
+            if (isset($linkarray['file'])) {
+                // This submission has a file associated with it.
+                $file = $this->get_file_results($cmid, $userid, $linkarray['file']->get_id());
+            } else {
+                if (isset($linkarray['content'])) {
+                    // This submission has an online text associated with it.
+                    $submission = $DB->get_record('assign_submission', array('userid' => $userid, 'assignment' => $linkarray['assignment']));
+                    $namefile = 'userid_' . $userid . '_text_submissionid_' . $submission->id . '.txt';
+                    $filerecord = $DB->get_record('files', array('filename' => $namefile));
+                    $file = $this->get_file_results($cmid, $userid, $filerecord->id);
+                }
+            }
+
+            $message = $this->get_message_result($file, $cm, $courseconfiguration);
+            return $message;
+        } else {
+            // The activity is not configured with SafeAssign.
+            return '';
+        }
+
     }
 
     /**
-     * Hook to allow plagiarism specific information to be returned unformatted.
+     * Returns the message to display for a specific file depending the state of that submission.
+     * @param array $file
+     * @param int $cm
+     * @param array $courseconfiguration
+     * @return string
+     */
+    private function get_message_result($file, $cm, $courseconfiguration) {
+        global $USER;
+        $message = '';
+        if($file['supported']) {
+            if ($file['analyzed']) {
+                // We have a valid report for this file.
+                $message = get_string('safeassign_file_similarity_score', 'plagiarism_safeassign', intval($file['score'] * 100));
+
+                // We need to validate that the user can see the link to the similarity report.
+                $role = get_user_roles($cm, $USER->id);
+                $roleid = key($role);
+                if (empty($role) || $role[$roleid]->shortname != 'student' || $courseconfiguration['safeassign_originality_report']) {
+                    // The report is enabled for this user.
+                    $message .= html_writer::link($file['reporturl'], get_string('safeassign_link_originality_report', 'plagiarism_safeassign'));
+                }
+            } else {
+                // This file is not supported by SafeAssign.
+                $message = get_string('safeassign_file_in_review', 'plagiarism_safeassign');
+            }
+        } else {
+            // This file is not supported by SafeAssign.
+            $message = get_string('safeassign_file_not_supported', 'plagiarism_safeassign');
+        }
+        return $message;
+    }
+
+    /**
+     * Retrieve the SafeAssign information from a submission's file
      * @param int $cmid
      * @param int $userid
-     * @param $file file object
+     * @param int $fileid
      * @return array containing at least:
      *   - 'analyzed' - whether the file has been successfully analyzed
      *   - 'score' - similarity score - ('' if not known)
      *   - 'reporturl' - url of originality report - '' if unavailable
+     * @throws dml_missing_record_exception
+     * @throws dml_multiple_records_exception
      */
-    public function get_file_results($cmid, $userid, $file) {
+    public function get_file_results($cmid, $userid, $fileid) {
         global $DB;
         $analyzed = 0;
         $score = '';
         $reporturl = '';
-        $filequery="SELECT sub.reportgenerated, fil.similarityscore, fil.reporturl
+        $supported = 1;
+        $filequery="SELECT sub.reportgenerated, fil.similarityscore, fil.reporturl, fil.supported
                        FROM {plagiarism_safeassign_subm} sub
                        JOIN {plagiarism_safeassign_files} fil ON sub.submissionid = fil.submissionid
-                      WHERE fil.cm = ? AND fil.userid = ? AND fil.fileid = ?";
-        $fileinfo = $DB->get_record_sql($filequery, array($cmid, $userid, $file->get_id()));
+                      WHERE fil.cm = ? AND fil.userid = ? AND fil.fileid = ? AND sub.submitted = 1 AND sub.deprecated = 0";
+        $fileinfo = $DB->get_record_sql($filequery, array($cmid, $userid, $fileid));
         if (!empty($fileinfo)) {
             $analyzed = $fileinfo->reportgenerated;
             $score = $fileinfo->similarityscore;
             $reporturl = $fileinfo->reporturl;
+            $supported = $fileinfo->supported;
         }
-        return array('analyzed' => $analyzed, 'score' => $score, 'reporturl' => $reporturl);
+        return array('analyzed' => $analyzed, 'score' => $score, 'reporturl' => $reporturl, 'supported' => $supported);
     }
 
     /**
@@ -604,11 +710,10 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     public function get_unsynced_submissions() {
         global $DB;
 
-        $sql = "SELECT s.submissionid, s.hasfile, s.hasonlinetext, s.groupsubmission
+        $sql = "SELECT s.submissionid, s.hasfile, s.hasonlinetext, s.groupsubmission, s.globalcheck
                   FROM {plagiarism_safeassign_subm} s
                  WHERE s.deprecated = 0
                    AND s.uuid IS NULL
-                   AND s.globalcheck = 1
                    AND s.submitted = 0";
         return $DB->get_records_sql($sql, array());
     }
@@ -679,14 +784,14 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $fs = get_file_storage();
             $usercontext = context_user::instance($wrapper->userid );
             $textfile = $fs->get_file($usercontext->id, 'assignsubmission_text_as_file', 'submission_text_files', $data['id'],
-                '/', 'userid: ' . $data['userid'] . ' text_submissionid: ' . $data['id']);
+                '/', 'userid_' . $data['userid'] . '_text_submissionid_' . $data['id'] . '.txt');
             if ($textfile) {
                 $wrapper->filepaths[] = moodle_url::make_webservice_pluginfile_url($usercontext->id, 'assignsubmission_text_as_file',
                     'submission_text_files', $data['id'], $textfile->get_filepath(), $textfile->get_filename())->out(false);
                 $wrapper->filenames[] = $textfile->get_filename();
             }
         }
-        $wrapper->globalcheck = true; // TBD.
+        $wrapper->globalcheck = ($unsynced) ? true : false;
         $wrapper->grouppermission = true;
         $result = safeassign_api::create_submission($wrapper->userid, $wrapper->courseuuid,
             $wrapper->assignuuid, $wrapper->filepaths, $wrapper->globalcheck, $wrapper->grouppermission);

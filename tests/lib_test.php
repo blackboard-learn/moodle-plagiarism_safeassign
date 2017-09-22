@@ -211,7 +211,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $this->insert_submission_for_testing(1, 1, 1111111, 0);
         $this->insert_files_for_testing(000, 111, 'http://fakeurl1.com', 0.99, 1502484564, 1111111, $file->get_id());
         $lib = new plagiarism_plugin_safeassign();
-        $results = $lib->get_file_results(000, 111, $file);
+        $results = $lib->get_file_results(000, 111, $file->get_id());
         $this->assertequals(1, $results['analyzed']);
         $this->assertequals(0.99, $results['score']);
         $this->assertequals('http://fakeurl1.com', $results['reporturl']);
@@ -228,7 +228,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $this->insert_submission_for_testing(1, 0, 2222222, 0);
         $this->insert_files_for_testing(000, 222, '', NULL, 1502484564, 2222222, $file->get_id());
         $lib = new plagiarism_plugin_safeassign();
-        $results = $lib->get_file_results(000, 222, $file);
+        $results = $lib->get_file_results(000, 222, $file->get_id());
         $this->assertequals(0, $results['analyzed']);
         $this->assertequals('', $results['score']);
         $this->assertequals('', $results['reporturl']);
@@ -243,7 +243,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $linkarray = $this->create_submitted_file_object(333, 000, 3333333);
         $file = $linkarray['file'];
         $lib = new plagiarism_plugin_safeassign();
-        $results = $lib->get_file_results(000, 333, $file);
+        $results = $lib->get_file_results(000, 333, $file->get_id());
         $this->assertequals(0, $results['analyzed']);
         $this->assertequals('', $results['score']);
         $this->assertequals('', $results['reporturl']);

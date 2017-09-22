@@ -102,7 +102,6 @@ $string['students_originality_report'] = 'Allow students to view originality rep
 $string['submissions_global_reference'] = 'Exclude submissions from institutional and global reference database';
 $string['submissions_global_reference_help'] = 'Submissions will still be processed by SafeAssign but won’t be registered in databases. 
     This avoids files being marked as plagiarized when teachers allow re-submissions in a specific assignment.';
-
 // Disclosure agreement.
 $string['plagiarism_tools'] = 'Plagiarism Tools';
 $string['files_accepted'] = 'SafeAssign accepts files in .doc, .docx, .docm, .ppt, .pptx, .odt, .txt, .rtf, .pdf and .html file formats only. Files of any other format will not be checked through SafeAssign.';
@@ -123,3 +122,7 @@ $string['license_header'] = 'SafeAssign&trade; License Agreement';
 $string['license_title'] = 'SafeAssign License Agreement';
 $string['not_configured'] = 'SafeAssign&trade; is not configured. Please have your system administrator submit a ticket on Behind the Blackboard for assistance.';
 
+$string['safeassign_file_not_supported'] = 'The file extension is not supported by SafeAssign or the file size exceeds maximum  capacity.';
+$string['safeassign_file_in_review'] = 'Report in progress...';
+$string['safeassign_file_similarity_score'] = 'Submission Text: {$a}%<br>';
+$string['safeassign_link_originality_report'] = 'View Originality Report';
