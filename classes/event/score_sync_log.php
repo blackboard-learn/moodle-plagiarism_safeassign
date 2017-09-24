@@ -15,32 +15,49 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Definition of SafeAssign scheduled tasks.
+ * Class score_sync_log.
+ *
+ * This event is fired when the score is stored for its respective submission.
  *
  * @package   plagiarism_safeassign
  * @copyright Copyright (c) 2017 Blackboard Inc.
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace plagiarism_safeassign\event;
+
+use core\event\base;
 
 defined('MOODLE_INTERNAL') || die();
 
-$tasks = array(
-    array(
-        'classname' => 'plagiarism_safeassign\task\send_files',
-        'blocking' => 0,
-        'minute' => '*/5',
-        'hour' => '*',
-        'day' => '*',
-        'dayofweek' => '*',
-        'month' => '*'
-    ),
-    array(
-        'classname' => 'plagiarism_safeassign\task\get_scores',
-        'blocking' => 0,
-        'minute' => '*/5',
-        'hour' => '*',
-        'day' => '*',
-        'dayofweek' => '*',
-        'month' => '*'
-    )
-);
+class score_sync_log extends base {
+
+    /**
+     * Init method.
+     *
+     * @return void
+     */
+    protected function init() {
+        $this->data['crud'] = 'r';
+        $this->data['edulevel'] = self::LEVEL_OTHER;
+        $this->context = \context_system::instance();
+    }
+
+    /**
+     * Return the event name.
+     *
+     * @return string
+     */
+    public static function get_name() {
+        return get_string('getscoreslog', 'plagiarism_safeassign');
+    }
+
+    /**
+     * Returns description of what happened.
+     *
+     * @return string
+     */
+    public function get_description() {
+        $messagedesc = get_string('getscoreslog_desc', 'plagiarism_safeassign');
+        return $messagedesc;
+    }
+}

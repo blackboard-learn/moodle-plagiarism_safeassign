@@ -31,6 +31,10 @@ if (!defined('MOODLE_INTERNAL')) {
 global $CFG;
 require_once($CFG->dirroot.'/plagiarism/lib.php');
 
+use plagiarism_safeassign\api\safeassign_api;
+use plagiarism_safeassign\event\score_sync_log;
+use plagiarism_safeassign\event\score_sync_fail;
+
 /**
  * Extends plagiarism core base class.
  *
@@ -394,6 +398,43 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         $DB->update_record('plagiarism_safeassign_subm', $submission);
     }
 
+    /**
+     * Function to be run periodically according to the scheduled task.
+     * Checks if the submissions already have a report generated on SafeAssign side and mark the flag.
+     */
+    function safeassign_get_scores() {
+        global $DB;
+
+        $submissions = $DB->get_records_sql("SELECT plg.*, asg.userid
+        FROM {plagiarism_safeassign_subm} plg, {assign_submission} asg
+        WHERE plg.deprecated = 0 AND plg.reportgenerated = 0 AND plg.submitted = 1 AND plg.submissionid = asg.id;");
+
+        foreach ($submissions as $submission) {
+            $userid = $submission->userid;
+            $submissionuuid = $submission->uuid;
+            $result = '';
+            if ($submissionuuid) {
+                $result = safeassign_api::get_originality_report_basic_data($userid, $submissionuuid);
+            } else {
+                continue;
+            }
+
+            if ($result) {
+                $convhighscore = floatval($result->highest_score/100);
+                $convavgscore = floatval($result->average_score/100);
+                $submission->highscore = $convhighscore;
+                $submission->avgscore = $convavgscore;
+                $submission->reportgenerated = 1;
+                unset($submission->userid);
+                $DB->update_record('plagiarism_safeassign_subm', $submission);
+            } else {
+                $event = score_sync_fail::create_from_error_handler($submission->id);
+                $event->trigger();
+            }
+        }
+        $event = score_sync_log::create();
+        $event->trigger();
+    }
 }
 
 /**
