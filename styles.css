@@ -10,3 +10,7 @@
 #page-admin-plagiarism-safeassign-settings .modal-footer {
     display: none;
 }
+
+#page-mod-assign-editsubmission input[type=checkbox] {
+    margin-right: .25rem;
+}
