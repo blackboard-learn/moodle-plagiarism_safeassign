@@ -36,10 +36,10 @@ require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
 class behat_plagiarism_safeassign extends behat_base {
 
     /**
-     * @Given /^I am on the course "(?P<shortname_string>(?:[^"]|\\")*)"$/
+     * @Given /^I am on the course with shortname "(?P<shortname_string>(?:[^"]|\\")*)"$/
      * @param string $shortname
      */
-    public function i_am_on_the_course($shortname) {
+    public function i_am_on_the_course_with_shortname($shortname) {
         global $DB;
         $courseid = $DB->get_field('course', 'id', ['shortname' => $shortname]);
         $this->getSession()->visit($this->locate_path('/course/view.php?id='.$courseid));
