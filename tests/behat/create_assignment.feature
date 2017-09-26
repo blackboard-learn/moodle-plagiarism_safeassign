@@ -40,7 +40,7 @@ Feature: Enable SafeAssign in an assignment
 
   Scenario: Enable an assignment with SafeAssign Plagiarism plugin
     Given I log in as "admin"
-      And I follow "Course 1"
+      And I am on the course with shortname "C1"
      Then I turn editing mode on
       And I add a "Assignment" to section "1"
       And I should not see "Safeassign Plagiarism plugin"
@@ -48,8 +48,7 @@ Feature: Enable SafeAssign in an assignment
       And I turn editing mode off
      Then the following config values are set as admin:
         | safeassign_use   | 1 | plagiarism |
-      And I am on homepage
-      And I follow "Course 1"
+      And I am on the course with shortname "C1"
      Then I turn editing mode on
       And I add a "Assignment" to section "1"
       And I should see "Safeassign Plagiarism plugin"
@@ -73,8 +72,7 @@ Feature: Enable SafeAssign in an assignment
     Given I log in as "admin"
      Then the following config values are set as admin:
         | safeassign_use   | 1 | plagiarism |
-      And I am on homepage
-      And I follow "Course 1"
+      And I am on the course with shortname "C1"
      Then I turn editing mode on
       And I add a "Assignment" to section "1"
       And I should see "Safeassign Plagiarism plugin"
@@ -88,7 +86,7 @@ Feature: Enable SafeAssign in an assignment
      Then I follow "Assignment One"
       And I log out
       And I log in as "student1"
-      And I follow "Course 1"
+      And I am on the course with shortname "C1"
      Then I follow "Assignment One"
       And I press "Add submission"
       And I should see "Plagiarism Tools"
@@ -109,8 +107,7 @@ Feature: Enable SafeAssign in an assignment
     Given I log in as "admin"
      Then the following config values are set as admin:
         | safeassign_use   | 1 | plagiarism |
-      And I am on homepage
-      And I follow "Course 1"
+      And I am on the course with shortname "C1"
      Then I turn editing mode on
       And I add a "Assignment" to section "1"
       And I should see "Safeassign Plagiarism plugin"
@@ -124,7 +121,7 @@ Feature: Enable SafeAssign in an assignment
      Then I follow "Assignment One"
       And I log out
       And I log in as "student1"
-      And I follow "Course 1"
+      And I am on the course with shortname "C1"
      Then I follow "Assignment One"
       And I press "Add submission"
       And I should not see "Plagiarism Tools"
