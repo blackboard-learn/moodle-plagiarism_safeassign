@@ -26,15 +26,6 @@ defined('MOODLE_INTERNAL') || die();
 
 $tasks = array(
     array(
-        'classname' => 'plagiarism_safeassign\task\send_files',
-        'blocking' => 0,
-        'minute' => '*/5',
-        'hour' => '*',
-        'day' => '*',
-        'dayofweek' => '*',
-        'month' => '*'
-    ),
-    array(
         'classname' => 'plagiarism_safeassign\task\get_scores',
         'blocking' => 0,
         'minute' => '*/5',
