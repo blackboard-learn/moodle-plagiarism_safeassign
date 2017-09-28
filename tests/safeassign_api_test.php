@@ -846,4 +846,56 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
 
         $this->assertEquals($expected, error_handler::process_last_api_error(false, true));
     }
+
+    public function test_multi_login() {
+
+        $this->resetAfterTest(true);
+        $this->config_set_ok();
+
+        $usera = $this->getDataGenerator()->create_user([
+            'firstname' => 'TeacherA',
+            'lastname' => 'WhoTeachesA'
+        ]);
+
+        // Login with User A.
+        $loginurla = $this->create_login_url($usera);
+        testhelper::push_pair($loginurla, 'user-login-final.json');
+        $resulta = safeassign_api::login($usera->id);
+        $tokena = rest_provider::instance()->gettoken();
+
+        self::assertTrue($resulta);
+        self::assertNotEmpty($tokena);
+
+        $userb = $this->getDataGenerator()->create_user([
+            'firstname' => 'TeacherB',
+            'lastname' => 'WhoTeachesB'
+        ]);
+
+        // Login with User B.
+        $loginurlb = $this->create_login_url($userb);
+        testhelper::push_pair($loginurlb, 'userb-login-final.json');
+        $resultb = safeassign_api::login($userb->id);
+
+        $tokenb = rest_provider::instance()->gettoken();
+
+        self::assertTrue($resultb);
+        self::assertNotEmpty($tokenb);
+
+        self::assertNotEquals($tokena, $tokenb);
+
+        $userc = $this->getDataGenerator()->create_user([
+            'firstname' => 'TeacherC',
+            'lastname' => 'WhoTeachesC'
+        ]);
+
+        // Login fails with User C.
+        $loginurlc = $this->create_login_url($userc);
+        testhelper::push_pair($loginurlc, 'user-login-fail-final.json');
+        $resultc = safeassign_api::login($userc->id);
+
+        $tokenc = rest_provider::instance()->gettoken();
+
+        self::assertFalse($resultc);
+        self::assertNull($tokenc);
+    }
 }

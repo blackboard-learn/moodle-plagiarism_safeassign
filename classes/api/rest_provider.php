@@ -685,19 +685,18 @@ class rest_provider {
      * @return null|string
      */
     public function gettoken($userid = null) {
-        if (!PHPUNIT_TEST) {
-            if (empty($this->token) || isset($userid)) {
-                if (!empty($userid)) {
-                    $this->currentuserid = $userid;
-                }
-                if (!empty($this->currentuserid)) {
-                    $value = $this->cache->get(self::TOKEN.'_'.$userid);
-                    if (!empty($value)) {
-                        $this->token = $value;
-                    }
+        if (empty($this->token) || (!empty($userid) && $userid != $this->currentuserid)) {
+            $this->cleartoken();
+            $this->currentuserid = $userid;
+
+            if (!empty($this->currentuserid)) {
+                $value = $this->cache->get(self::TOKEN.'_'.$userid);
+                if (!empty($value)) {
+                    $this->token = $value;
                 }
             }
         }
+
         return $this->token;
     }
 
