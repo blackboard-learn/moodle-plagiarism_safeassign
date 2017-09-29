@@ -54,6 +54,16 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
     }
 
     /**
+     * Pushes a response for the login url for a user
+     * @param $user
+     * @param $filename
+     */
+    public function push_login_url($user, $filename) {
+        $loginurl = $this->create_login_url($user);
+        testhelper::push_pair($loginurl, $filename);
+    }
+
+    /**
      * @return string
      */
     public function create_course_url() {

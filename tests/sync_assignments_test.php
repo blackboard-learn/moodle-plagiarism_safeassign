@@ -44,7 +44,10 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         // Create a course and assignment and users.
         $this->course = self::getDataGenerator()->create_course();
 
-        $this->teacher = self::getDataGenerator()->create_user();
+        $this->teacher = self::getDataGenerator()->create_user([
+            'firstname' => 'Teacher',
+            'lastname' => 'WhoTeaches'
+        ]);
         $teacherrole = $DB->get_record('role', array('shortname' => 'teacher'));
         $this->getDataGenerator()->enrol_user($this->teacher->id,
             $this->course->id,
@@ -63,8 +66,14 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         $context = context_module::instance($this->cm->id);
 
         $assign = new assign($context, $this->cm, $this->course);
-        $this->student1 = self::getDataGenerator()->create_user();
-        $this->student2 = self::getDataGenerator()->create_user();
+        $this->student1 = self::getDataGenerator()->create_user([
+            'firstname' => 'Student1',
+            'lastname' => 'WhoStudies'
+        ]);
+        $this->student2 = self::getDataGenerator()->create_user([
+            'firstname' => 'Student2',
+            'lastname' => 'WhoStudies'
+        ]);
         $studentrole = $DB->get_record('role', array('shortname' => 'student'));
         $this->getDataGenerator()->enrol_user($this->student1->id,
             $this->course->id,
@@ -138,7 +147,14 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         mod_assign_external::save_submission($instance->id, $submissionpluginparams);
         $this->student1submission = $DB->get_record('assign_submission', array('userid' => $this->student1->id));
         $DB->set_field('assign_submission', 'status', 'submitted', array('id' => $this->student1submission->id));
+    }
 
+    private function push_login_urls() {
+        // Add successful login responses for all users
+        $testhelper = new plagiarism_safeassign_safeassign_api_testcase();
+        $testhelper->push_login_url($this->teacher, 'user-login-final.json');
+        $testhelper->push_login_url($this->student1, 'user-login-final.json');
+        $testhelper->push_login_url($this->student2, 'user-login-final.json');
     }
 
     public function test_sync_just_course_ok() {
@@ -150,8 +166,9 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         $this->setAdminUser();
         $testhelper = new plagiarism_safeassign_safeassign_api_testcase();
         $this->config_set_ok();
+        $this->push_login_urls();
+
         $task = new sync_assignments();
-        $testhelper->attempt_login('user-login-final.json');
         $courseurl = $testhelper->create_course_url();
         testhelper::push_pair($courseurl, 'create-course-fail-final.json');
         testhelper::push_pair($courseurl.'?id='.$this->course->id, 'create-course-fail-final.json');
@@ -178,8 +195,9 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         $this->setAdminUser();
         $testhelper = new plagiarism_safeassign_safeassign_api_testcase();
         $this->config_set_ok();
+        $this->push_login_urls();
+
         $task = new sync_assignments();
-        $testhelper->attempt_login('user-login-final.json');
         $courseurl = $testhelper->create_course_url();
         testhelper::push_pair($courseurl, 'create-course-final.json');
         testhelper::push_pair($courseurl.'?id='.$this->course->id, 'create-course-final.json');
@@ -213,8 +231,9 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         $this->setAdminUser();
         $testhelper = new plagiarism_safeassign_safeassign_api_testcase();
         $this->config_set_ok();
+        $this->push_login_urls();
+
         $task = new sync_assignments();
-        $testhelper->attempt_login('user-login-final.json');
         $courseurl = $testhelper->create_course_url();
         testhelper::push_pair($courseurl, 'create-course-final.json');
         testhelper::push_pair($courseurl.'?id='.$this->course->id, 'create-course-final.json');
@@ -252,8 +271,9 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         $this->setAdminUser();
         $testhelper = new plagiarism_safeassign_safeassign_api_testcase();
         $this->config_set_ok();
+        $this->push_login_urls();
+
         $task = new sync_assignments();
-        $testhelper->attempt_login('user-login-final.json');
         $courseurl = $testhelper->create_course_url();
         testhelper::push_pair($courseurl, 'create-course-final.json');
         testhelper::push_pair($courseurl.'?id='.$this->course->id, 'create-course-final.json');
