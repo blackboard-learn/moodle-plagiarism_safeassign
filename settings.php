@@ -40,9 +40,9 @@ $PAGE->requires->css('/plagiarism/safeassign/styles.css');
 if ($mform->is_cancelled()) {
     redirect(new moodle_url('/plagiarism/safeassign/settings.php'));
 }
+$PAGE->set_cacheable(false);
 $PAGE->requires->strings_for_js(array('test_credentials'),
     'plagiarism_safeassign');
-$PAGE->requires->js_call_amd('plagiarism_safeassign/settings', 'init');
 
 echo $OUTPUT->header();
 
@@ -69,6 +69,9 @@ if (($data = $mform->get_data()) && confirm_sesskey()) {
     }
     echo $OUTPUT->notification(get_string('savedconfigsuccess', 'plagiarism_safeassign'), \core\output\notification::NOTIFY_SUCCESS);
 }
+
+$storedurl = get_config('plagiarism_safeassign','safeassign_api');
+$PAGE->requires->js_call_amd('plagiarism_safeassign/settings', 'init', array($storedurl));
 
 $plagiarismsettings = (array)get_config('plagiarism_safeassign');
 $mform->set_data($plagiarismsettings);

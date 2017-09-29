@@ -37,6 +37,28 @@ class plagiarism_setup_form extends moodleform {
         $mform->addElement('checkbox', 'safeassign_use', get_string('usesafeassign', 'plagiarism_safeassign'));
 
         $mform->addElement('text', 'safeassign_api', get_string('safeassign_api', 'plagiarism_safeassign'));
+        $urls = [];
+        $disabled = 'disabled';
+        $required = 'safeassign_api';
+        if (!empty($CFG->plagiarism_safeassign_urls)) {
+            foreach ($CFG->plagiarism_safeassign_urls as $url) {
+                if (!empty($url['url'])) {
+                    $urls[$url['url']] = implode(' - ', $url);
+                }
+            }
+            $disabled = '';
+            if (count($urls) <= 1) {
+                $disabled = 'disabled';
+                if (count($urls) === 1) {
+                    $mform->addElement('hidden', 'default_safeassign_api', key($urls));
+                    $mform->setType('default_safeassign_api', PARAM_TEXT);
+                    $required = 'default_safeassign_api';
+                }
+            }
+        }
+
+        $mform->addElement('select', 'safeassign_api', get_string('credentials', 'plagiarism_safeassign').get_string('configoverride', 'plagiarism_safeassign'), $urls, array($disabled));
+        $mform->addRule($required, null, 'required', null, 'client');
         $mform->addHelpButton('safeassign_api', 'safeassign_api', 'plagiarism_safeassign');
         $mform->addRule('safeassign_api', null, 'required', null, 'client');
         $mform->setDefault('safeassign_api', 'https://secure.safeassign.com');

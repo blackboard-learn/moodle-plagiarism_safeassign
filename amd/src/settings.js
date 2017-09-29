@@ -31,7 +31,7 @@ define(['jquery', 'core/modal_factory', 'core/templates', 'core/str', 'core/noti
              * Through the Moodle core functions sends the data for instructor and student so their credentials
              * can be tested.
              */
-            init: function() {
+            init: function(storedurl) {
 
                 // We need all the required inputs to test connection.
                 var inputs = '#id_safeassign_api, #id_safeassign_instructor_username, #id_safeassign_instructor_password, ' +
@@ -60,6 +60,11 @@ define(['jquery', 'core/modal_factory', 'core/templates', 'core/str', 'core/noti
                         disableButton(localizedString);
                     });
 
+                    //If the stored URL is different from the one selected in the dropdown, disable the "Test connection" button.
+                    var url = $('#id_safeassign_api').val();
+                    if (url != storedurl) {
+                        disableButton(localizedString);
+                    }
                 });
 
                /**
@@ -146,7 +151,7 @@ define(['jquery', 'core/modal_factory', 'core/templates', 'core/str', 'core/noti
                             swapClasses(resultElement, false);
                             $(resultText).text(localizedStrings[2]);
                         }
-                    }).fail(function(ex) {
+                    }).fail(function() {
                         swapClasses(resultElement, false);
                         $(resultText).text(localizedStrings[2]);
                     });
@@ -170,6 +175,6 @@ define(['jquery', 'core/modal_factory', 'core/templates', 'core/str', 'core/noti
                         baseUrl, userId);
                 });
             }
-        }
+        };
     }
 );
