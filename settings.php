@@ -27,7 +27,7 @@ require_once($CFG->libdir.'/adminlib.php');
 require_once($CFG->libdir.'/plagiarismlib.php');
 require_once($CFG->dirroot.'/plagiarism/safeassign/lib.php');
 require_once($CFG->dirroot.'/plagiarism/safeassign/plagiarism_form.php');
-
+global $CFG;
 require_login();
 admin_externalpage_setup('plagiarismsafeassign');
 $context = context_system::instance();
@@ -40,7 +40,6 @@ $PAGE->requires->css('/plagiarism/safeassign/styles.css');
 if ($mform->is_cancelled()) {
     redirect(new moodle_url('/plagiarism/safeassign/settings.php'));
 }
-$PAGE->set_cacheable(false);
 $PAGE->requires->strings_for_js(array('test_credentials'),
     'plagiarism_safeassign');
 
@@ -65,6 +64,9 @@ if (($data = $mform->get_data()) && confirm_sesskey()) {
                 set_config($field, $value, 'plagiarism');
             }
             set_config($field, $value, 'plagiarism_safeassign');
+        }
+        if ($field == 'default_safeassign_api') {
+            set_config('safeassign_api', $value, 'plagiarism_safeassign');
         }
     }
     echo $OUTPUT->notification(get_string('savedconfigsuccess', 'plagiarism_safeassign'), \core\output\notification::NOTIFY_SUCCESS);

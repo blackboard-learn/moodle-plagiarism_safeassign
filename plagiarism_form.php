@@ -36,7 +36,6 @@ class plagiarism_setup_form extends moodleform {
         $mform->addElement('header', 'moodle', get_string('credentials', 'plagiarism_safeassign'));
         $mform->addElement('checkbox', 'safeassign_use', get_string('usesafeassign', 'plagiarism_safeassign'));
 
-        $mform->addElement('text', 'safeassign_api', get_string('safeassign_api', 'plagiarism_safeassign'));
         $urls = [];
         $disabled = 'disabled';
         $required = 'safeassign_api';
@@ -60,8 +59,6 @@ class plagiarism_setup_form extends moodleform {
         $mform->addElement('select', 'safeassign_api', get_string('credentials', 'plagiarism_safeassign').get_string('configoverride', 'plagiarism_safeassign'), $urls, array($disabled));
         $mform->addRule($required, null, 'required', null, 'client');
         $mform->addHelpButton('safeassign_api', 'safeassign_api', 'plagiarism_safeassign');
-        $mform->addRule('safeassign_api', null, 'required', null, 'client');
-        $mform->setDefault('safeassign_api', 'https://secure.safeassign.com');
         $mform->setType('safeassign_api', PARAM_URL);
 
         $mform->addElement('header', 'moodle', get_string('instructor_role_credentials', 'plagiarism_safeassign'));
@@ -98,43 +95,20 @@ class plagiarism_setup_form extends moodleform {
         $mform->addElement('html', get_string('safeassign_cachedefault', 'plagiarism_safeassign'));
         $mform->addElement('submit', 'test_credentials', get_string('test_credentials', 'plagiarism_safeassign'), null);
 
+        if (!empty($CFG->plagiarism_safeassign_display_general_settings)) {
 
-        $mform->addElement('header', 'moodle', get_string('general'));
+            $mform->addElement('header', 'moodle', get_string('general'));
 
-        // Registration info.
-        $mform->addElement('text', 'safeassign_institutioninfo', get_string('safeassign_institutioninfo', 'plagiarism_safeassign'));
-        $mform->addRule('safeassign_institutioninfo', null, 'required', null, 'client');
-        $mform->setType('safeassign_institutioninfo', PARAM_TEXT);
+            $mform->addElement('text', 'safeassign_institutioninfo', get_string('safeassign_institutioninfo', 'plagiarism_safeassign'));
+            $mform->addRule('safeassign_institutioninfo', null, 'required', null, 'client');
+            $mform->setType('safeassign_institutioninfo', PARAM_TEXT);
 
-        $mform->addElement('text', 'safeassign_contactname', get_string('safeassign_contactname', 'plagiarism_safeassign'));
-        $mform->addRule('safeassign_contactname', null, 'required', null, 'client');
-        $mform->setType('safeassign_contactname', PARAM_TEXT);
-
-        $mform->addElement('text', 'safeassign_contactlastname', get_string('safeassign_contactlastname', 'plagiarism_safeassign'));
-        $mform->addRule('safeassign_contactlastname', null, 'required', null, 'client');
-        $mform->setType('safeassign_contactlastname', PARAM_TEXT);
-
-        $mform->addElement('text', 'safeassign_contactemail', get_string('safeassign_contactemail', 'plagiarism_safeassign'));
-        $mform->addRule('safeassign_contactemail', null, 'required', null, 'client');
-        $mform->setType('safeassign_contactemail', PARAM_EMAIL);
-
-        $mform->addElement('text', 'safeassign_contactjob', get_string('safeassign_contactjob', 'plagiarism_safeassign'));
-        $mform->addRule('safeassign_contactjob', null, 'required', null, 'client');
-        $mform->setType('safeassign_contactjob', PARAM_TEXT);
-
-        $choices = core_date::get_list_of_timezones(null, true);
-        $mform->addElement('select', 'safeassign_timezone', get_string('timezone'), $choices);
-        $mform->setType('safeassign_timezone', PARAM_TEXT);
-        $mform->addHelpButton('safeassign_timezone', 'timezone', 'plagiarism_safeassign');
+            $mform->addElement('text', 'safeassign_contactemail', get_string('safeassign_contactemail', 'plagiarism_safeassign'));
+            $mform->addRule('safeassign_contactemail', null, 'required', null, 'client');
+            $mform->setType('safeassign_contactemail', PARAM_EMAIL);
+        }
 
         $mform->addElement('header', 'moodle', get_string('settings', 'plagiarism_safeassign'));
-        $mform->addElement('checkbox', 'safeassign_showid', get_string('safeassign_showid', 'plagiarism_safeassign'));
-        $mform->setDefault('safeassign_showid', false);
-
-        $mform->addElement('checkbox', 'safeassign_alloworganizations', get_string('safeassign_alloworganizations', 'plagiarism_safeassign'));
-        $mform->setDefault('safeassign_alloworganizations', false);
-
-        $mform->addElement('header', 'moodle', get_string('shareinfo', 'plagiarism_safeassign'));
         $mform->addElement('html', get_string('disclaimer', 'plagiarism_safeassign'));
         $mform->addElement('checkbox', 'safeassign_referencedbactivity', get_string('safeassign_referencedbactivity', 'plagiarism_safeassign'));
         $mform->setDefault('safeassign_referencedbactivity', false);
@@ -142,6 +116,10 @@ class plagiarism_setup_form extends moodleform {
         $mform->addElement('textarea', 'safeassign_new_student_disclosure', get_string('studentdisclosure','plagiarism_safeassign'),'wrap="virtual" rows="6" cols="50"');
         $mform->addHelpButton('safeassign_new_student_disclosure', 'studentdisclosure', 'plagiarism_safeassign');
         $mform->setDefault('safeassign_new_student_disclosure', get_string('studentdisclosuredefault','plagiarism_safeassign'));
+
+        $mform->addElement('header', 'moodle', get_string('license_header', 'plagiarism_safeassign'));
+        $mform->addElement('textarea', 'license', get_string('license_title', 'plagiarism_safeassign'), 'wrap = "virtual" rows = "15" cols = "100" readonly');
+        $mform->setDefault('license', get_string('license_text', 'plagiarism_safeassign'));
 
         $this->add_action_buttons(true);
     }

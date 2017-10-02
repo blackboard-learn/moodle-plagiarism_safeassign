@@ -105,7 +105,6 @@ $string['submissions_global_reference'] = 'Exclude submissions from institutiona
 $string['plagiarism_tools'] = 'Plagiarism Tools';
 $string['files_accepted'] = 'SafeAssign accepts files in .doc, .docx, .docm, .ppt, .pptx, .odt, .txt, .rtf, .pdf and .html file formats only. Files of any other format will not be checked through SafeAssign.';
 $string['agreement'] = 'I agree to submit my paper(s) to the Global Reference Database.';
-
 $string['error_api_generic'] = 'There was an error processing your request.';
 $string['error_api_unauthorized'] = 'There was an authentication error processing your request.';
 $string['error_api_forbidden'] = 'There was an authorization error processing your request.';
@@ -118,4 +117,8 @@ $string['submission_error_sync'] = 'An error ocurred trying to sync the Submissi
 $string['submission_success_sync'] = 'Submissions synced successfully';
 $string['assign_success_sync'] = 'Assignments synced successfully';
 $string['course_success_sync'] = 'Courses synced successfully';
+$string['configoverride'] = '<div id="adminsettings"><div class="form-overridden">Defined in config.php</div></div>';
+$string['license_header'] = 'SafeAssign&trade; License Agreement';
+$string['license_title'] = 'SafeAssign License Agreement';
+$string['license_text'] = '(LICENSE TEXT)';
 

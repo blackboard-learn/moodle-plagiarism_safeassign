@@ -31,7 +31,7 @@ define(['jquery', 'core/modal_factory', 'core/templates', 'core/str', 'core/noti
              * Through the Moodle core functions sends the data for instructor and student so their credentials
              * can be tested.
              */
-            init: function(storedurl) {
+            init: function(storedUrl) {
 
                 // We need all the required inputs to test connection.
                 var inputs = '#id_safeassign_api, #id_safeassign_instructor_username, #id_safeassign_instructor_password, ' +
@@ -62,7 +62,7 @@ define(['jquery', 'core/modal_factory', 'core/templates', 'core/str', 'core/noti
 
                     //If the stored URL is different from the one selected in the dropdown, disable the "Test connection" button.
                     var url = $('#id_safeassign_api').val();
-                    if (url != storedurl) {
+                    if (url != storedUrl) {
                         disableButton(localizedString);
                     }
                 });

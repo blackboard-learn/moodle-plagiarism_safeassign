@@ -1,5 +1,6 @@
 #page-admin-plagiarism-safeassign-settings input[type="text"]:not(#id_safeassign_curlcache_number),
-#page-admin-plagiarism-safeassign-settings #id_safeassign_timezone {
+#page-admin-plagiarism-safeassign-settings #id_safeassign_timezone,
+#page-admin-plagiarism-safeassign-settings #id_safeassign_api {
     width: 21em;
 }
 
@@ -13,4 +14,9 @@
 
 #page-mod-assign-editsubmission input[type=checkbox] {
     margin-right: .25rem;
+}
+
+#adminsettings {
+    font-family: "Roboto", "Fira Sans", "Segoe UI", "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    width: 21em;
 }
