@@ -39,7 +39,10 @@ $observers = array (
         'callback' => 'plagiarism_safeassign_observer::forum_file_uploaded'
     ),
     array(
-        'eventname' => '\assignsubmission_onlinetext\event\assessable_uploaded',
-        'callback' => 'plagiarism_safeassign_observer::assignsubmission_onlinetext_uploaded'
-    )
+        'eventname' => '\assignsubmission_onlinetext\event\submission_created',
+        'callback' => 'plagiarism_safeassign_observer::assignsubmission_onlinetext_created'
+    ),
+    array(
+        'eventname' => '\assignsubmission_onlinetext\event\submission_updated',
+        'callback' => 'plagiarism_safeassign_observer::assignsubmission_onlinetext_updated')
 );

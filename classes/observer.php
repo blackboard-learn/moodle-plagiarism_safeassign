@@ -51,14 +51,16 @@ class plagiarism_safeassign_observer {
 
     /**
      * Uploads an online submission text.
-     * @param  \assignsubmission_onlinetext\event\assessable_uploaded $event Event
+     * @param  \assignsubmission_onlinetext\event\submission_created $event Event
      * @return void
      */
-    public static function assignsubmission_onlinetext_uploaded(
-        \assignsubmission_onlinetext\event\assessable_uploaded $event) {
+    public static function assignsubmission_onlinetext_created(
+        \assignsubmission_onlinetext\event\submission_created $event) {
         $eventdata = $event->get_data();
         $safeassign = new plagiarism_plugin_safeassign();
         $safeassign->create_submission($eventdata);
+        $safeassign->make_file_from_text_submission($eventdata);
+
     }
 
     /**
@@ -71,6 +73,17 @@ class plagiarism_safeassign_observer {
         $eventdata = $event->get_data();
         $safeassign = new plagiarism_plugin_safeassign();
         $safeassign->create_submission($eventdata);
+    }
+
+    /**
+     * Detects a change in the submission text and call a function to update the corresponding file.
+     * @param \assignsubmission_onlinetext\event\submission_updated $event Event
+     */
+    public static function assignsubmission_onlinetext_updated(
+        \assignsubmission_onlinetext\event\submission_updated $event ) {
+        $eventdata = $event->get_data();
+        $safeassign = new plagiarism_plugin_safeassign();
+        $safeassign->make_file_from_text_submission($eventdata);
     }
 
 }
