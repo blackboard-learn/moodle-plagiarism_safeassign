@@ -57,7 +57,6 @@ class score_sync_log extends base {
      * @return string
      */
     public function get_description() {
-        $messagedesc = get_string('getscoreslog_desc', 'plagiarism_safeassign');
-        return $messagedesc;
+        return 'SafeAssign score task ran successfully.';
     }
 }

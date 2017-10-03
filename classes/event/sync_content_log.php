@@ -70,7 +70,7 @@ class sync_content_log extends base {
         if (empty($this->other['message'])) {
             $message = $this->other['resource'] . ' synced successfully';
         } else {
-            $message = 'An error occurred trying to sync the ' . $this->other['resource'] . 'with ID: ';
+            $message = 'An error occurred trying to sync the ' . $this->other['resource'] . ' with ID: ';
             $message .= $this->other['itemid'] . ' into SafeAssign: <br>';
             $message .= $this->other['message'];
         }
@@ -88,7 +88,7 @@ class sync_content_log extends base {
     public static function create_log_message($resource, $itemid = null, $error = true) {
         $lasterror = '';
         if ($error) {
-            $lasterror = error_handler::process_last_api_error();
+            $lasterror = error_handler::process_last_api_error(false, true, true);
         }
 
         return self::create([

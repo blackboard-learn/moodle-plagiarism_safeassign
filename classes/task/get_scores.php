@@ -32,8 +32,10 @@ class get_scores extends \core\task\scheduled_task {
 
     public function execute() {
         global $CFG;
-        require_once($CFG->dirroot.'/plagiarism/safeassign/lib.php');
-        $safeassign = new \plagiarism_plugin_safeassign();
-        $safeassign->safeassign_get_scores();
+        if (get_config('plagiarism', 'safeassign_use')) {
+            require_once($CFG->dirroot . '/plagiarism/safeassign/lib.php');
+            $safeassign = new \plagiarism_plugin_safeassign();
+            $safeassign->safeassign_get_scores();
+        }
     }
 }

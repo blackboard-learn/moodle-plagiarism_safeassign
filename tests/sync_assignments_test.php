@@ -41,6 +41,7 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
 
     public function setUp() {
         global $DB, $USER;
+        set_config('safeassign_use', 1, 'plagiarism');
         // Create a course and assignment and users.
         $this->course = self::getDataGenerator()->create_course();
 

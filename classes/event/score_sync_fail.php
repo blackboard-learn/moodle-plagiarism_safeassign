@@ -58,7 +58,7 @@ class score_sync_fail extends base {
      * @return string
      */
     public function get_description() {
-        $messagedesc = get_string('getscoreslogfailed_desc', 'plagiarism_safeassign', $this->other['submissionid']);
+        $messagedesc = 'An error ocurred trying to sync the scores for SafeAssign submission ID '. $this->other['submissionid'];
         $messagedesc .= $this->other['message'];
         return $messagedesc;
     }
@@ -69,7 +69,7 @@ class score_sync_fail extends base {
      * @throws \coding_exception
      */
     public static function create_from_error_handler($submid) {
-        $lasterror = error_handler::process_last_api_error();
+        $lasterror = error_handler::process_last_api_error(false, true, true);
 
         return self::create([
             'other' => [

@@ -40,20 +40,23 @@ class sync_assignments extends \core\task\scheduled_task {
 
     public function execute() {
         global $DB;
-        if (!PHPUNIT_TEST) {
-            if (!defined('SAFEASSIGN_OMIT_CACHE')) {
-                define('SAFEASSIGN_OMIT_CACHE', true);
-            }
-        }
-        $safeassign = new \plagiarism_plugin_safeassign();
-        $unsynccourses = $DB->get_records('plagiarism_safeassign_course', array('uuid' => null));
-        if (!empty($unsynccourses)) {
-            $safeassign->sync_courses($unsynccourses);
-            $event = sync_content_log::create_log_message('Courses', null, false);
-            $event->trigger();
 
+        if (get_config('plagiarism', 'safeassign_use')) {
+            if (!PHPUNIT_TEST) {
+                if (!defined('SAFEASSIGN_OMIT_CACHE')) {
+                    define('SAFEASSIGN_OMIT_CACHE', true);
+                }
+            }
+            $safeassign = new \plagiarism_plugin_safeassign();
+            $unsynccourses = $DB->get_records('plagiarism_safeassign_course', array('uuid' => null));
+            if (!empty($unsynccourses)) {
+                $safeassign->sync_courses($unsynccourses);
+                $event = sync_content_log::create_log_message('Courses', null, false);
+                $event->trigger();
+
+            }
+            $safeassign->sync_course_assignments();
+            $safeassign->sync_assign_submissions();
         }
-        $safeassign->sync_course_assignments();
-        $safeassign->sync_assign_submissions();
     }
 }

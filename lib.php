@@ -647,6 +647,8 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                         }
                     }
                 }
+                $event = sync_content_log::create_log_message('Submissions', null, false);
+                $event->trigger();
             }
         }
     }
@@ -700,7 +702,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                     $wrapper->userid, $credentials[$submission['assignmentid']]->courseid);
             }
         } else {
-            $event = sync_content_log::create_log_message('Assignment', $data['id']);
+            $event = sync_content_log::create_log_message('Submissions', $data['id']);
             $event->trigger();
         }
 
