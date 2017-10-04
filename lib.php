@@ -288,8 +288,10 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 if (!empty($eventdata['other']['pathnamehashes'])) {
                     $params['hasfile'] = 1;
                 }
-                if (!empty($eventdata['other']['content'])) {
-                    $params['hasonlinetext'] = 1;
+                if ($eventdata['objecttable'] === 'assignsubmission_onlinetext') {
+                    if (isset($eventdata['other']['onlinetextwordcount']) && $eventdata['other']['onlinetextwordcount'] > 0) {
+                        $params['hasonlinetext'] = 1;
+                    }
                 }
                 $params['globalcheck'] = $config['safeassign_global_reference'];
                 $this->validate_submission($eventdata, $params);
@@ -336,8 +338,14 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      */
     private function create_submission_record($eventdata, $params) {
         global $DB;
+
+        $submissionid = $eventdata['objectid'];
+        if ($eventdata['objecttable'] === 'assignsubmission_onlinetext') {
+            $submissionid = $eventdata['other']['submissionid'];
+        }
+
         $submission = new stdClass();
-        $submission->submissionid = $eventdata['objectid'];
+        $submission->submissionid = $submissionid;
         $submission->globalcheck = $this->get_global_check_flag($eventdata);
         $submission->groupsubmission = 1;
         $submission->reportgenerated = 0;
@@ -358,11 +366,15 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      */
     public function update_old_submission_records($eventdata) {
         global $DB;
+        $submissionid = $eventdata['objectid'];
+        if ($eventdata['objecttable'] === 'assignsubmission_onlinetext') {
+            $submissionid = $eventdata['other']['submissionid'];
+        }
         // Search the submission that are already in plagiarism_safeassign_subm.
         $sql = "UPDATE {plagiarism_safeassign_subm}
                    SET deprecated = 1
                  WHERE submissionid = :submissionid AND timecreated <> :timecreated";
-        $DB->execute($sql, array('submissionid' => $eventdata['objectid'], 'timecreated' => $eventdata['timecreated']));
+        $DB->execute($sql, array('submissionid' => $submissionid, 'timecreated' => $eventdata['timecreated']));
     }
 
     /**
@@ -373,7 +385,11 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      */
     private function validate_submission($eventdata, $params) {
         global $DB;
-        $record = $DB->get_record('plagiarism_safeassign_subm', array('submissionid' => $eventdata['objectid'],
+        $submissionid = $eventdata['objectid'];
+        if ($eventdata['objecttable'] === 'assignsubmission_onlinetext') {
+            $submissionid = $eventdata['other']['submissionid'];
+        }
+        $record = $DB->get_record('plagiarism_safeassign_subm', array('submissionid' => $submissionid,
             'timecreated' => $eventdata['timecreated']));
         if (empty($record)) {
             $this->create_submission_record($eventdata, $params);
@@ -626,7 +642,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                         // Go on each submission.
                         foreach ($arraydata as $data) {
                             if (isset($unsynced[$data['id']])) {
-                                $this->sync_submission($data, $credentials, $submission);
+                                $this->sync_submission($data, $credentials, $submission, $unsynced[$data['id']]);
                             }
                         }
                     }
@@ -641,39 +657,51 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      * @param array object $credentials
      * @param object $submission
      */
-    public function sync_submission($data, $credentials, $submission) {
-        global $DB;
+    public function sync_submission($data, $credentials, $submission, $unsynced) {
+        global $DB, $CFG;
         // Build the object to pass in to service.
         $wrapper = new stdClass();
         $wrapper->userid = (int) $data['userid'];
         $wrapper->courseuuid = $credentials[$submission['assignmentid']]->courseuuid;
         $wrapper->assignuuid = $credentials[$submission['assignmentid']]->assignuuid;
         $wrapper->filepaths = array();
-        $files = $data['plugins'][0]['fileareas'][0]['files'];
-        if (!empty($files)) {
+
+        if ($unsynced->hasfile) {
+            $files = $data['plugins'][0]['fileareas'][0]['files'];
             foreach ($files as $file) {
                 $wrapper->filepaths[] = $file['fileurl'];
                 $wrapper->filenames[] = $file['filename'];
             }
-            $wrapper->globalcheck = false;
-            $wrapper->grouppermission = true;
-            $result = safeassign_api::create_submission($wrapper->userid, $wrapper->courseuuid,
-                $wrapper->assignuuid, $wrapper->filepaths, $wrapper->globalcheck, $wrapper->grouppermission);
-            $responsedata =json_decode(rest_provider::instance()->lastresponse());
-            if ($result === true) {
-                if (isset($responsedata->submissions[0]) && !empty($responsedata->submissions[0])) {
-                    $record = $DB->get_record('plagiarism_safeassign_subm', array('submissionid' => $data['id'],
-                        'uuid' => null, 'submitted' => 0, 'deprecated' => 0));
-                    $record->uuid = $responsedata->submissions[0]->submission_uuid;
-                    $record->submitted = 1;
-                    $DB->update_record('plagiarism_safeassign_subm', $record);
-                    $this->sync_submission_files($data['id'], $responsedata, $wrapper->filenames,
-                        $wrapper->userid, $credentials[$submission['assignmentid']]->courseid);
-                }
-            } else {
-                $event = sync_content_log::create_log_message('Assignment', $data['id']);
-                $event->trigger();
+        }
+        if ($unsynced->hasonlinetext) {
+            $fs = get_file_storage();
+            $usercontext = context_user::instance($wrapper->userid );
+            $textfile = $fs->get_file($usercontext->id, 'assignsubmission_text_as_file', 'submission_text_files', $data['id'],
+                '/', 'userid: ' . $data['userid'] . ' text_submissionid: ' . $data['id']);
+            if ($textfile) {
+                $wrapper->filepaths[] = moodle_url::make_webservice_pluginfile_url($usercontext->id, 'assignsubmission_text_as_file',
+                    'submission_text_files', $data['id'], $textfile->get_filepath(), $textfile->get_filename())->out(false);
+                $wrapper->filenames[] = $textfile->get_filename();
             }
+        }
+        $wrapper->globalcheck = true; // TBD.
+        $wrapper->grouppermission = true;
+        $result = safeassign_api::create_submission($wrapper->userid, $wrapper->courseuuid,
+            $wrapper->assignuuid, $wrapper->filepaths, $wrapper->globalcheck, $wrapper->grouppermission);
+        $responsedata =json_decode(rest_provider::instance()->lastresponse());
+        if ($result === true) {
+            if (isset($responsedata->submissions[0]) && !empty($responsedata->submissions[0])) {
+                $record = $DB->get_record('plagiarism_safeassign_subm', array('submissionid' => $data['id'],
+                    'uuid' => null, 'submitted' => 0, 'deprecated' => 0));
+                $record->uuid = $responsedata->submissions[0]->submission_uuid;
+                $record->submitted = 1;
+                $DB->update_record('plagiarism_safeassign_subm', $record);
+                $this->sync_submission_files($data['id'], $responsedata, $wrapper->filenames,
+                    $wrapper->userid, $credentials[$submission['assignmentid']]->courseid);
+            }
+        } else {
+            $event = sync_content_log::create_log_message('Assignment', $data['id']);
+            $event->trigger();
         }
 
     }
@@ -692,11 +720,11 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                   FROM {files} f
                   JOIN {assign_submission} sub ON sub.id = f.itemid
                   JOIN {course_modules} cm ON cm.instance = sub.assignment 
-                 WHERE f.filearea = ?
+                 WHERE f.filearea IN (?,?)
                    AND f.itemid = ?
                    AND cm.course = ?
                    AND f.filename ";
-        $params = array('submission_files', $submissionid, $courseid);
+        $params = array('submission_files', 'submission_text_files', $submissionid, $courseid);
         list($sqlin, $params2) = $DB->get_in_or_equal($filenames);
         $sentfiles = $DB->get_records_sql($sql . $sqlin, array_merge($params, $params2));
         if ($sentfiles) {
@@ -725,6 +753,41 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             }
         }
     }
+
+    /**
+     * Converts the submission text into a fie to be avaliable for the sync task.
+     * @param object $eventdata
+     */
+    public function make_file_from_text_submission($eventdata) {
+        global $DB;
+
+        if (get_config('plagiarism', 'safeassign_use')) {
+            $fs = get_file_storage();
+            $usercontext = context_user::instance($eventdata['userid']);
+            $oldfile = $fs->get_file($usercontext->id, 'assignsubmission_text_as_file', 'submission_text_files',
+                $eventdata['other']['submissionid'], '/', 'userid_' . $eventdata['userid'] . '_text_submissionid_' . $eventdata['other']['submissionid'] .'.txt');
+            if ($oldfile) {
+                $oldfile->delete();
+            }
+
+            $filecontent = $DB->get_field('assignsubmission_onlinetext', 'onlinetext',  array('id' => $eventdata['objectid']));
+            if ($filecontent) {
+                $fs = get_file_storage();
+                // Create a new one.
+                $filerecord = array(
+                    'contextid' => $usercontext->id,
+                    'component' => 'assignsubmission_text_as_file',
+                    'filearea' => 'submission_text_files',
+                    'itemid' => $eventdata['other']['submissionid'],
+                    'filepath' => '/',
+                    'filename' => 'userid_' . $eventdata['userid'] . '_text_submissionid_' . $eventdata['other']['submissionid'] .'.txt',
+                    'userid' => $eventdata['userid']
+                );
+                $fs->create_file_from_string($filerecord, $filecontent);
+            }
+        }
+    }
+
 }
 
 /**

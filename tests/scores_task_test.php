@@ -97,10 +97,10 @@ class plagiarism_safeassign_tasks_testcase extends plagiarism_safeassign_base_te
         $plugin->save($this->submission, $this->data);
         $events = $sink->get_events();
         $this->assertCount(2, $events);
-        $event = reset($events);
+        $event = $events[1];
 
         // Submission is processed by the event observer class.
-        plagiarism_safeassign_observer::assignsubmission_onlinetext_uploaded($event);
+        plagiarism_safeassign_observer::assignsubmission_onlinetext_created($event);
         $record = $DB->get_record('plagiarism_safeassign_subm', array());
 
         // Simulate submission's creation on SafeAssign side.

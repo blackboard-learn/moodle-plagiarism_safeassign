@@ -95,10 +95,9 @@ class plagiarism_safeassign_submission_test extends advanced_testcase  {
         $plugin->save($this->submission, $this->data);
         $events = $sink->get_events();
         $this->assertCount(2, $events);
-        $event = reset($events);
-
+        $event = $events[1];
         // Submission is processed by the event observer class.
-        plagiarism_safeassign_observer::assignsubmission_onlinetext_uploaded($event);
+        plagiarism_safeassign_observer::assignsubmission_onlinetext_created($event);
         $record = $DB->get_record('plagiarism_safeassign_subm', array());
         $this->evaluate_safeassign_subm_recor($record, 0);
         // Simulate a resubmission.
@@ -108,7 +107,13 @@ class plagiarism_safeassign_submission_test extends advanced_testcase  {
         $temporal['timecreated'] = $temporal['timecreated'] + 1;
         $reflection->setValue($event, $temporal);
         $reflection->setAccessible(false);
-        plagiarism_safeassign_observer::assignsubmission_onlinetext_uploaded($event);
+        plagiarism_safeassign_observer::assignsubmission_onlinetext_created($event);
+        // Test file creation for text submission.
+        $fs = get_file_storage();
+        $usercontext = context_user::instance($this->user->id);
+        $file = $fs->get_file($usercontext->id, 'assignsubmission_text_as_file', 'submission_text_files',
+            $this->submission->id, '/', 'userid_' . $this->user->id . '_text_submissionid_' . $this->submission->id .'.txt');
+        $this->assertNotNull($file);
         $records = $DB->get_records('plagiarism_safeassign_subm');
         $this->assertEquals(2, count($records));
         // The record with the highest id should be not deleted.
