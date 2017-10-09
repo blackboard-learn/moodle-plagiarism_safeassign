@@ -56,7 +56,7 @@ class plagiarism_setup_form extends moodleform {
             }
         }
 
-        $mform->addElement('select', 'safeassign_api', get_string('credentials', 'plagiarism_safeassign').get_string('configoverride', 'plagiarism_safeassign'), $urls, array($disabled));
+        $mform->addElement('select', 'safeassign_api', get_string('credentials', 'plagiarism_safeassign'), $urls, array($disabled));
         $mform->addRule($required, null, 'required', null, 'client');
         $mform->addHelpButton('safeassign_api', 'safeassign_api', 'plagiarism_safeassign');
         $mform->setType('safeassign_api', PARAM_URL);

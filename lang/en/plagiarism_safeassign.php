@@ -117,8 +117,8 @@ $string['submission_error_sync'] = 'An error ocurred trying to sync the Submissi
 $string['submission_success_sync'] = 'Submissions synced successfully';
 $string['assign_success_sync'] = 'Assignments synced successfully';
 $string['course_success_sync'] = 'Courses synced successfully';
-$string['configoverride'] = '<div id="adminsettings"><div class="form-overridden">Defined in config.php</div></div>';
 $string['license_header'] = 'SafeAssign&trade; License Agreement';
 $string['license_title'] = 'SafeAssign License Agreement';
 $string['license_text'] = '(LICENSE TEXT)';
+$string['not_configured'] = 'SafeAssign&trade; is not configured. Please have your system administrator submit a ticket on Behind the Blackboard for assistance.';
 

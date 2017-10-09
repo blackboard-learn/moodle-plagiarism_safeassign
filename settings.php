@@ -79,6 +79,17 @@ $plagiarismsettings = (array)get_config('plagiarism_safeassign');
 $mform->set_data($plagiarismsettings);
 
 echo $OUTPUT->box_start('generalbox boxaligncenter', 'intro');
-$mform->display();
+
+if (!empty($CFG->plagiarism_safeassign_urls)) {
+    $urls=array_filter(array_column($CFG->plagiarism_safeassign_urls, 'url'));
+    if (!empty($urls)) {
+        $mform->display();
+    } else {
+        echo $OUTPUT->notification(get_string('not_configured', 'plagiarism_safeassign'), \core\output\notification::NOTIFY_ERROR);
+    }
+} else {
+    echo $OUTPUT->notification(get_string('not_configured', 'plagiarism_safeassign'), \core\output\notification::NOTIFY_ERROR);
+}
+
 echo $OUTPUT->box_end();
 echo $OUTPUT->footer();
