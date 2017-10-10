@@ -614,14 +614,14 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                             $event = sync_content_log::create_log_message('Course', $course->courseid);
                             $event->trigger();
                         }
+                    } else {
+                        $event = sync_content_log::create_log_message('Course', $course->courseid);
+                        $event->trigger();
                     }
                 } else if (isset($validation->uuid)) {
                     $course->uuid = $validation->uuid;
                     $DB->update_record('plagiarism_safeassign_course', $course);
                     safeassign_api::put_instructor_to_course($course->instructorid, $course->uuid);
-                } else {
-                    $event = sync_content_log::create_log_message('Course', $course->courseid);
-                    $event->trigger();
                 }
             }
         }
@@ -797,15 +797,15 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $wrapper->assignuuid, $wrapper->filepaths, $wrapper->globalcheck, $wrapper->grouppermission);
         $responsedata =json_decode(rest_provider::instance()->lastresponse());
         if ($result === true) {
+            $record = $DB->get_record('plagiarism_safeassign_subm', array('submissionid' => $data['id'],
+                'uuid' => null, 'submitted' => 0, 'deprecated' => 0));
+            $record->submitted = 1;
+            $this->sync_submission_files($data['id'], $responsedata, $wrapper->filenames,
+                $wrapper->userid, $credentials[$submission['assignmentid']]->courseid);
             if (isset($responsedata->submissions[0]) && !empty($responsedata->submissions[0])) {
-                $record = $DB->get_record('plagiarism_safeassign_subm', array('submissionid' => $data['id'],
-                    'uuid' => null, 'submitted' => 0, 'deprecated' => 0));
                 $record->uuid = $responsedata->submissions[0]->submission_uuid;
-                $record->submitted = 1;
-                $DB->update_record('plagiarism_safeassign_subm', $record);
-                $this->sync_submission_files($data['id'], $responsedata, $wrapper->filenames,
-                    $wrapper->userid, $credentials[$submission['assignmentid']]->courseid);
             }
+            $DB->update_record('plagiarism_safeassign_subm', $record);
         } else {
             $event = sync_content_log::create_log_message('Submissions', $data['id']);
             $event->trigger();
@@ -814,7 +814,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     }
 
     /**
-     *  Sends the files to the SafeAssign server and updates its uuid's.
+     *  Fill the safeassign_files datatable with the server response.
      *  @param int $submissionid
      *  @param object $responsedata
      *  @param array $filenames
@@ -839,25 +839,29 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $record->userid = $userid;
             $record->timesubmitted = time();
             $record->submissionid = (int) $submissionid;
-            foreach ($responsedata->submissions[0]->submission_files as $file) {
-                $record->uuid = null;
-                if (isset($sentfiles[urldecode($file->file_name)])) {
-                    $record->fileid = $sentfiles[urldecode($file->file_name)]->fileid;
-                    $record->supported = 1;
-                    $record->uuid = $file->file_uuid;
-                    $record->cm = (int) $sentfiles[urldecode($file->file_name)]->cmid;
-                    $DB->insert_record('plagiarism_safeassign_files', $record);
-                }
-            }
-            foreach ($responsedata->unprocessed_file_names as $unsupportedfilename) {
-                if (isset($sentfiles[urldecode($unsupportedfilename)])) {
+            if (isset($responsedata->submissions[0]->submission_files) && !empty($responsedata->submissions[0]->submission_files)) {
+                foreach ($responsedata->submissions[0]->submission_files as $file) {
                     $record->uuid = null;
-                    $record->supported = 0;
-                    $record->cm = (int) $sentfiles[urldecode($unsupportedfilename)]->cmid;
-                    $record->fileid = $sentfiles[urldecode($unsupportedfilename)]->fileid;
-                    $DB->insert_record('plagiarism_safeassign_files', $record);
+                    if (isset($sentfiles[urldecode($file->file_name)])) {
+                        $record->fileid = $sentfiles[urldecode($file->file_name)]->fileid;
+                        $record->supported = 1;
+                        $record->uuid = $file->file_uuid;
+                        $record->cm = (int) $sentfiles[urldecode($file->file_name)]->cmid;
+                        $DB->insert_record('plagiarism_safeassign_files', $record);
+                    }
                 }
             }
+           if (isset($responsedata->unprocessed_file_names) && !empty($responsedata->unprocessed_file_names)) {
+               foreach ($responsedata->unprocessed_file_names as $unsupportedfilename) {
+                   if (isset($sentfiles[urldecode($unsupportedfilename)])) {
+                       $record->uuid = null;
+                       $record->supported = 0;
+                       $record->cm = (int) $sentfiles[urldecode($unsupportedfilename)]->cmid;
+                       $record->fileid = $sentfiles[urldecode($unsupportedfilename)]->fileid;
+                       $DB->insert_record('plagiarism_safeassign_files', $record);
+                   }
+               }
+           }
         }
     }
 
