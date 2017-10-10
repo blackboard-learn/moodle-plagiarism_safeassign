@@ -119,7 +119,8 @@ class plagiarism_setup_form extends moodleform {
 
         $mform->addElement('header', 'moodle', get_string('license_header', 'plagiarism_safeassign'));
         $mform->addElement('textarea', 'license', get_string('license_title', 'plagiarism_safeassign'), 'wrap = "virtual" rows = "15" cols = "100" readonly');
-        $mform->setDefault('license', get_string('license_text', 'plagiarism_safeassign'));
+        $terms = new plagiarism_safeassign_terms();
+        $mform->setDefault('license', $terms->get_license_agreement());
 
         $this->add_action_buttons(true);
     }

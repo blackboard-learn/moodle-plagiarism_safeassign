@@ -72,7 +72,7 @@ if (($data = $mform->get_data()) && confirm_sesskey()) {
     echo $OUTPUT->notification(get_string('savedconfigsuccess', 'plagiarism_safeassign'), \core\output\notification::NOTIFY_SUCCESS);
 }
 
-$storedurl = get_config('plagiarism_safeassign','safeassign_api');
+$storedurl = get_config('plagiarism_safeassign', 'safeassign_api');
 $PAGE->requires->js_call_amd('plagiarism_safeassign/settings', 'init', array($storedurl));
 
 $plagiarismsettings = (array)get_config('plagiarism_safeassign');
@@ -81,7 +81,7 @@ $mform->set_data($plagiarismsettings);
 echo $OUTPUT->box_start('generalbox boxaligncenter', 'intro');
 
 if (!empty($CFG->plagiarism_safeassign_urls)) {
-    $urls=array_filter(array_column($CFG->plagiarism_safeassign_urls, 'url'));
+    $urls = array_filter(array_column($CFG->plagiarism_safeassign_urls, 'url'));
     if (!empty($urls)) {
         $mform->display();
     } else {
