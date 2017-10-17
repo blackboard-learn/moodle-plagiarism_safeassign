@@ -384,13 +384,13 @@ abstract class safeassign_api {
      * @param int $userid
      * @param string $courseuuid
      * @param string $assignmentuuid
-     * @param array $filepaths
+     * @param array $files
      * @param bool $globalcheck
      * @param bool $groupsubmission
      * @return bool
      */
     public static function create_submission($userid, $courseuuid, $assignmentuuid,
-                                             array $filepaths, $globalcheck = false, $groupsubmission = false) {
+                                             array $files, $globalcheck = false, $groupsubmission = false) {
         $baseurl = get_config(self::PLUGIN, 'safeassign_api');
         if (empty($baseurl)) {
             return false;
@@ -403,7 +403,7 @@ abstract class safeassign_api {
             }
         }
         $result = rest_provider::instance()->post_submission_to_safeassign($userid, $url->out(false),
-            $filepaths, $globalcheck, $groupsubmission);
+            $files, $globalcheck, $groupsubmission);
         return $result;
     }
 

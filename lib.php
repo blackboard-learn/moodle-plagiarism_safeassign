@@ -533,7 +533,6 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         $submissions = $DB->get_records_sql("SELECT plg.*, asg.userid
         FROM {plagiarism_safeassign_subm} plg, {assign_submission} asg
         WHERE plg.deprecated = 0 AND plg.reportgenerated = 0 AND plg.submitted = 1 AND plg.submissionid = asg.id;");
-
         foreach ($submissions as $submission) {
             $userid = $submission->userid;
             $submissionuuid = $submission->uuid;
@@ -550,6 +549,11 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 $submission->highscore = $convhighscore;
                 $submission->avgscore = $convavgscore;
                 $submission->reportgenerated = 1;
+                if (isset($result->submission_files)) {
+                    foreach ($result->submission_files as $fileuuid => $score) {
+                        $DB->set_field('plagiarism_safeassign_files', 'similarityscore', floatval($score/100), array('uuid' => $fileuuid));
+                    }
+                }
                 unset($submission->userid);
                 $DB->update_record('plagiarism_safeassign_subm', $submission);
             } else {
@@ -747,7 +751,10 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                         // Go on each submission.
                         foreach ($arraydata as $data) {
                             if (isset($unsynced[$data['id']])) {
-                                $this->sync_submission($data, $credentials, $submission, $unsynced[$data['id']]);
+                                $cm = $this->get_cmid($submission['assignmentid']);
+                                $assignmentcontext = context_module::instance($cm->id);
+                                $this->sync_submission($data, $credentials, $submission, $unsynced[$data['id']],
+                                    $assignmentcontext);
                             }
                         }
                     }
@@ -763,8 +770,9 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      * @param array object $data
      * @param array object $credentials
      * @param object $submission
+     * @param object $context
      */
-    public function sync_submission($data, $credentials, $submission, $unsynced) {
+    public function sync_submission($data, $credentials, $submission, $unsynced, $context) {
         global $DB, $CFG;
         // Build the object to pass in to service.
         $wrapper = new stdClass();
@@ -776,6 +784,9 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         if ($unsynced->hasfile) {
             $files = $data['plugins'][0]['fileareas'][0]['files'];
             foreach ($files as $file) {
+                $fs = get_file_storage();
+                $wrapper->files[] = $fs->get_file($context->id, 'assignsubmission_file', 'submission_files',
+                    $data['id'], '/', $file['filename']);
                 $wrapper->filepaths[] = $file['fileurl'];
                 $wrapper->filenames[] = $file['filename'];
             }
@@ -786,6 +797,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $textfile = $fs->get_file($usercontext->id, 'assignsubmission_text_as_file', 'submission_text_files', $data['id'],
                 '/', 'userid_' . $data['userid'] . '_text_submissionid_' . $data['id'] . '.txt');
             if ($textfile) {
+                $wrapper->files[] = $textfile;
                 $wrapper->filepaths[] = moodle_url::make_webservice_pluginfile_url($usercontext->id, 'assignsubmission_text_as_file',
                     'submission_text_files', $data['id'], $textfile->get_filepath(), $textfile->get_filename())->out(false);
                 $wrapper->filenames[] = $textfile->get_filename();
@@ -794,7 +806,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         $wrapper->globalcheck = ($unsynced) ? true : false;
         $wrapper->grouppermission = true;
         $result = safeassign_api::create_submission($wrapper->userid, $wrapper->courseuuid,
-            $wrapper->assignuuid, $wrapper->filepaths, $wrapper->globalcheck, $wrapper->grouppermission);
+            $wrapper->assignuuid, $wrapper->files, $wrapper->globalcheck, $wrapper->grouppermission);
         $responsedata =json_decode(rest_provider::instance()->lastresponse());
         if ($result === true) {
             $record = $DB->get_record('plagiarism_safeassign_subm', array('submissionid' => $data['id'],
@@ -897,6 +909,23 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 $fs->create_file_from_string($filerecord, $filecontent);
             }
         }
+    }
+
+    /**
+     * Gets the course module ID for the given assignment id.
+     * @param $assignmentid
+     * @return mixed
+     */
+    public function get_cmid($assignmentid) {
+        global $DB;
+        $sql = "SELECT cm.id 
+                  FROM {course_modules} cm
+                  JOIN {modules} m ON m.id = cm.module
+                 WHERE m.name = 'assign'
+                   AND cm.instance = ?";
+        $cm = $DB->get_record_sql($sql, array($assignmentid));
+        return $cm;
+
     }
 
 }

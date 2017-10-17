@@ -764,7 +764,7 @@ class rest_provider {
      * @param bool $groupsubmission
      * @return bool|mixed
      */
-    public function post_submission_to_safeassign($userid, $url, array $filenames, $globalcheck = false, $groupsubmission = false) {
+    public function post_submission_to_safeassign($userid, $url, array $files, $globalcheck = false, $groupsubmission = false) {
 
         if (PHPUNIT_TEST) {
             $this->lasthttpcode = testhelper::get_code_data($url);
@@ -784,17 +784,11 @@ class rest_provider {
                 )
             )
         );
-
-        $files = array();
-        foreach ($filenames as $f) {
-            $files[$f] = file_get_contents($f);
-        }
-
+        
         $boundary = uniqid();
         $delimiter = '-------------' . $boundary;
         $postdata = $this->build_data_files($boundary, $fields, $files);
         $postlength = strlen($postdata);
-
         $headers[self::HEADER_KEY_CONTENT_TYPE] = self::HEADER_VAL_MULTIPART_FORM . '; boundary=' . $delimiter;
         $headers[self::HEADER_KEY_ACCEPT] = self::HEADER_VAL_APP_JSON;
         $headers[self::HEADER_KEY_AUTHORIZATION] = "Bearer " . $this->gettoken($userid);
@@ -844,12 +838,13 @@ class rest_provider {
                 . $content . $eol;
         }
 
-        foreach ($files as $name => $content) {
+        foreach ($files as $file) {
             $data .= "--" . $delimiter . $eol
-                . 'Content-Disposition: form-data; name="files"; filename="' . $name . '"' . $eol
+                . 'Content-Disposition: form-data; name="files"; filename="' . $file->get_filename() . '"' . $eol
+                . 'Content-Type: ' . $file->get_mimetype() . $eol
                 . 'Content-Transfer-Encoding: binary'.$eol;
             $data .= $eol;
-            $data .= $content . $eol;
+            $data .= $file->get_content() . $eol;
         }
         $data .= "--" . $delimiter . "--".$eol;
 
