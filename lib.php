@@ -108,13 +108,13 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         if (!empty($courseconfiguration) && $courseconfiguration['safeassign_enabled']) {
             // The activity has SafeAssign enabled.
             $message = '';
+            $file = null;
             $userid = $linkarray['userid'];
-
             if (isset($linkarray['file'])) {
                 // This submission has a file associated with it.
                 $file = $this->get_file_results($cmid, $userid, $linkarray['file']->get_id());
             } else {
-                if (isset($linkarray['content'])) {
+                if (isset($linkarray['content']) && !empty($linkarray['content'])) {
                     // This submission has an online text associated with it.
                     $submission = $DB->get_record('assign_submission', array('userid' => $userid, 'assignment' => $linkarray['assignment']));
                     $namefile = 'userid_' . $userid . '_text_submissionid_' . $submission->id . '.txt';
@@ -122,8 +122,9 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                     $file = $this->get_file_results($cmid, $userid, $filerecord->id);
                 }
             }
-
-            $message = $this->get_message_result($file, $cm, $courseconfiguration);
+            if ($file != null) {
+                $message = $this->get_message_result($file, $cm, $courseconfiguration);
+            }
             return $message;
         } else {
             // The activity is not configured with SafeAssign.
@@ -183,11 +184,13 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         $score = '';
         $reporturl = '';
         $supported = 1;
-        $filequery="SELECT sub.reportgenerated, fil.similarityscore, fil.reporturl, fil.supported
+        $filequery="SELECT fil.id, sub.reportgenerated, fil.similarityscore, fil.reporturl, fil.supported
                        FROM {plagiarism_safeassign_subm} sub
                        JOIN {plagiarism_safeassign_files} fil ON sub.submissionid = fil.submissionid
-                      WHERE fil.cm = ? AND fil.userid = ? AND fil.fileid = ? AND sub.submitted = 1 AND sub.deprecated = 0";
-        $fileinfo = $DB->get_record_sql($filequery, array($cmid, $userid, $fileid));
+                      WHERE fil.cm = ? AND fil.userid = ? AND fil.fileid = ? AND sub.submitted = 1 AND sub.deprecated = 0
+                      ORDER BY fil.id";
+        $files = $DB->get_records_sql($filequery, array($cmid, $userid, $fileid));
+        $fileinfo = end($files);
         if (!empty($fileinfo)) {
             $analyzed = $fileinfo->reportgenerated;
             $score = $fileinfo->similarityscore;

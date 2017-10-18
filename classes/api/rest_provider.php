@@ -759,7 +759,7 @@ class rest_provider {
      * Post a submission to SafeAssign using curl
      * @param int $userid
      * @param string $url
-     * @param array $filenames
+     * @param array $files
      * @param bool $globalcheck
      * @param bool $groupsubmission
      * @return bool|mixed
