@@ -100,6 +100,8 @@ $string['assignment_check_submissions_help'] = 'SafeAssign Originality Reports w
 <br>N.B. SafeAssign currently only supports English-language submissions.';
 $string['students_originality_report'] = 'Allow students to view originality report';
 $string['submissions_global_reference'] = 'Exclude submissions from institutional and global reference database';
+$string['submissions_global_reference_help'] = 'Submissions will still be processed by SafeAssign but won’t be registered in databases. 
+    This avoids files being marked as plagiarized when teachers allow re-submissions in a specific assignment.';
 
 // Disclosure agreement.
 $string['plagiarism_tools'] = 'Plagiarism Tools';
