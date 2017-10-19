@@ -141,7 +141,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      * @return string
      */
     private function get_message_result($file, $cm, array $courseconfiguration) {
-        global $USER;
+        global $USER, $OUTPUT;
         $message = '';
         if($file['supported']) {
             if ($file['analyzed']) {
@@ -162,6 +162,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         } else {
             // This file is not supported by SafeAssign.
             $message = get_string('safeassign_file_not_supported', 'plagiarism_safeassign');
+            $message .= $OUTPUT->help_icon('safeassign_file_not_supported', 'plagiarism_safeassign');
         }
         return $message;
     }

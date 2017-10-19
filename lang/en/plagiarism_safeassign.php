@@ -122,7 +122,8 @@ $string['license_header'] = 'SafeAssign&trade; License Agreement';
 $string['license_title'] = 'SafeAssign License Agreement';
 $string['not_configured'] = 'SafeAssign&trade; is not configured. Please have your system administrator submit a ticket on Behind the Blackboard for assistance.';
 
-$string['safeassign_file_not_supported'] = 'The file extension is not supported by SafeAssign or the file size exceeds maximum  capacity.';
+$string['safeassign_file_not_supported'] = 'Not supported.';
+$string['safeassign_file_not_supported_help'] = 'The file extension is not supported by SafeAssign or the file size exceeds maximum capacity.';
 $string['safeassign_file_in_review'] = 'Report in progress...';
 $string['safeassign_file_similarity_score'] = 'Submission Text: {$a}%<br>';
 $string['safeassign_link_originality_report'] = 'View Originality Report';
