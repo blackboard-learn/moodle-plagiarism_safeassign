@@ -15,3 +15,11 @@
 #page-mod-assign-editsubmission input[type=checkbox] {
     margin-right: .25rem;
 }
+
+#page-mod-assign-editsubmission .row {
+    margin-left: 0px;
+}
+
+#page-mod-assign-editsubmission .col-md-3 {
+    padding-left: 0px;
+}
