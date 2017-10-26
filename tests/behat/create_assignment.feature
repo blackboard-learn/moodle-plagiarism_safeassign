@@ -43,7 +43,7 @@ Feature: Enable SafeAssign in an assignment
       And I am on the course with shortname "C1"
      Then I turn editing mode on
       And I add a "Assignment" to section "1"
-      And I should not see "Safeassign Plagiarism plugin"
+      And I should not see "SafeAssign Plagiarism plugin"
       And I press "Cancel"
       And I turn editing mode off
      Then the following config values are set as admin:
@@ -51,11 +51,11 @@ Feature: Enable SafeAssign in an assignment
       And I am on the course with shortname "C1"
      Then I turn editing mode on
       And I add a "Assignment" to section "1"
-      And I should see "Safeassign Plagiarism plugin"
+      And I should see "SafeAssign Plagiarism plugin"
      Then I set the field "Assignment name" to "Assignment One"
       And I set the field "Description" to "Assignmnet One"
-      And navigation node "Safeassign Plagiarism plugin" should be expandable
-     Then I expand "Safeassign Plagiarism plugin" node
+      And navigation node "SafeAssign Plagiarism plugin" should be expandable
+     Then I expand "SafeAssign Plagiarism plugin" node
       And I set the field "safeassign_enabled" to "1"
       And I set the field "safeassign_originality_report" to "1"
       And I set the field "safeassign_global_reference" to "0"
@@ -75,7 +75,7 @@ Feature: Enable SafeAssign in an assignment
       And I am on the course with shortname "C1"
      Then I turn editing mode on
       And I add a "Assignment" to section "1"
-      And I should see "Safeassign Plagiarism plugin"
+      And I should see "SafeAssign Plagiarism plugin"
      Then I set the field "Assignment name" to "Assignment One"
       And I set the field "Description" to "Assignmnet One"
       And I press "Expand all"
@@ -110,7 +110,7 @@ Feature: Enable SafeAssign in an assignment
       And I am on the course with shortname "C1"
      Then I turn editing mode on
       And I add a "Assignment" to section "1"
-      And I should see "Safeassign Plagiarism plugin"
+      And I should see "SafeAssign Plagiarism plugin"
      Then I set the field "Assignment name" to "Assignment One"
       And I set the field "Description" to "Assignmnet One"
       And I press "Expand all"

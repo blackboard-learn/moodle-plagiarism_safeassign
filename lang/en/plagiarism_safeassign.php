@@ -93,7 +93,7 @@ $string['cachedef_request'] = 'SafeAssign request cache';
 $string['error_behat_getjson'] = 'Error to get json file "{$a}" from folder plagiarism/safeassign/tests/fixtures for '.
     'simulating a call to SafeAssign webservices when running behat tests.';
 $string['error_behat_instancefail'] = 'This is an instance configured to fail with behat tests.';
-$string['safeassign'] = 'Safeassign Plagiarism plugin';
+$string['safeassign'] = 'SafeAssign Plagiarism plugin';
 $string['assignment_check_submissions'] = 'Check submissions for plagiarism';
 $string['assignment_check_submissions_help'] = 'SafeAssign Originality Reports will not be available to Teachers if anonymous grading
  is set, but Students will be able to view their own SafeAssign Originality Reports if "Allow students to view originality report" is selected.

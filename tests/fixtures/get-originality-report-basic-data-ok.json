@@ -1,7 +1,7 @@
 {
   "highest_score": "100",
   "average_score": "100",
-  "submission_files": [
-    {"0c00b99b-3fe2-7a64-e27e-4ba2b2e9cd95" : "100"}
-  ]
+  "submission_files": {
+    "0c00b99b-3fe2-7a64-e27e-4ba2b2e9cd95" : "100"
+  }
 }
