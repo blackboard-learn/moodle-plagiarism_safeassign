@@ -104,7 +104,9 @@ class cache {
         list($key, $created) = $keyarray;
         $items = $this->muc->get_many($keyarray);
         if (!empty($items[$key])) {
-            if ((time() - $items[$created]) > self::cache_timeout()) {
+            $ellapsedtime = time() - $items[$created];
+            if ((!isset($items[$key.'_timeout']) && $ellapsedtime > self::cache_timeout()) ||
+                (isset($items[$key.'_timeout']) && $ellapsedtime > $items[$key.'_timeout'])) {
                 $this->muc->delete_many($keyarray);
                 return $result;
             }
@@ -118,15 +120,20 @@ class cache {
     /**
      * @param mixed $param
      * @param mixed $val
+     * @param bool|int timeout False if using default timeout, secs otherwise
      * @return void
      */
-    public function set($param, $val) {
+    public function set($param, $val, $timeout = false) {
         if (PHPUNIT_TEST) {
             return;
         }
         if (self::cache_timeout() > 0) {
             list($key, $created) = $this->getkeys($param);
-            $this->muc->set_many([$key => serialize($val), $created => time()]);
+            $mucarr = [$key => serialize($val), $created => time()];
+            if ($timeout !== false) {
+                $mucarr[$key.'_timeout'] = $timeout;
+            }
+            $this->muc->set_many($mucarr);
         }
     }
 
