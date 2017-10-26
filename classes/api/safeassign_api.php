@@ -384,7 +384,7 @@ abstract class safeassign_api {
      * @param int $userid
      * @param string $courseuuid
      * @param string $assignmentuuid
-     * @param array $files
+     * @param \stored_file[] $files
      * @param bool $globalcheck
      * @param bool $groupsubmission
      * @return bool

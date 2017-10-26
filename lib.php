@@ -58,7 +58,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     /**
      * This function should be used to initialise settings and check if plagiarism is enabled.
      *
-     * @returned mixed - false if not enabled, or return an array of relevenat settings.
+     * @returned array|bool - false if not enabled, or return an array of relevant settings.
      */
     static public function get_settings() {
         static $plagiarismsettings;
@@ -105,7 +105,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         // Check that the activity has SafeAssign enabled.
         $courseconfiguration = $DB->get_records_menu('plagiarism_safeassign_config', array('cm' => $cmid), '', 'name, value');
 
-        if (!empty($courseconfiguration) && $courseconfiguration['safeassign_enabled']) {
+        if (!empty($courseconfiguration['safeassign_enabled'])) {
             // The activity has SafeAssign enabled.
             $message = '';
             $file = null;
@@ -114,7 +114,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 // This submission has a file associated with it.
                 $file = $this->get_file_results($cmid, $userid, $linkarray['file']->get_id());
             } else {
-                if (isset($linkarray['content']) && !empty($linkarray['content'])) {
+                if (!empty($linkarray['content'])) {
                     // This submission has an online text associated with it.
                     $submission = $DB->get_record('assign_submission', array('userid' => $userid, 'assignment' => $linkarray['assignment']));
                     $namefile = 'userid_' . $userid . '_text_submissionid_' . $submission->id . '.txt';
@@ -140,7 +140,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      * @param array $courseconfiguration
      * @return string
      */
-    private function get_message_result($file, $cm, $courseconfiguration) {
+    private function get_message_result($file, $cm, array $courseconfiguration) {
         global $USER;
         $message = '';
         if($file['supported']) {
@@ -770,12 +770,13 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
 
     /**
      * Sends the submission info for the given assignment to the SafeAssign service.
-     * @param array object $data
-     * @param array object $credentials
+     * @param stdClass[] $data
+     * @param stdClass[] $credentials
      * @param object $submission
-     * @param object $context
+     * @param stdClass $unsynced
+     * @param context $context
      */
-    public function sync_submission($data, $credentials, $submission, $unsynced, $context) {
+    public function sync_submission(array $data, array $credentials, $submission, stdClass $unsynced, context $context) {
         global $DB, $CFG;
         // Build the object to pass in to service.
         $wrapper = new stdClass();
@@ -806,7 +807,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 $wrapper->filenames[] = $textfile->get_filename();
             }
         }
-        $wrapper->globalcheck = ($unsynced) ? true : false;
+        $wrapper->globalcheck = ($unsynced->globalcheck) ? true : false;;
         $wrapper->grouppermission = true;
         $result = safeassign_api::create_submission($wrapper->userid, $wrapper->courseuuid,
             $wrapper->assignuuid, $wrapper->files, $wrapper->globalcheck, $wrapper->grouppermission);
@@ -817,7 +818,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $record->submitted = 1;
             $this->sync_submission_files($data['id'], $responsedata, $wrapper->filenames,
                 $wrapper->userid, $credentials[$submission['assignmentid']]->courseid);
-            if (isset($responsedata->submissions[0]) && !empty($responsedata->submissions[0])) {
+            if (!empty($responsedata->submissions[0])) {
                 $record->uuid = $responsedata->submissions[0]->submission_uuid;
             }
             $DB->update_record('plagiarism_safeassign_subm', $record);
@@ -831,12 +832,12 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     /**
      *  Fill the safeassign_files datatable with the server response.
      *  @param int $submissionid
-     *  @param object $responsedata
+     *  @param stdClass $responsedata
      *  @param array $filenames
      *  @param int $userid
      *  @param int $courseid
      */
-    public function sync_submission_files($submissionid, $responsedata, $filenames, $userid, $courseid) {
+    public function sync_submission_files($submissionid, stdClass $responsedata, array $filenames, $userid, $courseid) {
         global $DB;
         $sql = "SELECT f.filename, f.id AS fileid, cm.id AS cmid
                   FROM {files} f
@@ -854,7 +855,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $record->userid = $userid;
             $record->timesubmitted = time();
             $record->submissionid = (int) $submissionid;
-            if (isset($responsedata->submissions[0]->submission_files) && !empty($responsedata->submissions[0]->submission_files)) {
+            if (!empty($responsedata->submissions[0]->submission_files)) {
                 foreach ($responsedata->submissions[0]->submission_files as $file) {
                     $record->uuid = null;
                     if (isset($sentfiles[urldecode($file->file_name)])) {
@@ -866,7 +867,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                     }
                 }
             }
-           if (isset($responsedata->unprocessed_file_names) && !empty($responsedata->unprocessed_file_names)) {
+           if (!empty($responsedata->unprocessed_file_names)) {
                foreach ($responsedata->unprocessed_file_names as $unsupportedfilename) {
                    if (isset($sentfiles[urldecode($unsupportedfilename)])) {
                        $record->uuid = null;
@@ -920,13 +921,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      * @return mixed
      */
     public function get_cmid($assignmentid) {
-        global $DB;
-        $sql = "SELECT cm.id 
-                  FROM {course_modules} cm
-                  JOIN {modules} m ON m.id = cm.module
-                 WHERE m.name = 'assign'
-                   AND cm.instance = ?";
-        $cm = $DB->get_record_sql($sql, array($assignmentid));
+        list ($course, $cm) = get_course_and_cm_from_instance($assignmentid, 'assign');
         return $cm;
 
     }
