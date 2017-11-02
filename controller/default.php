@@ -71,10 +71,10 @@ class plagiarism_safeassign_controller_default extends mr_controller {
             $errortext .= \plagiarism_safeassign\api\error_handler::process_last_api_error(false, true, true);
 
             $out = $OUTPUT->notification($errortext, 'notifyerror');
-        } else {
-            echo $out;
-            return;
+            return $out;
         }
-        return $out;
+
+        echo $out;
+        return;
     }
 }

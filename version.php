@@ -29,3 +29,6 @@ $plugin->requires = 2016120503;
 $plugin->component = 'plagiarism_safeassign';
 $plugin->maturity  = MATURITY_BETA;
 $plugin->cron      = 0;
+$plugin->dependencies = [
+    'local_mr'       => ANY_VERSION,
+];
