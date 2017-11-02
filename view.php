@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * View renderer
+ * Plugin view endpoint. Routes requests to controllers.
  *
  * @package   plagiarism_safeassign
  * @copyright Copyright (c) 2017 Blackboard Inc.
