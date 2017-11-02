@@ -92,7 +92,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
 
         // Check if the user has the right capabilities to see the report.
         $cm = context_module::instance($cmid);
-        if (!has_capability('plagiarism/safeassign:viewreport', $cm)) {
+        if (!has_capability('plagiarism/safeassign:report', $cm)) {
             return '';
         }
 

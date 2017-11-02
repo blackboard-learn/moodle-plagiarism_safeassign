@@ -34,7 +34,7 @@ $capabilities = array(
         )
     ),
 
-    'plagiarism/safeassign:viewreport' => array(
+    'plagiarism/safeassign:report' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => array(
