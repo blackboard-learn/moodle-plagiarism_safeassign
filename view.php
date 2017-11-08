@@ -22,7 +22,8 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once('../../config.php');
+defined('MOODLE_INTERNAL') || die();
+
 require($CFG->dirroot.'/local/mr/bootstrap.php');
 
 mr_controller::render('plagiarism/safeassign', 'pluginname', 'plagiarism_safeassign');

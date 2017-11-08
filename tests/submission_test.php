@@ -101,7 +101,7 @@ class plagiarism_safeassign_submission_test extends advanced_testcase  {
         $record = $DB->get_record('plagiarism_safeassign_subm', array());
         $this->evaluate_safeassign_subm_recor($record, 0);
         // Simulate a resubmission.
-        $reflection = new \ReflectionProperty(get_class($event),'data');
+        $reflection = new \ReflectionProperty(get_class($event), 'data');
         $reflection->setAccessible(true);
         $temporal = $reflection->getValue($event);
         $temporal['timecreated'] = $temporal['timecreated'] + 1;
@@ -118,7 +118,7 @@ class plagiarism_safeassign_submission_test extends advanced_testcase  {
         $this->assertEquals(2, count($records));
         // The record with the highest id should be not deleted.
         $maxkey = max(array_keys($records));
-        foreach ($records as $id => $record){
+        foreach ($records as $id => $record) {
             $deprecated = 1;
             if ($record->id == $maxkey) {
                 $deprecated = 0;
@@ -169,7 +169,7 @@ class plagiarism_safeassign_submission_test extends advanced_testcase  {
         $record = $DB->get_record('plagiarism_safeassign_subm', array());
         $this->evaluate_safeassign_subm_recor($record, 0);
         // Simulate a resubmission.
-        $reflection = new \ReflectionProperty(get_class($event),'data');
+        $reflection = new \ReflectionProperty(get_class($event), 'data');
         $reflection->setAccessible(true);
         $temporal = $reflection->getValue($event);
         $temporal['timecreated'] = $temporal['timecreated'] + 1;
@@ -180,7 +180,7 @@ class plagiarism_safeassign_submission_test extends advanced_testcase  {
         $this->assertEquals(2, count($records));
         // The record with the highest id should be not deleted.
         $maxkey = max(array_keys($records));
-        foreach ($records as $id => $record){
+        foreach ($records as $id => $record) {
             $deprecated = 1;
             if ($record->id == $maxkey) {
                 $deprecated = 0;

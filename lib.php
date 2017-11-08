@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -24,7 +23,7 @@
  */
 
 if (!defined('MOODLE_INTERNAL')) {
-    die('Direct access to this script is forbidden.');    ///  It must be included from a Moodle page.
+    die('Direct access to this script is forbidden.'); // It must be included from a Moodle page.
 }
 
 // Get global class.
@@ -116,7 +115,8 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             } else {
                 if (!empty($linkarray['content'])) {
                     // This submission has an online text associated with it.
-                    $submission = $DB->get_record('assign_submission', array('userid' => $userid, 'assignment' => $linkarray['assignment']));
+                    $submission = $DB->get_record('assign_submission', array('userid' => $userid,
+                        'assignment' => $linkarray['assignment']));
                     $namefile = 'userid_' . $userid . '_text_submissionid_' . $submission->id . '.txt';
                     $filerecord = $DB->get_record('files', array('filename' => $namefile));
                     if (is_object($filerecord)) {
@@ -154,7 +154,8 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 // We need to validate that the user can see the link to the similarity report.
                 $role = get_user_roles($cm, $USER->id);
                 $roleid = key($role);
-                if (empty($role) || $role[$roleid]->shortname != 'student' || $courseconfiguration['safeassign_originality_report']) {
+                if (empty($role) || $role[$roleid]->shortname != 'student' ||
+                    $courseconfiguration['safeassign_originality_report']) {
                     // The report is enabled for this user.
                     $reporturl = new moodle_url('/plagiarism/safeassign/view.php', [
                         'courseid' => $COURSE->id,
@@ -196,7 +197,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         $reporturl = '';
         $supported = 1;
         $subuuid = '';
-        $filequery="SELECT fil.id, sub.reportgenerated, fil.similarityscore, fil.reporturl, fil.supported, sub.uuid
+        $filequery = "SELECT fil.id, sub.reportgenerated, fil.similarityscore, fil.reporturl, fil.supported, sub.uuid
                        FROM {plagiarism_safeassign_subm} sub
                        JOIN {plagiarism_safeassign_files} fil ON sub.submissionid = fil.submissionid
                       WHERE fil.cm = ? AND fil.userid = ? AND fil.fileid = ? AND sub.submitted = 1 AND sub.deprecated = 0
@@ -221,7 +222,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      */
     public function get_submission_results($submid) {
         global $DB;
-        $submquery="SELECT *
+        $submquery = "SELECT *
                       FROM {plagiarism_safeassign_subm}
                      WHERE submissionid = ? AND deprecated != 1";
         $subminfo = $DB->get_record_sql($submquery, array($submid));
@@ -308,7 +309,8 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         $checked = false;
         $value = 0;
         $cmenabled = $DB->get_record('plagiarism_safeassign_config', array('cm' => $cmid, 'name' => 'safeassign_enabled'));
-        $cmglobalref = $DB->get_record('plagiarism_safeassign_config', array('cm' => $cmid, 'name' => 'safeassign_global_reference'));
+        $cmglobalref = $DB->get_record('plagiarism_safeassign_config',
+            array('cm' => $cmid, 'name' => 'safeassign_global_reference'));
         if ($cmenabled->value == 0) {
             return '';
         }
@@ -322,7 +324,8 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $checkbox = html_writer::checkbox('agreement', $value, $checked, get_string('agreement', 'plagiarism_safeassign'));
         }
         $col1 = html_writer::tag('div', get_string('plagiarism_tools', 'plagiarism_safeassign'), array('class' => 'col-md-3'));
-        $col2 = html_writer::tag('div', get_string('files_accepted', 'plagiarism_safeassign').'<br><br>'.$checkbox, array('class' => 'col-md-9'));
+        $col2 = html_writer::tag('div', get_string('files_accepted', 'plagiarism_safeassign').'<br><br>'.$checkbox,
+            array('class' => 'col-md-9'));
         $output = html_writer::tag('div', $col1.$col2, array('class' => 'row generalbox boxaligncenter intro'));
         $form = html_writer::tag('form', $output);
         $PAGE->requires->js_call_amd('plagiarism_safeassign/disclosure', 'init', array($cmid, $USER->id));
@@ -399,7 +402,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     /**
      * Checks if submission has a file and creates or updates a record on
      * plagiarism_safeassign_subm if the submission has or not an associated record.
-     * @param object $evendata
+     * @param object $eventdata
      */
     public function create_submission($eventdata) {
         // Check if SafeAssign is enable at site level.
@@ -450,7 +453,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                       ON saconf.cm = cm.id
                    WHERE asub.id = ? AND cm.course = ? AND saconf.name = ?";
         $globalcheck = $DB->get_record_sql($query, array($eventdata['objectid'], $eventdata['courseid'], $USER->id));
-        if(!empty($globalcheck->value)) {
+        if (!empty($globalcheck->value)) {
             return $globalcheck->value;
         }
         return 0;
@@ -476,8 +479,8 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         $submission->highscore = 0.0;
         $submission->avgscore = 0.0;
         $submission->deprecated = 0;
-        $submission->hasfile = (isset($params['hasfile']))? $params['hasfile']: 0;
-        $submission->hasonlinetext =(isset($params['hasonlinetext']))? $params['hasonlinetext']: 0;
+        $submission->hasfile = (isset($params['hasfile'])) ? $params['hasfile'] : 0;
+        $submission->hasonlinetext = (isset($params['hasonlinetext'])) ? $params['hasonlinetext'] : 0;
         $submission->timecreated = $eventdata['timecreated'];
         $submission->assignmentid = $DB->get_field('assign_submission', 'assignment', array('id' => $eventdata['objectid']));
         $DB->insert_record('plagiarism_safeassign_subm', $submission);
@@ -549,7 +552,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      * Function to be run periodically according to the scheduled task.
      * Checks if the submissions already have a report generated on SafeAssign side and mark the flag.
      */
-    function safeassign_get_scores() {
+    public function safeassign_get_scores() {
         global $DB;
 
         $submissions = $DB->get_records_sql("SELECT plg.*, asg.userid
@@ -573,7 +576,8 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 $submission->reportgenerated = 1;
                 if (isset($result->submission_files)) {
                     foreach ($result->submission_files as $fileuuid => $score) {
-                        $DB->set_field('plagiarism_safeassign_files', 'similarityscore', floatval($score/100), array('uuid' => $fileuuid));
+                        $DB->set_field('plagiarism_safeassign_files', 'similarityscore',
+                            floatval($score / 100), array('uuid' => $fileuuid));
                     }
                 }
                 unset($submission->userid);
@@ -665,11 +669,11 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             }
             $sql = "SELECT sa_assign.assignmentid, sa_course.courseid, sa_course.uuid AS courseuuid, a.name AS assignmentname
                       FROM {assign} a
-                      JOIN {plagiarism_safeassign_assign} sa_assign ON sa_assign.assignmentid = a.id 
-                      JOIN {plagiarism_safeassign_course} sa_course ON sa_course.courseid = a.course 
+                      JOIN {plagiarism_safeassign_assign} sa_assign ON sa_assign.assignmentid = a.id
+                      JOIN {plagiarism_safeassign_course} sa_course ON sa_course.courseid = a.course
                       JOIN {course_modules} cm ON cm.course = a.course
                       JOIN {modules} m ON m.id = cm.module
-                      JOIN {plagiarism_safeassign_config} sa_config ON sa_config.cm = cm.id 
+                      JOIN {plagiarism_safeassign_config} sa_config ON sa_config.cm = cm.id
                      WHERE sa_assign.uuid IS NULL
                        AND cm.instance=a.id
                        AND sa_course.uuid IS NOT NULL
@@ -683,14 +687,16 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             foreach ($assignments as $assignment) {
 
                 // Check that the assignment does not exits in the SafeAssign database.
-                $validation = safeassign_api::check_assignment($courses[$assignment->courseid]->instructorid, $assignment->courseuuid, $assignment->assignmentid);
+                $validation = safeassign_api::check_assignment($courses[$assignment->courseid]->instructorid,
+                    $assignment->courseuuid, $assignment->assignmentid);
                 if ($validation === false) {
                     $response = safeassign_api::create_assignment($courses[$assignment->courseid]->instructorid,
                         $assignment->courseuuid, $assignment->assignmentid, $assignment->assignmentname);
                     if ($response) {
                         $lastresponse = json_decode(rest_provider::instance()->lastresponse());
                         if (isset($lastresponse->uuid)) {
-                            $DB->set_field('plagiarism_safeassign_assign', 'uuid', $lastresponse->uuid, array('assignmentid' => $assignment->assignmentid));
+                            $DB->set_field('plagiarism_safeassign_assign', 'uuid',
+                                $lastresponse->uuid, array('assignmentid' => $assignment->assignmentid));
                         }
                     } else if ($response === false) {
                         $event = sync_content_log::create_log_message('Assignment', $assignment->assignmentid);
@@ -699,7 +705,8 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 } else if ($validation) {
                     $lastresponse = json_decode(rest_provider::instance()->lastresponse());
                     if (isset($lastresponse->uuid)) {
-                        $DB->set_field('plagiarism_safeassign_assign', 'uuid', $lastresponse->uuid, array('assignmentid' => $assignment->assignmentid));
+                        $DB->set_field('plagiarism_safeassign_assign', 'uuid',
+                            $lastresponse->uuid, array('assignmentid' => $assignment->assignmentid));
                     } else {
                         $event = sync_content_log::create_log_message('Assignment', $assignment->assignmentid);
                         $event->trigger();
@@ -721,7 +728,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
 
         $sql = "SELECT sa_assign.assignmentid, sa_course.uuid AS courseuuid, sa_assign.uuid AS assignuuid, sa_course.courseid
                   FROM {plagiarism_safeassign_assign} sa_assign
-                  JOIN {assign} a ON a.id = sa_assign.assignmentid 
+                  JOIN {assign} a ON a.id = sa_assign.assignmentid
                   JOIN {plagiarism_safeassign_course} sa_course ON sa_course.courseid = a.course
                  WHERE sa_assign.assignmentid ";
         $params = array();
@@ -746,8 +753,8 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     }
 
     /**
-     *  Sync the assignment submissions.
-     *  @return bool
+     * Sync the assignment submissions.
+     * @return bool
      */
     public function sync_assign_submissions() {
         $assignments = $this->get_valid_assignments();
@@ -822,8 +829,9 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 '/', 'userid_' . $data['userid'] . '_text_submissionid_' . $data['id'] . '.txt');
             if ($textfile) {
                 $wrapper->files[] = $textfile;
-                $wrapper->filepaths[] = moodle_url::make_webservice_pluginfile_url($usercontext->id, 'assignsubmission_text_as_file',
-                    'submission_text_files', $data['id'], $textfile->get_filepath(), $textfile->get_filename())->out(false);
+                $wrapper->filepaths[] = moodle_url::make_webservice_pluginfile_url($usercontext->id,
+                    'assignsubmission_text_as_file', 'submission_text_files', $data['id'], $textfile->get_filepath(),
+                    $textfile->get_filename())->out(false);
                 $wrapper->filenames[] = $textfile->get_filename();
             }
         }
@@ -850,19 +858,19 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     }
 
     /**
-     *  Fill the safeassign_files datatable with the server response.
-     *  @param int $submissionid
-     *  @param stdClass $responsedata
-     *  @param array $filenames
-     *  @param int $userid
-     *  @param int $courseid
+     * Fill the safeassign_files datatable with the server response.
+     * @param int $submissionid
+     * @param stdClass $responsedata
+     * @param array $filenames
+     * @param int $userid
+     * @param int $courseid
      */
     public function sync_submission_files($submissionid, stdClass $responsedata, array $filenames, $userid, $courseid) {
         global $DB;
         $sql = "SELECT f.filename, f.id AS fileid, cm.id AS cmid
                   FROM {files} f
                   JOIN {assign_submission} sub ON sub.id = f.itemid
-                  JOIN {course_modules} cm ON cm.instance = sub.assignment 
+                  JOIN {course_modules} cm ON cm.instance = sub.assignment
                  WHERE f.filearea IN (?,?)
                    AND f.itemid = ?
                    AND cm.course = ?
@@ -887,17 +895,17 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                     }
                 }
             }
-           if (!empty($responsedata->unprocessed_file_names)) {
-               foreach ($responsedata->unprocessed_file_names as $unsupportedfilename) {
-                   if (isset($sentfiles[urldecode($unsupportedfilename)])) {
-                       $record->uuid = null;
-                       $record->supported = 0;
-                       $record->cm = (int) $sentfiles[urldecode($unsupportedfilename)]->cmid;
-                       $record->fileid = $sentfiles[urldecode($unsupportedfilename)]->fileid;
-                       $DB->insert_record('plagiarism_safeassign_files', $record);
-                   }
-               }
-           }
+            if (!empty($responsedata->unprocessed_file_names)) {
+                foreach ($responsedata->unprocessed_file_names as $unsupportedfilename) {
+                    if (isset($sentfiles[urldecode($unsupportedfilename)])) {
+                        $record->uuid = null;
+                        $record->supported = 0;
+                        $record->cm = (int) $sentfiles[urldecode($unsupportedfilename)]->cmid;
+                        $record->fileid = $sentfiles[urldecode($unsupportedfilename)]->fileid;
+                        $DB->insert_record('plagiarism_safeassign_files', $record);
+                    }
+                }
+            }
         }
     }
 
@@ -912,7 +920,8 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $fs = get_file_storage();
             $usercontext = context_user::instance($eventdata['userid']);
             $oldfile = $fs->get_file($usercontext->id, 'assignsubmission_text_as_file', 'submission_text_files',
-                $eventdata['other']['submissionid'], '/', 'userid_' . $eventdata['userid'] . '_text_submissionid_' . $eventdata['other']['submissionid'] .'.txt');
+                $eventdata['other']['submissionid'], '/',
+                'userid_' . $eventdata['userid'] . '_text_submissionid_' . $eventdata['other']['submissionid'] .'.txt');
             if ($oldfile) {
                 $oldfile->delete();
             }
@@ -927,7 +936,8 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                     'filearea' => 'submission_text_files',
                     'itemid' => $eventdata['other']['submissionid'],
                     'filepath' => '/',
-                    'filename' => 'userid_' . $eventdata['userid'] . '_text_submissionid_' . $eventdata['other']['submissionid'] .'.txt',
+                    'filename' => 'userid_' . $eventdata['userid'] .
+                        '_text_submissionid_' . $eventdata['other']['submissionid'] .'.txt',
                     'userid' => $eventdata['userid']
                 );
                 $fs->create_file_from_string($filerecord, $filecontent);
@@ -962,7 +972,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         $count = 0;
         foreach ($submissions as $submission) {
             $response = safeassign_api::delete_submission($submission->uuid, $submission->instructorid);
-            if($response) {
+            if ($response) {
                 $count ++;
                 $DB->set_field('plagiarism_safeassign_subm', 'deleted', 1, array('uuid' => $submission->uuid));
 
@@ -986,10 +996,12 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
  */
 function safeassign_get_form_elements($mform) {
     $mform->addElement('header', 'plagiarismdesc', get_string('safeassign', 'plagiarism_safeassign'));
-    $mform->addElement('checkbox' ,'safeassign_enabled', get_string('assignment_check_submissions', 'plagiarism_safeassign'));
+    $mform->addElement('checkbox', 'safeassign_enabled', get_string('assignment_check_submissions', 'plagiarism_safeassign'));
     $mform->addHelpButton('safeassign_enabled', 'assignment_check_submissions', 'plagiarism_safeassign');
-    $mform->addElement('checkbox' ,'safeassign_originality_report', get_string('students_originality_report', 'plagiarism_safeassign'));
-    $mform->addElement('checkbox' ,'safeassign_global_reference', get_string('submissions_global_reference', 'plagiarism_safeassign'));
+    $mform->addElement('checkbox', 'safeassign_originality_report',
+        get_string('students_originality_report', 'plagiarism_safeassign'));
+    $mform->addElement('checkbox', 'safeassign_global_reference',
+        get_string('submissions_global_reference', 'plagiarism_safeassign'));
     $mform->addHelpButton('safeassign_global_reference', 'submissions_global_reference', 'plagiarism_safeassign');
 }
 
@@ -1001,7 +1013,7 @@ function safeassign_get_form_elements($mform) {
 function plagiarism_safeassign_pre_course_delete($course) {
     global $DB;
     // Find the assignments and submissions for that course.
-    if($DB->record_exists('plagiarism_safeassign_course', array('courseid' => $course->id))) {
+    if ($DB->record_exists('plagiarism_safeassign_course', array('courseid' => $course->id))) {
         $sql = 'UPDATE {plagiarism_safeassign_subm}
                 SET deprecated = 1
                 WHERE submissionid IN (

@@ -27,7 +27,6 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG, $DB;
 
 require_once($CFG->dirroot . '/plagiarism/safeassign/lib.php');
-require_once($CFG->dirroot . '/config.php');
 require_once($CFG->dirroot . '/mod/assign/tests/base_test.php');
 require_once($CFG->dirroot . '/plagiarism/safeassign/classes/observer.php');
 require_once(__DIR__.'/base.php');
@@ -66,7 +65,7 @@ class plagiarism_safeassign_tasks_testcase extends plagiarism_safeassign_base_te
         $this->config_set_ok();
         set_config('safeassign_use', 1, 'plagiarism');
 
-        // Login to SafeAssign
+        // Login to SafeAssign.
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
         $loginurl = '%s/api/v1/tokens?';
         $loginurl .= 'grant_type=client_credentials&user_id=%s&user_firstname=%s&user_lastname=%s';

@@ -69,7 +69,8 @@ if (($data = $mform->get_data()) && confirm_sesskey()) {
             set_config('safeassign_api', $value, 'plagiarism_safeassign');
         }
     }
-    echo $OUTPUT->notification(get_string('savedconfigsuccess', 'plagiarism_safeassign'), \core\output\notification::NOTIFY_SUCCESS);
+    echo $OUTPUT->notification(get_string('savedconfigsuccess', 'plagiarism_safeassign'),
+        \core\output\notification::NOTIFY_SUCCESS);
 }
 
 $storedurl = get_config('plagiarism_safeassign', 'safeassign_api');

@@ -151,7 +151,7 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
     }
 
     private function push_login_urls() {
-        // Add successful login responses for all users
+        // Add successful login responses for all users.
         $testhelper = new plagiarism_safeassign_safeassign_api_testcase();
         $testhelper->push_login_url($this->teacher, 'user-login-final.json');
         $testhelper->push_login_url($this->student1, 'user-login-final.json');
@@ -178,7 +178,8 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         $this->assertNull($course->uuid);
         $assignment = $DB->get_record('plagiarism_safeassign_assign', array('assignmentid' => $this->assigninstance->id));
         $this->assertNull($assignment->uuid);
-        $submission = $DB->get_record('assign_submission', array('userid' => $this->student1->id, 'assignment' => $this->assigninstance->id));
+        $submission = $DB->get_record('assign_submission', array('userid' => $this->student1->id,
+            'assignment' => $this->assigninstance->id));
         $syncedsubmission = $DB->get_record('plagiarism_safeassign_subm', array('submissionid' => $submission->id));
         $this->assertNull($syncedsubmission->uuid);
         $supportedfiles = $DB->get_records('plagiarism_safeassign_files', array('supported' => 1));
@@ -214,7 +215,8 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         $this->assertNotNull($course->uuid);
         $assignment = $DB->get_record('plagiarism_safeassign_assign', array('assignmentid' => $this->assigninstance->id));
         $this->assertNull($assignment->uuid);
-        $submission = $DB->get_record('assign_submission', array('userid' => $this->student1->id, 'assignment' => $this->assigninstance->id));
+        $submission = $DB->get_record('assign_submission', array('userid' => $this->student1->id,
+            'assignment' => $this->assigninstance->id));
         $syncedsubmission = $DB->get_record('plagiarism_safeassign_subm', array('submissionid' => $submission->id));
         $this->assertNull($syncedsubmission->uuid);
         $supportedfiles = $DB->get_records('plagiarism_safeassign_files', array('supported' => 1));
@@ -246,7 +248,8 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         $assignurl = $testhelper->create_assignment_url('123e4567-e89b-12d3-a456-426655440000', $this->assigninstance->id);
         testhelper::push_pair($assignurl . '?id=' . $this->assigninstance->id, "create-assignment-ok.json");
         // Make the submission url avaliable.
-        $submissionurl = $testhelper->create_submission_url('123e4567-e89b-12d3-a456-426655440000', 'c93e61c6-be1f-6c49-5c86-76d8f04f3f2f');
+        $submissionurl = $testhelper->create_submission_url('123e4567-e89b-12d3-a456-426655440000',
+            'c93e61c6-be1f-6c49-5c86-76d8f04f3f2f');
         testhelper::push_pair($submissionurl, 'create-submission-fail.json', 400);
         $task->execute();
 
@@ -254,7 +257,8 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         $this->assertNotNull($course->uuid);
         $assignment = $DB->get_record('plagiarism_safeassign_assign', array('assignmentid' => $this->assigninstance->id));
         $this->assertNotNull($assignment->uuid);
-        $submission = $DB->get_record('assign_submission', array('userid' => $this->student1->id, 'assignment' => $this->assigninstance->id));
+        $submission = $DB->get_record('assign_submission', array('userid' => $this->student1->id,
+            'assignment' => $this->assigninstance->id));
         $syncedsubmission = $DB->get_record('plagiarism_safeassign_subm', array('submissionid' => $submission->id));
         $this->assertNull($syncedsubmission->uuid);
         $supportedfiles = $DB->get_records('plagiarism_safeassign_files', array('supported' => 1));
@@ -286,7 +290,8 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         $assignurl = $testhelper->create_assignment_url('123e4567-e89b-12d3-a456-426655440000', $this->assigninstance->id);
         testhelper::push_pair($assignurl . '?id=' . $this->assigninstance->id, "create-assignment-ok.json");
         // Make the submission url avaliable.
-        $submissionurl = $testhelper->create_submission_url('123e4567-e89b-12d3-a456-426655440000', 'c93e61c6-be1f-6c49-5c86-76d8f04f3f2f');
+        $submissionurl = $testhelper->create_submission_url('123e4567-e89b-12d3-a456-426655440000',
+            'c93e61c6-be1f-6c49-5c86-76d8f04f3f2f');
         testhelper::push_pair($submissionurl, 'create-submission-ok.json');
         $task->execute();
 
@@ -294,7 +299,8 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         $this->assertNotNull($course->uuid);
         $assignment = $DB->get_record('plagiarism_safeassign_assign', array('assignmentid' => $this->assigninstance->id));
         $this->assertNotNull($assignment->uuid);
-        $submission = $DB->get_record('assign_submission', array('userid' => $this->student1->id, 'assignment' => $this->assigninstance->id));
+        $submission = $DB->get_record('assign_submission', array('userid' => $this->student1->id,
+            'assignment' => $this->assigninstance->id));
         $syncedsubmission = $DB->get_record('plagiarism_safeassign_subm', array('submissionid' => $submission->id));
         $this->assertNotNull($syncedsubmission->uuid);
         $supportedfiles = $DB->get_records('plagiarism_safeassign_files', array('supported' => 1));
@@ -388,7 +394,7 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         $record3->assignmentid = $this->assigninstance->id;
         $DB->insert_record('plagiarism_safeassign_subm', $record3);
 
-        // Turn on SafeAssign for the test assignment
+        // Turn on SafeAssign for the test assignment.
         $enablesafeassign = new stdClass();
         $enablesafeassign->cm = $this->cm->id;
         $enablesafeassign->name = 'safeassign_enabled';

@@ -23,6 +23,9 @@
  */
 
 namespace plagiarism_safeassign\task;
+
+defined('MOODLE_INTERNAL') || die();
+
 use plagiarism_safeassign\api\safeassign_api;
 global $CFG;
 require_once($CFG->dirroot . '/plagiarism/safeassign/lib.php');

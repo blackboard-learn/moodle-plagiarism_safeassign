@@ -36,7 +36,7 @@ function xmldb_plagiarism_safeassign_upgrade($oldversion) {
         $fields[] = new xmldb_field('fileid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null, 'submissionid');
 
         // Go through each field and add if it doesn't already exist.
-        foreach ($fields as $field){
+        foreach ($fields as $field) {
             // Conditionally launch add field.
             if (!$dbman->field_exists($table, $field)) {
                 $dbman->add_field($table, $field);

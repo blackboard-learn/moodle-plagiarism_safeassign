@@ -275,7 +275,6 @@ class rest_provider {
             }
         }
 
-
         $response = null;
         $curl = new safeassign_curl();
         switch($method) {
@@ -460,22 +459,22 @@ class rest_provider {
                 } else {
                     $lasterrormsg  = \html_writer::tag('h3', $this->geterrormsg()) . \html_writer::empty_tag('br');
                     $lasterrormsg .= \html_writer::tag('h3', $lasterrorcode) . \html_writer::empty_tag('br');
-                    $calltitle = \html_writer::tag('h4','Web Service request time:');
+                    $calltitle = \html_writer::tag('h4', 'Web Service request time:');
                     $calltime = \html_writer::span(" ".$this->curlinfo['total_time']." s");
                     $lasterrormsg .= \html_writer::div($calltitle . $calltime);
                     $requestheaders = $this->request_headers();
                     if (!empty($requestheaders)) {
                         $lasterrormsg .= \html_writer::empty_tag('br');
-                        $rtitle = \html_writer::tag('h4','Request headers:');
+                        $rtitle = \html_writer::tag('h4', 'Request headers:');
                         $request = \html_writer::tag('pre', s($this->request_headers()), array('title' => 'Request headers'));
                         $lasterrormsg .= \html_writer::div($rtitle . $request);
                         $lasterrormsg .= \html_writer::empty_tag('br');
-                        $rstitle = \html_writer::tag('h4','Response headers:');
+                        $rstitle = \html_writer::tag('h4', 'Response headers:');
                         $response = \html_writer::tag('pre', s($this->response_headers()), array('title' => 'Response headers'));
                         $lasterrormsg .= \html_writer::div($rstitle . $response);
                         $lasterrormsg .= \html_writer::empty_tag('br');
                         $responsebody = \html_writer::tag('pre', s($this->lastresponse()), array('title' => 'Response body'));
-                        $rsbodytitle = \html_writer::tag('h4','Response body:');
+                        $rsbodytitle = \html_writer::tag('h4', 'Response body:');
                         $lasterrormsg .= \html_writer::div($rsbodytitle . $responsebody);
                     }
                 }
@@ -654,7 +653,8 @@ class rest_provider {
      * @param string $postdata
      * @return mixed
      */
-    public function post_withauth($url, $username, $password, array $custheaders = array(), array $options = array(), $postdata = null) {
+    public function post_withauth($url, $username, $password, array $custheaders = array(),
+                                  array $options = array(), $postdata = null) {
         if (isset($postdata)) {
             $options['CURLOPT_POSTFIELDS'] = $postdata;
         }
@@ -781,7 +781,6 @@ class rest_provider {
                 )
             )
         );
-        
         $boundary = uniqid();
         $delimiter = '-------------' . $boundary;
         $postdata = $this->build_data_files($boundary, $fields, $files);

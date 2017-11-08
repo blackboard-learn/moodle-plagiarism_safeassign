@@ -30,7 +30,6 @@ require_once($CFG->dirroot . '/plagiarism/safeassign/lib.php');
 require_once($CFG->dirroot . '/plagiarism/safeassign/classes/observer.php');
 require_once($CFG->dirroot . '/lib/classes/event/course_module_created.php');
 require_once($CFG->dirroot . '/mod/assign/tests/base_test.php');
-require_once($CFG->dirroot . '/config.php');
 
 class plagiarism_safeassign_testcase extends advanced_testcase {
 
@@ -72,7 +71,8 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $this->assertEquals($instance->id, $confirmdbassign->assignmentid);
         $this->assertEquals($course1->id, $confirmdbcourse->courseid);
 
-        // Now let's add a second assign on the same course without SafeAssign enabled and see that course records are not being duplicated.
+        // Now let's add a second assign on the same course without SafeAssign enabled
+        // and see that course records are not being duplicated.
         $instance2 = $generator->create_instance(array('course' => $course1->id));
         $cm2 = get_coursemodule_from_instance('assign', $instance2->id);
 
@@ -119,7 +119,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
      * @param int $submissionid ID of the submission.
      * @return array returns an array with file object, userid and cmid.
      */
-    function create_submitted_file_object($userid, $cmid, $submissionid){
+    public function create_submitted_file_object($userid, $cmid, $submissionid) {
         $this->user = $this->getDataGenerator()->create_user();
         $this->course = $this->getDataGenerator()->create_course();
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_assign');
@@ -162,7 +162,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
      * @param int $subid ID of the submission.
      * @param int $fileid ID of the submitted file.
      */
-    function insert_files_for_testing($cm, $userid, $reporturl, $score, $time, $subid, $fileid) {
+    public function insert_files_for_testing($cm, $userid, $reporturl, $score, $time, $subid, $fileid) {
         global $DB;
         $file = new stdClass();
         $file->cm = $cm;
@@ -184,7 +184,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
      * @param int $deprecated Flag that indicates if the submission was updated.
      * @return stdClass $submission submission object.
      */
-    function insert_submission_for_testing($submitted, $report, $subid, $deprecated) {
+    public function insert_submission_for_testing($submitted, $report, $subid, $deprecated) {
         global $DB;
         $submission = new stdClass();
         $submission->globalcheck = '1';
@@ -195,7 +195,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $submission->reportgenerated = $report;
         $submission->submissionid = $subid;
         $submission->deprecated = $deprecated;
-        $DB->insert_record('plagiarism_safeassign_subm',$submission, true);
+        $DB->insert_record('plagiarism_safeassign_subm', $submission, true);
         return $submission;
     }
 
@@ -203,8 +203,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
      * Case 0: Ideal case, file was submitted and analyzed.
      * Tests the get_file_results() and get_links() functions.
      */
-    function test_get_file_results()
-    {
+    public function test_get_file_results() {
         $this->resetAfterTest(true);
         $linkarray = $this->create_submitted_file_object(111, 000, 1111111);
         $file = $linkarray['file'];
@@ -221,12 +220,12 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
      * Case 1: File submitted but not analyzed yet.
      * Tests the get_file_results() and get_links() functions.
      */
-    function test_get_results_submitted_not_analyzed() {
+    public function test_get_results_submitted_not_analyzed() {
         $this->resetAfterTest(true);
         $linkarray = $this->create_submitted_file_object(222, 000, 2222222);
         $file = $linkarray['file'];
         $this->insert_submission_for_testing(1, 0, 2222222, 0);
-        $this->insert_files_for_testing(000, 222, '', NULL, 1502484564, 2222222, $file->get_id());
+        $this->insert_files_for_testing(000, 222, '', null, 1502484564, 2222222, $file->get_id());
         $lib = new plagiarism_plugin_safeassign();
         $results = $lib->get_file_results(000, 222, $file->get_id());
         $this->assertequals(0, $results['analyzed']);
@@ -238,7 +237,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
      * Case 2: Testing with an unexisting submission.
      * Tests the get_file_results() and get_links() functions.
      */
-    function test_get_file_results_no_submission() {
+    public function test_get_file_results_no_submission() {
         $this->resetAfterTest(true);
         $linkarray = $this->create_submitted_file_object(333, 000, 3333333);
         $file = $linkarray['file'];
@@ -253,7 +252,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
      * Tests the function get_submission_results().
      * The function should retrieve the object correctly.
      */
-    function test_get_submission_results() {
+    public function test_get_submission_results() {
         $this->resetAfterTest(true);
         $testobject = $this->insert_submission_for_testing(1, 1, 11111, 0);
         $lib = new plagiarism_plugin_safeassign();
@@ -272,7 +271,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
      * Tests the function get_submission_results().
      * The function should return an empty string.
      */
-    function test_get_submission_results_nosubmission() {
+    public function test_get_submission_results_nosubmission() {
         $this->resetAfterTest(true);
         $lib = new plagiarism_plugin_safeassign();
         $result = $lib->get_submission_results(22222);

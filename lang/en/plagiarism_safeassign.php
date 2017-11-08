@@ -27,16 +27,16 @@ $string['getscores'] = 'Get scores for submissions';
 $string['getscoreslog'] = 'SafeAssign score task log';
 $string['getscoreslogfailed'] = 'SafeAssign score task fail';
 $string['getscoreslog_desc'] = 'SafeAssign score task ran successfully.';
-$string['studentdisclosuredefault']  ='All files uploaded will be submitted to a plagiarism detection service';
+$string['studentdisclosuredefault'] = 'All files uploaded will be submitted to a plagiarism detection service';
 $string['studentdisclosure'] = 'Institution Release Statement';
 $string['studentdisclosure_help'] = 'This text will be displayed to all students on the file upload page.';
 $string['safeassignexplain'] = 'For more information on this plugin see: ';
 $string['safeassign'] = 'SafeAssign';
 $string['safeassign:enable'] = 'Allow the teacher to enable/disable SafeAssign inside an activity';
 $string['safeassign:report'] = 'Allow viewing the originality report from SafeAssign';
-$string['usesafeassign'] ='Enable SafeAssign';
+$string['usesafeassign'] = 'Enable SafeAssign';
 $string['savedconfigsuccess'] = 'Plagiarism Settings Saved';
-$string['safeassign_api']= 'SafeAssign integration URL';
+$string['safeassign_api'] = 'SafeAssign integration URL';
 $string['safeassign_api_help'] = 'This is the address of the SafeAssign API.';
 $string['instructor_role_credentials'] = 'Instructor Role Credentials';
 $string['safeassign_instructor_username'] = 'Shared key';
@@ -65,7 +65,7 @@ $string['safeassign_credentials_verified'] = 'Connection verified.';
 $string['safeassign_credentials_fail'] = 'Connection not verified. Check key, secret and url.';
 $string['credentials'] = 'Credentials and Service URL';
 $string['shareinfo'] = 'Share info with SafeAssign';
-$string['disclaimer']= '<br>Submitting to the SafeAssign Global Reference Database allows papers from other institutions <br>
+$string['disclaimer'] = '<br>Submitting to the SafeAssign Global Reference Database allows papers from other institutions <br>
                         to be checked against your students paper to protect the origin of their work.';
 $string['settings'] = 'SafeAssign Settings';
 $string['timezone_help'] = 'The timezone set in your Moodlerooms environment.';
@@ -100,8 +100,8 @@ $string['assignment_check_submissions_help'] = 'SafeAssign Originality Reports w
 <br>N.B. SafeAssign currently only supports English-language submissions.';
 $string['students_originality_report'] = 'Allow students to view originality report';
 $string['submissions_global_reference'] = 'Exclude submissions from institutional and global reference database';
-$string['submissions_global_reference_help'] = 'Submissions will still be processed by SafeAssign but won’t be registered in databases. 
-    This avoids files being marked as plagiarized when teachers allow re-submissions in a specific assignment.';
+$string['submissions_global_reference_help'] = 'Submissions will still be processed by SafeAssign but won’t be registered in databases. ' .
+    'This avoids files being marked as plagiarized when teachers allow re-submissions in a specific assignment.';
 // Disclosure agreement.
 $string['plagiarism_tools'] = 'Plagiarism Tools';
 $string['files_accepted'] = 'SafeAssign accepts files in .doc, .docx, .docm, .ppt, .pptx, .odt, .txt, .rtf, .pdf and .html file formats only. Files of any other format will not be checked through SafeAssign.';
