@@ -484,4 +484,20 @@ abstract class safeassign_api {
         $result = self::generic_putcall($url->out(false), $userid, true, [], $putdata);
         return $result;
     }
+
+    /**
+     * Deletes the given submission from the SafeAssign server.
+     * @param string $submissionuuid
+     * @param int $userid it should be an instructor.
+     * @return bool
+     */
+    public static function delete_submission($submissionuuid, $userid) {
+        $baseurl = get_config(self::PLUGIN, 'safeassign_api');
+        if (empty($baseurl)) {
+            return false;
+        }
+        $url = new \moodle_url($baseurl . '/api/v1/submissions/' . $submissionuuid);
+        $result = self::generic_deletecall($url->out(false), $userid, true);
+        return $result;
+    }
 }

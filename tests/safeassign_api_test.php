@@ -166,6 +166,19 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
     }
 
     /**
+     * Creates an url to delete a submission.
+     * @param string $submissionuuid
+     * @return string
+     */
+    public function create_delete_submission_url($submissionuuid) {
+        $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
+        $deleteurl = '%s/api/v1/submissions/%s';
+        $deleteurl = sprintf($deleteurl, $baseapiurl, $submissionuuid);
+        return $deleteurl;
+
+    }
+
+    /**
      * Creates an assignment for testing.
      * @return stdClass
      */

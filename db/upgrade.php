@@ -202,6 +202,49 @@ function xmldb_plagiarism_safeassign_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2017091107, 'plagiarism', 'safeassign');
     }
 
+    if ($oldversion < 2017111556) {
+
+        // Define field courseid to be added to plagiarism_safeassign_assign.
+        $table = new xmldb_table('plagiarism_safeassign_assign');
+        $field = new xmldb_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'assignmentid');
+
+        // Conditionally launch add field courseid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define key courseid (foreign) to be added to plagiarism_safeassign_assign.
+        $key = new xmldb_key('courseid', XMLDB_KEY_FOREIGN, array('courseid'), 'course', array('id'));
+
+        // Launch add key courseid.
+        $dbman->add_key($table, $key);
+
+        // Define field assignmentid to be added to plagiarism_safeassign_subm.
+        $table = new xmldb_table('plagiarism_safeassign_subm');
+        $field = new xmldb_field('assignmentid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'timecreated');
+
+        // Conditionally launch add field assignmentid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $key = new xmldb_key('assignmentid', XMLDB_KEY_FOREIGN, array('assignmentid'), 'assignment', array('id'));
+
+        // Launch add key assignmentid.
+        $dbman->add_key($table, $key);
+
+        // Define field deleted to be added to plagiarism_safeassign_subm.
+        $field = new xmldb_field('deleted', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'assignmentid');
+
+        // Conditionally launch add field deleted.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Safeassign savepoint reached.
+        upgrade_plugin_savepoint(true, 2017111556, 'plagiarism', 'safeassign');
+    }
+
     return true;
 
 }
