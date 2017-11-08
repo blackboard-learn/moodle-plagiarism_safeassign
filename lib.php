@@ -119,7 +119,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                     $submission = $DB->get_record('assign_submission', array('userid' => $userid, 'assignment' => $linkarray['assignment']));
                     $namefile = 'userid_' . $userid . '_text_submissionid_' . $submission->id . '.txt';
                     $filerecord = $DB->get_record('files', array('filename' => $namefile));
-                    if (!empty($filerecord)) {
+                    if (is_object($filerecord)) {
                         $file = $this->get_file_results($cmid, $userid, $filerecord->id);
                     }
                 }
@@ -514,7 +514,11 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             if (isset($params['hasonlinetext'])) {
                 $record->hasonlinetext = $params['hasonlinetext'];
             }
-            if ($originalhasfile != $record->hasfile || $originalhasonlinesubmission != $record->hasonlinetext) {
+            if ($record->hasfile == 0 && $record->hasonlinetext == 0) {
+                $record->deprecated = 1;
+            }
+            if ($originalhasfile != $record->hasfile || $originalhasonlinesubmission != $record->hasonlinetext
+                || $record->deprecated) {
                 $this->update_submission($record);
             }
         }
@@ -724,7 +728,8 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                   FROM {plagiarism_safeassign_subm} s
                  WHERE s.deprecated = 0
                    AND s.uuid IS NULL
-                   AND s.submitted = 0";
+                   AND s.submitted = 0
+                   AND (s.hasonlinetext = 1 OR s.hasfile = 1)";
         return $DB->get_records_sql($sql, array());
     }
 
