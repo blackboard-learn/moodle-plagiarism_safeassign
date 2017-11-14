@@ -119,7 +119,9 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                     $submission = $DB->get_record('assign_submission', array('userid' => $userid, 'assignment' => $linkarray['assignment']));
                     $namefile = 'userid_' . $userid . '_text_submissionid_' . $submission->id . '.txt';
                     $filerecord = $DB->get_record('files', array('filename' => $namefile));
-                    $file = $this->get_file_results($cmid, $userid, $filerecord->id);
+                    if (!empty($filerecord)) {
+                        $file = $this->get_file_results($cmid, $userid, $filerecord->id);
+                    }
                 }
             }
             if ($file != null) {
