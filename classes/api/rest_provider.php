@@ -222,13 +222,6 @@ class rest_provider {
             throw new norequestmethod_exception();
         }
 
-        /*
-         * Running behat test.
-         */
-        if (defined('BEHAT_SITE_RUNNING')) {
-            return $this->request_behat($url);
-        }
-
         // Default content type.
         $defaultctype = 'application/json; charset=UTF-8';
 
@@ -263,15 +256,16 @@ class rest_provider {
         $curlopts = $this->getopts($fullopts);
         if (!defined('SAFEASSIGN_OMIT_CACHE') && $ret = $this->cache->get($url)) {
             $this->rawresponse = $ret;
-            if (PHPUNIT_TEST) {
+            if (PHPUNIT_TEST || BEHAT_TEST) {
                 $this->lasthttpcode = testhelper::get_code_data($url);
                 if ($this->lasthttpcode >= 400) {
                     return false;
                 }
             }
             return true;
-        } else if (PHPUNIT_TEST) {
+        } else if (PHPUNIT_TEST || BEHAT_TEST) {
             $this->lasthttpcode = testhelper::get_code_data($url);
+            $this->rawresponse = testhelper::get_fixture_data($url);
             if ($this->lasthttpcode >= 400) {
                 return false;
             } else {
@@ -766,7 +760,7 @@ class rest_provider {
      */
     public function post_submission_to_safeassign($userid, $url, array $files, $globalcheck = false, $groupsubmission = false) {
 
-        if (PHPUNIT_TEST) {
+        if (PHPUNIT_TEST || BEHAT_TEST) {
             $this->lasthttpcode = testhelper::get_code_data($url);
             $this->rawresponse = testhelper::get_fixture_data($url);
             if ($this->lasthttpcode >= 400) {
