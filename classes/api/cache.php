@@ -125,6 +125,9 @@ class cache {
      */
     public function set($param, $val, $timeout = false) {
         if (PHPUNIT_TEST) {
+            if ($timeout) {
+                testhelper::set_timed_value($param, $val, $timeout);
+            }
             return;
         }
         if (self::cache_timeout() > 0) {
