@@ -33,7 +33,7 @@ $string['studentdisclosure_help'] = 'This text will be displayed to all students
 $string['safeassignexplain'] = 'For more information on this plugin see: ';
 $string['safeassign'] = 'SafeAssign';
 $string['safeassign:enable'] = 'Allow the teacher to enable/disable SafeAssign inside an activity';
-$string['safeassign:report'] = 'Allow the teacher to view the full report from SafeAssign';
+$string['safeassign:report'] = 'Allow viewing the originality report from SafeAssign';
 $string['usesafeassign'] ='Enable SafeAssign';
 $string['savedconfigsuccess'] = 'Plagiarism Settings Saved';
 $string['safeassign_api']= 'SafeAssign integration URL';
@@ -127,3 +127,8 @@ $string['safeassign_file_not_supported_help'] = 'The file extension is not suppo
 $string['safeassign_file_in_review'] = 'Report in progress...';
 $string['safeassign_file_similarity_score'] = 'Submission Text: {$a}%<br>';
 $string['safeassign_link_originality_report'] = 'View Originality Report';
+
+// Originality report.
+$string['originality_report'] = 'SafeAssign Originality Report';
+$string['originality_report_unavailable'] = 'The requested Originality Report is unavailable. Check back later or contact your System Administrator.';
+$string['originality_report_error'] = 'There was an error with SafeAssign\'s Originality Report. Contact your System Administrator.';

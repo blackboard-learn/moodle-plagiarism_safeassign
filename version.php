@@ -16,8 +16,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
-* @package   plagiarism_safeassign
-* @copyright Copyright (c) 2017 Blackboard Inc.
+ * @package   plagiarism_safeassign
+ * @copyright Copyright (c) 2017 Blackboard Inc.
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -29,3 +29,6 @@ $plugin->requires = 2016120503;
 $plugin->component = 'plagiarism_safeassign';
 $plugin->maturity  = MATURITY_BETA;
 $plugin->cron      = 0;
+$plugin->dependencies = [
+    'local_mr'       => ANY_VERSION,
+];

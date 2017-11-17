@@ -44,7 +44,7 @@ abstract class error_handler {
             return null;
         }
 
-        $errortext = '';
+        $errortext = $htmllisterrors ? '<p>' : '';
         if ($treatasgeneric) {
             $errortext .= get_string('error_api_generic', self::PLUGIN);
         }
@@ -65,6 +65,7 @@ abstract class error_handler {
                 $errortext .= get_string('error_api_generic', self::PLUGIN);
                 break;
         }
+        $errortext .= $htmllisterrors ? '</p>' : '';
 
         if (!empty($errortext) && $addserverressponse) {
             $serverres = json_decode(rest_provider::instance()->lastresponse(), true);

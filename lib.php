@@ -143,7 +143,8 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      * @return string
      */
     private function get_message_result($file, $cm, array $courseconfiguration) {
-        global $USER, $OUTPUT;
+        global $USER, $OUTPUT, $COURSE;
+
         $message = '';
         if($file['supported']) {
             if ($file['analyzed']) {
@@ -155,7 +156,13 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 $roleid = key($role);
                 if (empty($role) || $role[$roleid]->shortname != 'student' || $courseconfiguration['safeassign_originality_report']) {
                     // The report is enabled for this user.
-                    $message .= html_writer::link($file['reporturl'], get_string('safeassign_link_originality_report', 'plagiarism_safeassign'));
+                    $reporturl = new moodle_url('/plagiarism/safeassign/view.php', [
+                        'courseid' => $COURSE->id,
+                        'uuid' => $file['subuuid']
+                    ]);
+                    $message .= html_writer::link($reporturl,
+                        get_string('safeassign_link_originality_report', 'plagiarism_safeassign'),
+                        ['target' => '_blank']);
                 }
             } else {
                 // This file is not supported by SafeAssign.
@@ -187,7 +194,8 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         $score = '';
         $reporturl = '';
         $supported = 1;
-        $filequery="SELECT fil.id, sub.reportgenerated, fil.similarityscore, fil.reporturl, fil.supported
+        $subuuid = '';
+        $filequery="SELECT fil.id, sub.reportgenerated, fil.similarityscore, fil.reporturl, fil.supported, sub.uuid
                        FROM {plagiarism_safeassign_subm} sub
                        JOIN {plagiarism_safeassign_files} fil ON sub.submissionid = fil.submissionid
                       WHERE fil.cm = ? AND fil.userid = ? AND fil.fileid = ? AND sub.submitted = 1 AND sub.deprecated = 0
@@ -199,8 +207,10 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $score = $fileinfo->similarityscore;
             $reporturl = $fileinfo->reporturl;
             $supported = $fileinfo->supported;
+            $subuuid = $fileinfo->uuid;
         }
-        return array('analyzed' => $analyzed, 'score' => $score, 'reporturl' => $reporturl, 'supported' => $supported);
+        return array('analyzed' => $analyzed, 'score' => $score, 'reporturl' => $reporturl, 'supported' => $supported,
+            'subuuid' => $subuuid);
     }
 
     /**
