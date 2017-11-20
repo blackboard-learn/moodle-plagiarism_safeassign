@@ -26,6 +26,8 @@ namespace plagiarism_safeassign\api;
 
 defined('MOODLE_INTERNAL') || die();
 
+use plagiarism_safeassign\local;
+
 /**
  * A helper class to access REST api
  *
@@ -256,14 +258,14 @@ class rest_provider {
         $curlopts = $this->getopts($fullopts);
         if (!defined('SAFEASSIGN_OMIT_CACHE') && $ret = $this->cache->get($url)) {
             $this->rawresponse = $ret;
-            if (PHPUNIT_TEST || BEHAT_TEST) {
+            if (local::duringtesting()) {
                 $this->lasthttpcode = testhelper::get_code_data($url);
                 if ($this->lasthttpcode >= 400) {
                     return false;
                 }
             }
             return true;
-        } else if (PHPUNIT_TEST || BEHAT_TEST) {
+        } else if (local::duringtesting()) {
             $this->lasthttpcode = testhelper::get_code_data($url);
             $this->rawresponse = testhelper::get_fixture_data($url);
             if ($this->lasthttpcode >= 400) {
@@ -760,7 +762,7 @@ class rest_provider {
      */
     public function post_submission_to_safeassign($userid, $url, array $files, $globalcheck = false, $groupsubmission = false) {
 
-        if (PHPUNIT_TEST || BEHAT_TEST) {
+        if (local::duringtesting()) {
             $this->lasthttpcode = testhelper::get_code_data($url);
             $this->rawresponse = testhelper::get_fixture_data($url);
             if ($this->lasthttpcode >= 400) {
