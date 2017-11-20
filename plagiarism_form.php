@@ -125,12 +125,10 @@ class plagiarism_setup_form extends moodleform {
         $mform->setDefault('safeassign_new_student_disclosure', get_string('studentdisclosuredefault', 'plagiarism_safeassign'));
 
         $mform->addElement('header', 'moodle', get_string('license_header', 'plagiarism_safeassign'));
-        $mform->addElement('textarea', 'license',
-            get_string('license_title', 'plagiarism_safeassign'), 'wrap = "virtual" rows = "15" cols = "100" readonly');
-        $terms = new plagiarism_safeassign_terms();
-        $mform->setDefault('license', $terms->get_license_agreement());
 
-        $this->add_action_buttons(true);
+        $terms = new plagiarism_safeassign_terms();
+        $mform->addElement('html', $terms->get_license_agreement());
+        $this->add_action_buttons(true, get_string('agree_continue', 'plagiarism_safeassign'));
     }
 }
 

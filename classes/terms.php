@@ -30,7 +30,9 @@ class plagiarism_safeassign_terms {
      * @return string - License Agreement text.
      */
     public function get_license_agreement() {
-        return '(LICENSE TEXT)';
+        return '<p> I agree to the <a href="http://blackboard.com/legal/safeassign" target="_blank"> Terms of Service
+            </a> and the <a href="http://blackboard.com/footer/privacy-policy.aspx" target="_blank">Blackboard Privacy
+            Policy</a> and confirm that I have the authority to install SafeAssign on behalf of my institution.</p>';
     }
 
 }

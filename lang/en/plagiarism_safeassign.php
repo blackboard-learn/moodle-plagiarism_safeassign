@@ -121,6 +121,7 @@ $string['course_success_sync'] = 'Courses synced successfully';
 $string['license_header'] = 'SafeAssign&trade; License Agreement';
 $string['license_title'] = 'SafeAssign License Agreement';
 $string['not_configured'] = 'SafeAssign&trade; is not configured. Please have your system administrator submit a ticket on Behind the Blackboard for assistance.';
+$string['agree_continue'] = 'Agree and Save';
 
 $string['safeassign_file_not_supported'] = 'Not supported.';
 $string['safeassign_file_not_supported_help'] = 'The file extension is not supported by SafeAssign or the file size exceeds maximum capacity.';
