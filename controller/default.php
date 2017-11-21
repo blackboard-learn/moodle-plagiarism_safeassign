@@ -38,7 +38,7 @@ class plagiarism_safeassign_controller_default extends mr_controller {
      * Require capabilities
      */
     public function require_capability() {
-        require_capability('plagiarism/safeassign:viewreport', $this->get_context());
+        require_capability('plagiarism/safeassign:report', $this->get_context());
     }
 
     /**

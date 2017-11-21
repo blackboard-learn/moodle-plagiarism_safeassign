@@ -145,11 +145,11 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     private function get_message_result($file, $cm, array $courseconfiguration) {
         global $USER, $OUTPUT, $COURSE;
 
-        $message = '';
+        $message = '<div>';
         if($file['supported']) {
             if ($file['analyzed']) {
                 // We have a valid report for this file.
-                $message = get_string('safeassign_file_similarity_score', 'plagiarism_safeassign', intval($file['score'] * 100));
+                $message .= get_string('safeassign_file_similarity_score', 'plagiarism_safeassign', intval($file['score'] * 100));
 
                 // We need to validate that the user can see the link to the similarity report.
                 $role = get_user_roles($cm, $USER->id);
@@ -166,13 +166,14 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 }
             } else {
                 // This file is not supported by SafeAssign.
-                $message = get_string('safeassign_file_in_review', 'plagiarism_safeassign');
+                $message .= get_string('safeassign_file_in_review', 'plagiarism_safeassign');
             }
         } else {
             // This file is not supported by SafeAssign.
-            $message = get_string('safeassign_file_not_supported', 'plagiarism_safeassign');
+            $message .= get_string('safeassign_file_not_supported', 'plagiarism_safeassign');
             $message .= $OUTPUT->help_icon('safeassign_file_not_supported', 'plagiarism_safeassign');
         }
+        $message .= '</div>';
         return $message;
     }
 
