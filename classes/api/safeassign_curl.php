@@ -42,12 +42,25 @@ class safeassign_curl extends \curl {
      * @param array $options
      * @return bool
      */
-    public function put($url, $params = array(), $options = array()) {
+    public function put($url, array $params = array(), array $options = array()) {
         $options['CURLOPT_PUT'] = 1;
         if (is_array($params)) {
             $params = $this->format_postdata_for_curlcall($params);
         }
         $options['CURLOPT_POSTFIELDS'] = $params;
+        return $this->request($url, $options);
+    }
+
+    /**
+     * HTTP DELETE method
+     *
+     * @param string $url
+     * @param array $params
+     * @param array $options
+     * @return bool
+     */
+    public function delete($url, array $param = array(), array $options = array()) {
+        $options['CURLOPT_CUSTOMREQUEST'] = 'DELETE';
         return $this->request($url, $options);
     }
 

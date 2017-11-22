@@ -48,6 +48,7 @@ class sync_assignments extends \core\task\scheduled_task {
                 }
             }
             $safeassign = new \plagiarism_plugin_safeassign();
+            $safeassign->delete_submissions();
             $unsynccourses = $DB->get_records('plagiarism_safeassign_course', array('uuid' => null));
             if (!empty($unsynccourses)) {
                 $safeassign->sync_courses($unsynccourses);

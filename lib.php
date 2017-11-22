@@ -370,6 +370,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $assignmentdata = new stdClass();
             $assignmentdata->uuid = null;
             $assignmentdata->assignmentid = $instanceid;
+            $assignmentdata->courseid = $eventdata->courseid;
             $DB->insert_record('plagiarism_safeassign_assign', $assignmentdata);
         }
         return true;
@@ -461,7 +462,6 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      */
     private function create_submission_record($eventdata, $params) {
         global $DB;
-
         $submissionid = $eventdata['objectid'];
         if ($eventdata['objecttable'] === 'assignsubmission_onlinetext') {
             $submissionid = $eventdata['other']['submissionid'];
@@ -479,6 +479,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         $submission->hasfile = (isset($params['hasfile']))? $params['hasfile']: 0;
         $submission->hasonlinetext =(isset($params['hasonlinetext']))? $params['hasonlinetext']: 0;
         $submission->timecreated = $eventdata['timecreated'];
+        $submission->assignmentid = $DB->get_field('assign_submission', 'assignment', array('id' => $eventdata['objectid']));
         $DB->insert_record('plagiarism_safeassign_subm', $submission);
     }
 
@@ -830,7 +831,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         $wrapper->grouppermission = true;
         $result = safeassign_api::create_submission($wrapper->userid, $wrapper->courseuuid,
             $wrapper->assignuuid, $wrapper->files, $wrapper->globalcheck, $wrapper->grouppermission);
-        $responsedata =json_decode(rest_provider::instance()->lastresponse());
+        $responsedata = json_decode(rest_provider::instance()->lastresponse());
         if ($result === true) {
             $record = $DB->get_record('plagiarism_safeassign_subm', array('submissionid' => $data['id'],
                 'uuid' => null, 'submitted' => 0, 'deprecated' => 0));
@@ -945,6 +946,37 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
 
     }
 
+    /**
+     * Deletes all deprecated submissions from the SafeAssign server.
+     */
+    public function delete_submissions() {
+        global $DB;
+        $sql = "SELECT sa_subm.id, sa_subm.uuid, sa_course.instructorid
+                FROM {plagiarism_safeassign_subm} sa_subm
+                JOIN {plagiarism_safeassign_assign} sa_assign ON sa_assign.assignmentid = sa_subm.assignmentid
+                JOIN {plagiarism_safeassign_course} sa_course ON sa_assign.courseid = sa_course.courseid
+                WHERE sa_subm.uuid IS NOT NULL
+                AND sa_subm.deprecated = 1
+                AND sa_subm.deleted = 0";
+        $submissions = $DB->get_records_sql($sql, array());
+        $count = 0;
+        foreach ($submissions as $submission) {
+            $response = safeassign_api::delete_submission($submission->uuid, $submission->instructorid);
+            if($response) {
+                $count ++;
+                $DB->set_field('plagiarism_safeassign_subm', 'deleted', 1, array('uuid' => $submission->uuid));
+
+            } else {
+                $event = sync_content_log::create_log_message('delete', $submission->uuid);
+                $event->trigger();
+            }
+        }
+        if ($count > 0) {
+            $event = sync_content_log::create_log_message('delete', $count, false);
+            $event->trigger();
+        }
+    }
+
 }
 
 /**
@@ -959,4 +991,46 @@ function safeassign_get_form_elements($mform) {
     $mform->addElement('checkbox' ,'safeassign_originality_report', get_string('students_originality_report', 'plagiarism_safeassign'));
     $mform->addElement('checkbox' ,'safeassign_global_reference', get_string('submissions_global_reference', 'plagiarism_safeassign'));
     $mform->addHelpButton('safeassign_global_reference', 'submissions_global_reference', 'plagiarism_safeassign');
+}
+
+/**
+ * Hook called before a course is deleted.
+ *
+ * @param \stdClass $course The course record.
+ */
+function plagiarism_safeassign_pre_course_delete($course) {
+    global $DB;
+    // Find the assignments and submissions for that course.
+    if($DB->record_exists('plagiarism_safeassign_course', array('courseid' => $course->id))) {
+        $sql = 'UPDATE {plagiarism_safeassign_subm}
+                SET deprecated = 1
+                WHERE submissionid IN (
+                    SELECT asub.id
+                      FROM {assign_submission} asub
+                      JOIN {assign} a ON a.id = asub.assignment
+                     WHERE asub.status = "submitted"
+                       AND a.course = ?)';
+        $DB->execute($sql, array($course->id));
+    }
+
+}
+
+/**
+ * Hook called before a course module is deleted.
+ *
+ * @param \stdClass $cm The course module record.
+ */
+function plagiarism_safeassign_pre_course_module_delete($cm) {
+    global $DB;
+    $moduleid = $DB->get_field('modules', 'id', array('name' => 'assign'));
+    if ($DB->record_exists('plagiarism_safeassign_assign', array('assignmentid' => $cm->instance)) && $cm->module === $moduleid) {
+        $sql = 'UPDATE {plagiarism_safeassign_subm}
+            SET deprecated = 1
+            WHERE submissionid IN (
+                SELECT asub.id
+                  FROM {assign_submission} asub
+                 WHERE asub.status = "submitted"
+                   AND asub.assignment = ?)';
+        $DB->execute($sql, array($cm->instance));
+    }
 }
