@@ -125,7 +125,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 }
             }
             if ($file != null) {
-                $message = $this->get_message_result($file, $cm, $courseconfiguration);
+                $message = $this->get_message_result($file, $cm, $courseconfiguration, $userid);
             }
             return $message;
         } else {
@@ -140,10 +140,11 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      * @param array $file
      * @param int $cm
      * @param array $courseconfiguration
+     * @param int $userid
      * @return string
      */
-    private function get_message_result($file, $cm, array $courseconfiguration) {
-        global $USER, $OUTPUT, $COURSE;
+    private function get_message_result($file, $cm, array $courseconfiguration, $userid) {
+        global $USER, $OUTPUT, $COURSE, $PAGE;
 
         $message = '<div class="plagiarism-inline">';
         if ($file['supported']) {
@@ -165,8 +166,10 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                         get_string('safeassign_link_originality_report', 'plagiarism_safeassign'),
                         ['target' => '_blank']);
                 }
+
+                // Print the overall score for this submission.
+                $PAGE->requires->js_call_amd('plagiarism_safeassign/score', 'init', array($file['avgscore'], $userid));
             } else {
-                // This file is not supported by SafeAssign.
                 $message .= get_string('safeassign_file_in_review', 'plagiarism_safeassign');
             }
         } else {
@@ -197,7 +200,8 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         $reporturl = '';
         $supported = 1;
         $subuuid = '';
-        $filequery = "SELECT fil.id, sub.reportgenerated, fil.similarityscore, fil.reporturl, fil.supported, sub.uuid
+        $avgscore = -1;
+        $filequery = "SELECT fil.id, sub.reportgenerated, fil.similarityscore, fil.reporturl, fil.supported, sub.uuid, sub.avgscore
                        FROM {plagiarism_safeassign_subm} sub
                        JOIN {plagiarism_safeassign_files} fil ON sub.submissionid = fil.submissionid
                       WHERE fil.cm = ? AND fil.userid = ? AND fil.fileid = ? AND sub.submitted = 1 AND sub.deprecated = 0
@@ -210,9 +214,10 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $reporturl = $fileinfo->reporturl;
             $supported = $fileinfo->supported;
             $subuuid = $fileinfo->uuid;
+            $avgscore = $fileinfo->avgscore;
         }
         return array('analyzed' => $analyzed, 'score' => $score, 'reporturl' => $reporturl, 'supported' => $supported,
-            'subuuid' => $subuuid);
+            'subuuid' => $subuuid, 'avgscore' => $avgscore);
     }
 
     /**
