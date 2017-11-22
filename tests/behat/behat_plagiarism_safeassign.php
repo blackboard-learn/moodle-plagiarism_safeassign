@@ -149,4 +149,17 @@ class behat_plagiarism_safeassign extends behat_base {
         $safeassign = new \plagiarism_plugin_safeassign();
         $safeassign->safeassign_get_scores();
     }
+
+    /**
+     * @Given /^I follow duplicate "(?P<duplicate_number_int>(?:[^"]|\\")*)" of assignment "(?P<assignment_string>(?:[^"]|\\")*)"$/
+     * @param int $duplicatenumber
+     * @param string $assignmentname
+     * @throws exception
+     */
+    public function i_follow_duplicate($duplicatenumber, $assignmentname) {
+        $xpath = '//div[contains(@class,"activityinstance")]//a';
+        $linknodes = $this->find_all('xpath', $xpath);
+        $targetnode = $linknodes[$duplicatenumber];
+        $targetnode->click();
+    }
 }

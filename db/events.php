@@ -44,5 +44,6 @@ $observers = array (
     ),
     array(
         'eventname' => '\assignsubmission_onlinetext\event\submission_updated',
-        'callback' => 'plagiarism_safeassign_observer::assignsubmission_onlinetext_updated')
+        'callback' => 'plagiarism_safeassign_observer::assignsubmission_onlinetext_updated'
+    )
 );
