@@ -145,8 +145,8 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     private function get_message_result($file, $cm, array $courseconfiguration) {
         global $USER, $OUTPUT, $COURSE;
 
-        $message = '<div>';
-        if($file['supported']) {
+        $message = '<div class="plagiarism-inline">';
+        if ($file['supported']) {
             if ($file['analyzed']) {
                 // We have a valid report for this file.
                 $message .= get_string('safeassign_file_similarity_score', 'plagiarism_safeassign', intval($file['score'] * 100));

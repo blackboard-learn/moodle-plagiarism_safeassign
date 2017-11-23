@@ -69,7 +69,7 @@ abstract class error_handler {
 
         if (!empty($errortext) && $addserverressponse) {
             $serverres = json_decode(rest_provider::instance()->lastresponse(), true);
-            if ($serverres !== false) {
+            if (isset($serverres)) {
                 $errortext .= self::print_list($serverres, $htmllisterrors);
             }
         }

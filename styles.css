@@ -23,3 +23,14 @@
 #page-mod-assign-editsubmission .col-md-3 {
     padding-left: 0px;
 }
+
+/**
+ * Styles for Moodlerooms Grader (local_joulegrader)
+ */
+#page-local-joulegrader-view .plagiarism-inline {
+    display: inline-flex;
+}
+
+#page-local-joulegrader-view .plagiarism-inline a{
+    padding-left: .5em;
+}
