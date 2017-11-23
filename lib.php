@@ -168,7 +168,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 }
 
                 // Print the overall score for this submission.
-                $PAGE->requires->js_call_amd('plagiarism_safeassign/score', 'init', array($file['avgscore'], $userid));
+                $PAGE->requires->js_call_amd('plagiarism_safeassign/score', 'init', array($file['avgscore'] * 100, $userid));
             } else {
                 $message .= get_string('safeassign_file_in_review', 'plagiarism_safeassign');
             }

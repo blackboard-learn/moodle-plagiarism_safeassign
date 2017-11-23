@@ -40,16 +40,17 @@ define(['jquery'], function($) {
              * Checks if we have already added a new DOM element in the submission tree.
              * @returns {boolean}
              */
-            var alreadyhaveavgsscore = function() {
+            var alreadyhaveavgsscore = function () {
                 var table = $('#safeassign_score_' + userid);
-                return (table.length) ? true: false;
+                return (table.length) ? true : false;
             };
 
             /**
              * Creates a new DOM element and attach it into the file submission tree.
              * @param {string} selector
              */
-            var appendavgscore = function(selector) {
+
+            var appendavgscore = function (selector) {
                 if (!alreadyhaveavgsscore()) {
                     var tree = $(selector);
                     var message = getmessage(avgscore);
@@ -67,7 +68,7 @@ define(['jquery'], function($) {
              * @param {int} avgscore
              * @returns {string}
              */
-            var getmessage = function(avgscore) {
+            var getmessage = function (avgscore) {
                 return '<b>Plagiarism overall score: ' + avgscore + '%</b>';
             };
 
@@ -84,12 +85,22 @@ define(['jquery'], function($) {
                 if (is_mr_grader_view) {
                     selector = '.ygtvchildren';
                 } else {
-                    // By default, we are on student submission view.
-                    selector = '.plugincontentsummary .ygtvchildren';
+                    // Checks if we are on mod_assign grader view.
+                    page_object = $('#page-mod-assign-grader');
+                    var is_mod_assign_grader_view = page_object.length;
+                    if (is_mod_assign_grader_view) {
+                        selector = '.ygtvchildren';
+                    } else {
+                        // By default, we are on student submission view.
+                        selector = '.plugincontentsummary .ygtvchildren';
+                    }
                 }
             }
-            appendavgscore(selector);
-
+            if (is_mod_assign_grader_view) {
+                setTimeout( function() { appendavgscore(selector); }, 1000);
+            } else {
+                appendavgscore(selector);
+            }
         }
     };
 });
