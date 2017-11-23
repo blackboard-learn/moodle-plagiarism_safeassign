@@ -42,7 +42,7 @@ class safeassign_curl extends \curl {
      * @param array $options
      * @return bool
      */
-    public function put($url, array $params = array(), array $options = array()) {
+    public function put($url, $params = array(), $options = array()) {
         $options['CURLOPT_PUT'] = 1;
         if (is_array($params)) {
             $params = $this->format_postdata_for_curlcall($params);
@@ -55,11 +55,11 @@ class safeassign_curl extends \curl {
      * HTTP DELETE method
      *
      * @param string $url
-     * @param array $params
+     * @param array $param
      * @param array $options
      * @return bool
      */
-    public function delete($url, array $param = array(), array $options = array()) {
+    public function delete($url, $param = array(), $options = array()) {
         $options['CURLOPT_CUSTOMREQUEST'] = 'DELETE';
         return $this->request($url, $options);
     }
