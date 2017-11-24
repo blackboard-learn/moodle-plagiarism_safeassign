@@ -83,6 +83,9 @@ Feature: See plagiarism overall score for a submission in an assignment with Saf
       And I follow "Assignment One"
      Then I navigate to "View all submissions" in current page administration
       And I wait until "Plagiarism overall score" "text" exists
+      And I click on "Grade" "link" in the "student1" "table_row"
+      And I wait until "Plagiarism overall score" "text" exists
+     Then I am on "Course 1" course homepage
       And I log out
 
   @javascript
@@ -92,4 +95,5 @@ Feature: See plagiarism overall score for a submission in an assignment with Saf
     And I click on ".context-header-settings-menu [role=button]" "css_element"
     And I choose "Moodlerooms Grader" in the open action menu
     And I wait until "Plagiarism overall score" "text" exists
+    And I press "Return to course"
     And I log out

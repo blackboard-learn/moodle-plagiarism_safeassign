@@ -60,6 +60,7 @@ define(['jquery'], function($) {
                     var table = $('<table></table>').attr('id', 'safeassign_score_' + userid).append(trow);
                     var div = $('<div></div>').addClass('ygtvitem').append(table);
                     tree.prepend(div);
+                    clearInterval(print_score);
                 }
             };
 
@@ -79,28 +80,19 @@ define(['jquery'], function($) {
             if (is_feedback_view) {
                 selector = '.user' + userid + ' .ygtvchildren';
             } else {
-                // Checks if we are on mr grader view.
+                // Checks if we are on mr grader view or in mod_assign grader view.
                 page_object = $('#page-local-joulegrader-view');
                 var is_mr_grader_view = page_object.length;
-                if (is_mr_grader_view) {
+                page_object = $('#page-mod-assign-grader');
+                var is_mod_assign_grader_view = page_object.length;
+                if (is_mr_grader_view || is_mod_assign_grader_view) {
                     selector = '.ygtvchildren';
                 } else {
-                    // Checks if we are on mod_assign grader view.
-                    page_object = $('#page-mod-assign-grader');
-                    var is_mod_assign_grader_view = page_object.length;
-                    if (is_mod_assign_grader_view) {
-                        selector = '.ygtvchildren';
-                    } else {
-                        // By default, we are on student submission view.
-                        selector = '.plugincontentsummary .ygtvchildren';
-                    }
+                    // By default, we are on student submission view.
+                    selector = '.plugincontentsummary .ygtvchildren';
                 }
             }
-            if (is_mod_assign_grader_view) {
-                setTimeout( function() { appendavgscore(selector); }, 1000);
-            } else {
-                appendavgscore(selector);
-            }
+            var print_score = setInterval( function() { appendavgscore(selector);}, 200);
         }
     };
 });
