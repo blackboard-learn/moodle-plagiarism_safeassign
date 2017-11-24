@@ -921,4 +921,36 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
         self::assertFalse($resultc);
         self::assertNull($tokenc);
     }
+
+    public function test_login_cache() {
+        $this->resetAfterTest(true);
+        $this->config_set_ok();
+
+        // Create a fake user.
+        $this->user = $this->getDataGenerator()->create_user([
+            'firstname' => 'Teacher',
+            'lastname' => 'WhoTeaches'
+        ]);
+
+        // Tell the cache to load specific fixture for login url.
+        $loginurl = $this->create_login_url($this->user);
+        testhelper::push_pair($loginurl, 'user-login-final.json');
+        safeassign_api::login($this->user->id, true); // This will add the token to the cache.
+
+        // Clear the token and get it again. This will make the rest provider look into the cache.
+        rest_provider::instance()->cleartoken();
+        $cachedtoken = rest_provider::instance()->gettoken($this->user->id);
+        $this->assertEquals('4c390fd4-38d7-4675-8677-716d1b8bb12c', $cachedtoken);
+
+        // Pushing fixture with no cache time.
+        testhelper::reset_stash();
+        rest_provider::instance()->cleartoken();
+        testhelper::push_pair($loginurl, 'user-login-notime.json');
+        safeassign_api::login($this->user->id, true); // This will add the token to the cache.
+
+        // Clear the token and get it again. This will make the rest provider look into the cache.
+        rest_provider::instance()->cleartoken();
+        $cachedtoken = rest_provider::instance()->gettoken($this->user->id);
+        $this->assertNull($cachedtoken);
+    }
 }

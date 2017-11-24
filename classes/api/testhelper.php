@@ -47,6 +47,12 @@ abstract class testhelper {
     protected static $codestash = [];
 
     /**
+     * Timeout sensitive stash.
+     * @var array
+     */
+    protected static $timeoutvalstash = [];
+
+    /**
      * @param  string $rpath
      * @param  string $name
      * @return null|string
@@ -76,6 +82,11 @@ abstract class testhelper {
         if (!empty($filename)) {
             $result = self::load_data($CFG->dirroot.'/plagiarism/safeassign/tests/fixtures/', $filename);
         }
+
+        // Review if there's a value for that url in the timed values stash.
+        if (!isset($result)) {
+            $result = self::get_timed_value($url);
+        }
         return $result;
     }
 
@@ -86,7 +97,7 @@ abstract class testhelper {
     public static function get_code_data($url) {
         return self::$codestash[$url];
     }
-    
+
     /**
      * @param string $url
      * @param string $filename
@@ -115,6 +126,37 @@ abstract class testhelper {
     public static function reset_stash() {
         self::$fixturestash = [];
         self::$codestash = [];
+        self::$timeoutvalstash = [];
+    }
+
+    /**
+     * Simulates MUC storage with a timeout.
+     * @param $param
+     * @param $val
+     * @param $timeout
+     */
+    public static function set_timed_value($param, $val, $timeout) {
+        self::$timeoutvalstash[$param] = new \stdClass();
+        self::$timeoutvalstash[$param]->val = $val;
+        self::$timeoutvalstash[$param]->timeout = $timeout;
+        self::$timeoutvalstash[$param]->created = time();
+    }
+
+    /**
+     * Reviews and returns a stored value if found.
+     * @param $param
+     * @return null|mixed
+     */
+    protected static function get_timed_value($param) {
+        $res = null;
+        if (isset(self::$timeoutvalstash[$param])) {
+            $val = self::$timeoutvalstash[$param];
+            $ellapsedtime = time() - $val->created;
+            if ($ellapsedtime < $val->timeout) {
+                $res = $val->val;
+            }
+        }
+        return $res;
     }
 
 }

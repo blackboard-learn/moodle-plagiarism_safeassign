@@ -76,7 +76,7 @@ abstract class safeassign_api {
                 // Should check this some more?
                 rest_provider::instance()->resettoken($userid);
             } else {
-                rest_provider::instance()->settoken($userid, $data->access_token);
+                rest_provider::instance()->settoken($userid, $data->access_token, $data->expires_in);
             }
         }
 

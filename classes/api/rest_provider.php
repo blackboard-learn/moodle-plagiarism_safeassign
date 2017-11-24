@@ -717,10 +717,11 @@ class rest_provider {
     /**
      * @param int $userid
      * @param string $value
+     * @param int $timeout
      */
-    public function settoken($userid, $value) {
+    public function settoken($userid, $value, $timeout = false) {
         if (!empty($value)) {
-            $this->cache->set(self::TOKEN.'_'.$userid, $value);
+            $this->cache->set(self::TOKEN.'_'.$userid, $value, $timeout);
             $this->currentuserid = $userid;
             $this->token = $value;
         }
