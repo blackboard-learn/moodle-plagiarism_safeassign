@@ -77,14 +77,19 @@ Feature: See plagiarism overall score for a submission in an assignment with Saf
       And I log out
 
   @javascript
-  Scenario: See plagiarism overall score in the assignment feedback view and MR grader view
+  Scenario: See plagiarism overall score in the assignment feedback view
     Given I log in as "teacher1"
       And I am on "Course 1" course homepage
       And I follow "Assignment One"
      Then I navigate to "View all submissions" in current page administration
       And I wait until "Plagiarism overall score" "text" exists
-      And I am on "Course 1" course homepage
-      And I click on ".context-header-settings-menu [role=button]" "css_element"
-      And I choose "Moodlerooms Grader" in the open action menu
-      And I wait until "Plagiarism overall score" "text" exists
       And I log out
+
+  @javascript
+  Scenario: See plagiarism overall score in MR grader view
+    Given I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I click on ".context-header-settings-menu [role=button]" "css_element"
+    And I choose "Moodlerooms Grader" in the open action menu
+    And I wait until "Plagiarism overall score" "text" exists
+    And I log out
