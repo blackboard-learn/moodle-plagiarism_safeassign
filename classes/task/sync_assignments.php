@@ -45,22 +45,30 @@ class sync_assignments extends \core\task\scheduled_task {
         global $DB;
 
         if (get_config('plagiarism', 'safeassign_use')) {
-            if (!PHPUNIT_TEST) {
-                if (!defined('SAFEASSIGN_OMIT_CACHE')) {
-                    define('SAFEASSIGN_OMIT_CACHE', true);
-                }
-            }
-            $safeassign = new \plagiarism_plugin_safeassign();
-            $safeassign->delete_submissions();
-            $unsynccourses = $DB->get_records('plagiarism_safeassign_course', array('uuid' => null));
-            if (!empty($unsynccourses)) {
-                $safeassign->sync_courses($unsynccourses);
-                $event = sync_content_log::create_log_message('Courses', null, false);
-                $event->trigger();
 
+            set_error_handler(function ($n, $errstr, $file, $line) {
+                $errormessage = $errstr . ' in ' . $file . ' on line ' . $line;
+                throw new \moodle_exception($errormessage);
+            });
+            try {
+                if (!PHPUNIT_TEST) {
+                    if (!defined('SAFEASSIGN_OMIT_CACHE')) {
+                        define('SAFEASSIGN_OMIT_CACHE', true);
+                    }
+                }
+                $safeassign = new \plagiarism_plugin_safeassign();
+                $safeassign->delete_submissions();
+                $unsynccourses = $DB->get_records('plagiarism_safeassign_course', array('uuid' => null));
+                if (!empty($unsynccourses)) {
+                    $safeassign->sync_courses($unsynccourses);
+                }
+                $safeassign->sync_course_assignments();
+                $safeassign->sync_assign_submissions();
+            } catch (\moodle_exception $exception) {
+                $event = sync_content_log::create_log_message('error', null, true, $exception->getMessage());
+                $event->trigger();
             }
-            $safeassign->sync_course_assignments();
-            $safeassign->sync_assign_submissions();
+            restore_error_handler();
         }
     }
 }
