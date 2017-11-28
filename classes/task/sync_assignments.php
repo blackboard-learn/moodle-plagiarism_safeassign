@@ -26,13 +26,9 @@ namespace plagiarism_safeassign\task;
 
 defined('MOODLE_INTERNAL') || die();
 
-use plagiarism_safeassign\api\safeassign_api;
 global $CFG;
 require_once($CFG->dirroot . '/plagiarism/safeassign/lib.php');
 use plagiarism_safeassign\event\sync_content_log;
-use plagiarism_safeassign\api\rest_provider;
-
-defined('MOODLE_INTERNAL') || die();
 
 class sync_assignments extends \core\task\scheduled_task {
 
