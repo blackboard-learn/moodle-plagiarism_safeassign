@@ -49,14 +49,12 @@ define(['jquery'], function($) {
              * Creates a new DOM element and attach it into the file submission tree.
              * @param {string} selector
              */
-
             var appendavgscore = function (selector) {
                 if (!alreadyhaveavgsscore()) {
                     var tree = $(selector);
                     var message = getmessage(avgscore);
-                    var td1 = $('<td></td>').addClass('ygtvcell ygtvtn');
-                    var td2 = $('<td>' + message + '</td>').addClass('ygtvcell ygtvhtml ygtvcontent');
-                    var trow = $('<tr></tr>').addClass('ygtvrow').append(td1).append(td2);
+                    var td = $('<td>' + message + '</td>').addClass('ygtvcell ygtvhtml ygtvcontent');
+                    var trow = $('<tr></tr>').addClass('ygtvrow').append(td);
                     var table = $('<table></table>').attr('id', 'safeassign_score_' + userid).append(trow);
                     var div = $('<div></div>').addClass('ygtvitem').append(table);
                     tree.prepend(div);
