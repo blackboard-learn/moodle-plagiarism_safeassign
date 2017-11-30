@@ -58,23 +58,37 @@ class score_sync_fail extends base {
      * @return string
      */
     public function get_description() {
-        $messagedesc = 'An error ocurred trying to sync the scores for SafeAssign submission ID '. $this->other['submissionid'];
-        $messagedesc .= $this->other['message'];
+        if ($this->other['resource'] === 'api_error') {
+            $messagedesc = 'An error ocurred trying to sync the scores for SafeAssign submission ID '. $this->other['submissionid'];
+            $messagedesc .= $this->other['message'];
+        } else if ($this->other['resource'] === 'task_error') {
+            $messagedesc = $this->other['message'];
+        }
         return $messagedesc;
     }
 
     /**
-     *
+     * Builds the event object.
+     * @param int $submid
+     * @param mixed $message
+     * @param string $resource
      * @return self
      * @throws \coding_exception
      */
-    public static function create_from_error_handler($submid) {
-        $lasterror = error_handler::process_last_api_error(false, true, true);
+    public static function create_from_error_handler($submid, $message = false, $resource = 'api_error') {
+        $id = '';
+        if ($resource === 'api_error') {
+            $lasterror = error_handler::process_last_api_error(false, true, true);
+            $id = $submid;
+        } else if ($resource === 'task_error') {
+            $lasterror = $message;
+        }
 
         return self::create([
             'other' => [
                 'message' => $lasterror,
-                'submissionid' => $submid,
+                'submissionid' => $id,
+                'resource' => $resource
             ]
         ]);
     }

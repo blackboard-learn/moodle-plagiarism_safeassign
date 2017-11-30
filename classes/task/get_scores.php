@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace plagiarism_safeassign\task;
+use plagiarism_safeassign\event\score_sync_fail;
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -34,8 +35,18 @@ class get_scores extends \core\task\scheduled_task {
         global $CFG;
         if (get_config('plagiarism', 'safeassign_use')) {
             require_once($CFG->dirroot . '/plagiarism/safeassign/lib.php');
+            set_error_handler(function ($n, $errstr, $file, $line) {
+                $errormessage = $errstr . ' in ' . $file . ' on line ' . $line;
+                throw new \moodle_exception($errormessage);
+            });
             $safeassign = new \plagiarism_plugin_safeassign();
-            $safeassign->safeassign_get_scores();
+            try {
+                $safeassign->safeassign_get_scores();
+            } catch (\moodle_exception $exception) {
+                $event = score_sync_fail::create_from_error_handler(0, $exception->getMessage(), 'task_error');
+                $event->trigger();
+            }
+            restore_error_handler();
         }
     }
 }

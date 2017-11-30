@@ -67,7 +67,9 @@ class sync_content_log extends base {
      * @return string
      */
     public function get_description() {
-        if ($this->other['resource'] === 'delete') {
+        if ($this->other['resource'] === 'error') {
+            $message = $this->other['message'];
+        } else if ($this->other['resource'] === 'delete') {
             if (empty($this->other['message'])) {
                 $message = 'Submissions deleted from SafeAssign: ' . $this->other['itemid'];
             } else {
@@ -75,12 +77,17 @@ class sync_content_log extends base {
                 $message .= '<br>' . $this->other['message'];
             }
         } else {
-            if (empty($this->other['message'])) {
-                $message = $this->other['resource'] . ' synced successfully';
+            if (is_null($this->other['message']) && $this->other['error'] === false) {
+                $message = 'SafeAssign sync task ran successfully.<br>';
+                $message .= $this->other['resource'] . ' synced: ' .$this->other['itemid'] . '.';
             } else {
                 $message = 'An error occurred trying to sync the ' . $this->other['resource'] . ' with ID: ';
-                $message .= $this->other['itemid'] . ' into SafeAssign: <br>';
-                $message .= $this->other['message'];
+                $message .= $this->other['itemid'] . ' into SafeAssign';
+                if (!is_null($this->other['message'])) {
+                    $message .= ': <br>' .$this->other['message'];
+                } else {
+                    $message .= '.';
+                }
             }
         }
         return $message;
@@ -91,12 +98,13 @@ class sync_content_log extends base {
      * @param string $resource
      * @param int $itemid
      * @param bool $error
+     * @param mixed $message
      * @return self
      * @throws \coding_exception
      */
-    public static function create_log_message($resource, $itemid = null, $error = true) {
-        $lasterror = '';
-        if ($error) {
+    public static function create_log_message($resource, $itemid = null, $error = true, $message = null) {
+        $lasterror = $message;
+        if ($error === true && $message === null) {
             $lasterror = error_handler::process_last_api_error(false, true, true);
         }
 
@@ -104,7 +112,8 @@ class sync_content_log extends base {
             'other' => [
                 'message' => $lasterror,
                 'itemid' => $itemid,
-                'resource' => $resource
+                'resource' => $resource,
+                'error' => $error
             ]
         ]);
     }

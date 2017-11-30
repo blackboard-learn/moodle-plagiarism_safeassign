@@ -57,6 +57,21 @@ class score_sync_log extends base {
      * @return string
      */
     public function get_description() {
-        return 'SafeAssign score task ran successfully.';
+        return 'SafeAssign score task ran successfully.<br> Scores that have been synced: ' . $this->other['scores']. '.';
+    }
+
+    /**
+     * Creates the event object.
+     * @param int $scores
+     *
+     * @return array
+     */
+    public static function create_log_message($scores) {
+        return self::create([
+            'other' => [
+                'scores' => $scores
+            ]
+        ]);
+
     }
 }
