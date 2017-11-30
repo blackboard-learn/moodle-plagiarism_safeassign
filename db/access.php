@@ -45,4 +45,12 @@ $capabilities = array(
             'student' => CAP_ALLOW,
         )
     ),
+    'plagiarism/safeassign:get_messages' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'editingteacher' => CAP_ALLOW,
+            'teacher' => CAP_ALLOW
+        )
+    )
 );

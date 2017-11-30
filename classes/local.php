@@ -39,4 +39,24 @@ class local {
         return ($runningphpunittest || $runningbehattest);
     }
 
+    /**
+     * Is this script running during php testing?
+     *
+     * @return bool
+     */
+    public static function duringphptesting() {
+        $runningphpunittest = defined('PHPUNIT_TEST') && PHPUNIT_TEST;
+        return $runningphpunittest;
+    }
+
+    /**
+     * Is this script running during behat testing?
+     *
+     * @return bool
+     */
+    public static function duringbehattesting() {
+        $runningbehattest = defined('BEHAT_SITE_RUNNING') && BEHAT_SITE_RUNNING;
+        return $runningbehattest;
+    }
+
 }

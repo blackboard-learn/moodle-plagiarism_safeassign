@@ -92,13 +92,13 @@ class behat_plagiarism_safeassign extends behat_base {
     }
 
     /**
-     * @Given /^submission with file "(?P<filepath_string>(?:[^"]|\\")*)" is synced$/
+     * @Given /^I send a submission with file "(?P<filepath_string>(?:[^"]|\\")*)"$/
      * @param string $filepath
      * @param boolean $globalcheck optional
      * @param boolean $groupsubmission optional
      * @throws exception
      */
-    public function submission_with_file_is_synced($filepath, $globalcheck = true, $groupsubmission = false) {
+    public function i_send_a_submission_with_file($filepath, $globalcheck = true, $groupsubmission = false) {
         global $CFG, $DB;
         require_once($CFG->dirroot . '/plagiarism/safeassign/lib.php');
 
@@ -145,12 +145,34 @@ class behat_plagiarism_safeassign extends behat_base {
         // Get the originality report from SafeAssign.
         $getreportbasicdataurl = test_safeassign_api_connectors::create_get_originality_report_basic_data_url($submissionuuid);
         testhelper::push_pair($getreportbasicdataurl, 'get-originality-report-basic-data-ok.json');
+    }
 
-        // Sync the assignments' information from SafeAssign.
+    /**
+     * @Given /^I sync submissions$/
+     * @throws exception
+     */
+    public function i_sync_submissions() {
         $task = new sync_assignments();
         $task->execute();
         $safeassign = new \plagiarism_plugin_safeassign();
         $safeassign->safeassign_get_scores();
+    }
+
+    /**
+     * @Given /^I change notifications setup for user "(?P<name_string>(?:[^"]|\\")*)" with "(?P<prefs_string>(?:[^"]|\\")*)"$/
+     * @param string $username
+     * @paran string $preferences
+     * @throws exception
+     */
+    public function i_change_safeassign_notification_setup_for_user($username, $preferences) {
+        global $DB;
+        $user = $DB->get_record('user', array('username' => $username));
+        $DB->insert_record('user_preferences', array('userid' => $user->id,
+            'name' => 'message_provider_plagiarism_safeassign_safeassign_graded_loggedin',
+            'value' => $preferences));
+        $DB->insert_record('user_preferences', array('userid' => $user->id,
+            'name' => 'message_provider_plagiarism_safeassign_safeassign_graded_loggedoff',
+            'value' => $preferences));
     }
 
     /**

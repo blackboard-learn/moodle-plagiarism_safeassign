@@ -142,4 +142,12 @@ $string['originality_report_unavailable'] = 'The requested Originality Report is
 $string['originality_report_error'] = 'There was an error with SafeAssign\'s Originality Report. Contact your System Administrator.';
 
 $string['safeassign_overall_score'] = '<b>SafeAssign overall score: {$a}%</b>';
+// Notifications for instructors.
+$string['messageprovider:safeassign_graded'] = 'SafeAssign sends notifications to instructors when a submission has been graded for plagiarism';
 $string['safeassign_loading_settings'] = 'Loading settings, please wait';
+$string['safeassign:get_messages'] = 'Allow receiving notifications from SafeAssign';
+$string['safeassign_notification_message'] = 'Plagiarism scores have been processed for {$a->counter} {$a->plural} in {$a->assignmentname}';
+$string['safeassign_notification_grading_link'] = 'Grading page';
+$string['safeassign_notification_message_hdr'] = 'Plagiarism SafeAssign scores have been processed';
+$string['safeassign_notification_subm_singular'] = 'submission';
+$string['safeassign_notification_subm_plural'] = 'submissions';

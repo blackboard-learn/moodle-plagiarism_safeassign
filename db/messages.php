@@ -21,13 +21,9 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
-
-$plugin->version = 2017121501;
-$plugin->release = "3.2+";
-$plugin->requires = 2016120503;
-$plugin->component = 'plagiarism_safeassign';
-$plugin->maturity  = MATURITY_BETA;
-$plugin->cron      = 0;
-$plugin->dependencies = [
-    'local_mr'       => ANY_VERSION,
-];
+$messageproviders = array (
+    // Notify teacher that a submission has been graded in SafeAssign.
+    'safeassign_graded' => array (
+        'capability' => 'plagiarism/safeassign:get_messages'
+    )
+);

@@ -35,6 +35,7 @@ use plagiarism_safeassign\api\rest_provider;
 use plagiarism_safeassign\event\sync_content_log;
 use plagiarism_safeassign\event\score_sync_log;
 use plagiarism_safeassign\event\score_sync_fail;
+use plagiarism_safeassign\local;
 
 /**
  * Extends plagiarism core base class.
@@ -615,13 +616,19 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      */
     public function safeassign_get_scores() {
         global $DB, $CFG;
-
+        $updatedsubmissions = array();
+        $gradedsubmissions = array();
         $submissions = $DB->get_records_sql("SELECT plg.*, asg.userid
         FROM {plagiarism_safeassign_subm} plg, {assign_submission} asg
         WHERE plg.deprecated = 0 AND plg.reportgenerated = 0 AND plg.submitted = 1 AND plg.submissionid = asg.id;");
         $count = 0;
         $baseurl = get_config('plagiarism_safeassign', 'safeassign_api');
         foreach ($submissions as $submission) {
+            $assignmentid = $submission->assignmentid;
+            if (!array_key_exists($assignmentid, $gradedsubmissions)) {
+                $gradedsubmissions[$assignmentid] = 0;
+            }
+
             $userid = $submission->userid;
             $submissionuuid = $submission->uuid;
             $result = '';
@@ -646,6 +653,8 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 unset($submission->userid);
                 $DB->update_record('plagiarism_safeassign_subm', $submission);
                 $count ++;
+                array_push($updatedsubmissions, $submission);
+                $gradedsubmissions[$assignmentid] += 1;
             } else {
                 $params = array();
                 if (!empty($CFG->plagiarism_safeassign_debugging)) {
@@ -660,6 +669,28 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         if ($count > 0) {
             $event = score_sync_log::create_log_message($count);
             $event->trigger();
+        }
+        $event = score_sync_log::create();
+        $event->trigger();
+
+        // Send a message to the teachers.
+        if (!local::duringphptesting()) {
+            foreach ($gradedsubmissions as $assignmentid => $counter) {
+                if ($counter > 0) {
+                    list($course, $cm) = get_course_and_cm_from_instance($assignmentid, "assign");
+                    $courseid = $course->id;
+                    $context = context_course::instance($courseid);
+                    $teachers = get_enrolled_users($context, 'plagiarism/safeassign:get_messages');
+
+                    // Search for assignment's name.
+                    $assignment = $DB->get_record("assign", array('id' => $assignmentid));
+                    $assignmentname = $assignment->name;
+                    foreach ($teachers as $teacher) {
+                        $teacherid = $teacher->id;
+                        self::send_notification_to_teacher($teacherid, $courseid, $cm->id, $counter, $assignmentname);
+                    }
+                }
+            }
         }
     }
 
@@ -1132,6 +1163,46 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         return $result;
     }
 
+    /**
+     * Sends a notification message to the teacher
+     * @param int $teacherid
+     * @param int $courseid
+     * @param int $cmid
+     * @param int $counter
+     * @param string $assignmentname
+     * @throws coding_exception
+     */
+    public static function send_notification_to_teacher($teacherid, $courseid, $cmid, $counter, $assignmentname = "") {
+        global $DB;
+        $fromuser = \core_user::get_noreply_user();
+        $user = $DB->get_record('user', array('id' => $teacherid, 'deleted' => 0 ), '*');
+        $htmllink = new moodle_url('/mod/assign/view.php', ['id' => $cmid, 'action' => 'grading']);
+        $plural = get_string('safeassign_notification_subm_plural', 'plagiarism_safeassign');
+        if ($counter == 1) {
+            $plural = get_string('safeassign_notification_subm_singular', 'plagiarism_safeassign');
+        }
+        $htmlmessage = '<p>' . get_string('safeassign_notification_message', 'plagiarism_safeassign',
+                [
+                    'counter' => $counter,
+                    'plural' => $plural,
+                    'assignmentname' => format_string($assignmentname)
+                ]);
+        $htmlmessage .= '</p><br><a href="' . $htmllink->out(false) . '">' .
+            get_string('safeassign_notification_grading_link', 'plagiarism_safeassign').'</a>';
+        $event = new \core\message\message();
+        $event->component = 'plagiarism_safeassign';
+        $event->name = 'safeassign_graded';
+        $event->userfrom = $fromuser;
+        $event->userto = $user;
+        $event->subject = get_string('safeassign_notification_message_hdr', 'plagiarism_safeassign');
+        $event->fullmessage = '';
+        $event->fullmessageformat = FORMAT_PLAIN;
+        $event->fullmessagehtml = $htmlmessage;
+        $event->smallmessage = '';
+        $event->notification = 1;
+        $event->courseid = $courseid;
+        \message_send($event);
+    }
 }
 
 /**
