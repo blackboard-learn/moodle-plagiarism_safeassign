@@ -1017,6 +1017,23 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         }
     }
 
+    /**
+     * Pings the server and returns the status of the actual credentials.
+     * @return mixed
+     */
+    public function test_credentials_before_tasks() {
+        global $USER;
+
+        rest_provider::instance()->reset_cache();
+        $storedval = get_config('plagiarism_safeassign');
+        $username = $storedval->safeassign_instructor_username;
+        $password = $storedval->safeassign_instructor_password;
+        $baseurl = $storedval->safeassign_api;
+        $result = safeassign_api::test_credentials($USER->id, $username, $password, $baseurl);
+
+        return $result;
+    }
+
 }
 
 /**

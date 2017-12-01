@@ -16,6 +16,8 @@
 
 namespace plagiarism_safeassign\task;
 use plagiarism_safeassign\event\score_sync_fail;
+use plagiarism_safeassign\event\serv_unavailable_log;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -41,7 +43,13 @@ class get_scores extends \core\task\scheduled_task {
             });
             $safeassign = new \plagiarism_plugin_safeassign();
             try {
-                $safeassign->safeassign_get_scores();
+                $serviceaval = $safeassign->test_credentials_before_tasks();
+                if ($serviceaval === true) {
+                    $safeassign->safeassign_get_scores();
+                } else {
+                    $event = serv_unavailable_log::create();
+                    $event->trigger();
+                }
             } catch (\moodle_exception $exception) {
                 $event = score_sync_fail::create_from_error_handler(0, $exception->getMessage(), 'task_error');
                 $event->trigger();

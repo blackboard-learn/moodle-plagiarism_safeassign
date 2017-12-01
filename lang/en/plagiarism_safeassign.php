@@ -27,6 +27,7 @@ $string['getscores'] = 'Get scores for submissions';
 $string['getscoreslog'] = 'SafeAssign score task log';
 $string['getscoreslogfailed'] = 'SafeAssign score task fail';
 $string['getscoreslog_desc'] = 'SafeAssign score task ran successfully.';
+$string['servicedown'] = 'SafeAssign service is unavailable.';
 $string['studentdisclosuredefault'] = 'All files uploaded will be submitted to a plagiarism detection service';
 $string['studentdisclosure'] = 'Institution Release Statement';
 $string['studentdisclosure_help'] = 'This text will be displayed to all students on the file upload page.';

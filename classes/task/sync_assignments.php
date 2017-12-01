@@ -29,6 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/plagiarism/safeassign/lib.php');
 use plagiarism_safeassign\event\sync_content_log;
+use plagiarism_safeassign\event\serv_unavailable_log;
 
 class sync_assignments extends \core\task\scheduled_task {
 
@@ -53,13 +54,19 @@ class sync_assignments extends \core\task\scheduled_task {
                     }
                 }
                 $safeassign = new \plagiarism_plugin_safeassign();
-                $safeassign->delete_submissions();
-                $unsynccourses = $DB->get_records('plagiarism_safeassign_course', array('uuid' => null));
-                if (!empty($unsynccourses)) {
-                    $safeassign->sync_courses($unsynccourses);
+                $serviceaval = $safeassign->test_credentials_before_tasks();
+                if ($serviceaval === true) {
+                    $safeassign->delete_submissions();
+                    $unsynccourses = $DB->get_records('plagiarism_safeassign_course', array('uuid' => null));
+                    if (!empty($unsynccourses)) {
+                        $safeassign->sync_courses($unsynccourses);
+                    }
+                    $safeassign->sync_course_assignments();
+                    $safeassign->sync_assign_submissions();
+                } else {
+                    $event = serv_unavailable_log::create();
+                    $event->trigger();
                 }
-                $safeassign->sync_course_assignments();
-                $safeassign->sync_assign_submissions();
             } catch (\moodle_exception $exception) {
                 $event = sync_content_log::create_log_message('error', null, true, $exception->getMessage());
                 $event->trigger();
