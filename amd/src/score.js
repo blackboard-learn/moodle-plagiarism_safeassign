@@ -24,24 +24,24 @@
  * JS code to listen the disclosure agreement checkbox in an assignment
  * configured with SafeAssign.
  */
-define(['jquery'], function($) {
+define(['jquery', 'core/str'], function($, str) {
 
     return {
 
         /**
          * Adds a new DOM element in the submission tree object to display the average plagiarism
          * score for some submission.
-         * @param {int} avgscore
-         * @param {int} userid
+         * @param {int} avgScore
+         * @param {int} userId
          */
-        init: function(avgscore, userid) {
+        init: function(avgScore, userId) {
 
             /**
              * Checks if we have already added a new DOM element in the submission tree.
              * @returns {boolean}
              */
-            var alreadyhaveavgsscore = function () {
-                var table = $('#safeassign_score_' + userid);
+            var alreadyHaveAvgScore = function () {
+                var table = $('#safeassign_score_' + userId);
                 return (table.length) ? true : false;
             };
 
@@ -49,48 +49,55 @@ define(['jquery'], function($) {
              * Creates a new DOM element and attach it into the file submission tree.
              * @param {string} selector
              */
-            var appendavgscore = function (selector) {
-                if (!alreadyhaveavgsscore()) {
+            var appendAvgScore = function (selector) {
+                if (!alreadyHaveAvgScore()) {
                     var tree = $(selector);
-                    var message = getmessage(avgscore);
-                    var td = $('<td>' + message + '</td>').addClass('ygtvcell ygtvhtml ygtvcontent');
+                    var td = $('<td></td>').attr('id', 'safeassign_text_' + userId);
+                    td.addClass('ygtvcell ygtvhtml ygtvcontent');
                     var trow = $('<tr></tr>').addClass('ygtvrow').append(td);
-                    var table = $('<table></table>').attr('id', 'safeassign_score_' + userid).append(trow);
+                    var table = $('<table></table>').attr('id', 'safeassign_score_' + userId).append(trow);
                     var div = $('<div></div>').addClass('ygtvitem').append(table);
                     tree.prepend(div);
-                    clearInterval(print_score);
+                    clearInterval(printScore);
+                    getMessage(avgScore);
                 }
             };
 
             /**
              * Returns a message with the average score.
-             * @param {int} avgscore
-             * @returns {string}
+             * @param {int} avgScore
              */
-            var getmessage = function (avgscore) {
-                return '<b>Plagiarism overall score: ' + avgscore + '%</b>';
+            var getMessage = function (avgScore) {
+
+                // Get overall score string via ajax.
+                var messageString = str.get_string('safeassign_overall_score', 'plagiarism_safeassign', avgScore);
+
+                $.when(messageString).done(function(s) {
+                    $('#safeassign_text_' + userId).append(s);
+                });
+
             };
 
             // Checks if we are on assign grading view.
-            var page_object = $('#page-mod-assign-grading');
-            var is_feedback_view = page_object.length;
+            var pageObject = $('#page-mod-assign-grading');
+            var isFeedbackView = pageObject.length;
             var selector = '';
-            if (is_feedback_view) {
-                selector = '.user' + userid + ' .ygtvchildren';
+            if (isFeedbackView) {
+                selector = '.user' + userId + ' .ygtvchildren';
             } else {
                 // Checks if we are on mr grader view or in mod_assign grader view.
-                page_object = $('#page-local-joulegrader-view');
-                var is_mr_grader_view = page_object.length;
-                page_object = $('#page-mod-assign-grader');
-                var is_mod_assign_grader_view = page_object.length;
-                if (is_mr_grader_view || is_mod_assign_grader_view) {
+                pageObject = $('#page-local-joulegrader-view');
+                var isMrGraderView = pageObject.length;
+                pageObject = $('#page-mod-assign-grader');
+                var isModAssignGraderView = pageObject.length;
+                if (isMrGraderView || isModAssignGraderView) {
                     selector = '.ygtvchildren';
                 } else {
                     // By default, we are on student submission view.
                     selector = '.plugincontentsummary .ygtvchildren';
                 }
             }
-            var print_score = setInterval( function() { appendavgscore(selector);}, 200);
+            var printScore = setInterval( function() { appendAvgScore(selector);}, 200);
         }
     };
 });
