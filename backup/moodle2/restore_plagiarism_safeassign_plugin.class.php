@@ -25,4 +25,69 @@ defined('MOODLE_INTERNAL') || die();
  */
 class restore_plagiarism_safeassign_plugin extends restore_plagiarism_plugin {
 
+    /**
+     * {@inheritdoc}
+     * Return the paths of the course data along with the function used for restoring that data.
+     */
+    protected function define_course_plugin_structure() {
+        $paths = array();
+        $paths[] = new restore_path_element('safeassign_course', $this->get_pathfor('safeassign_courses/safeassign_course'));
+
+        return $paths;
+    }
+
+    /**
+     * {@inheritdoc}
+     * Return the paths of the module data along with the function used for restoring that data.
+     */
+    protected function define_module_plugin_structure() {
+        $paths = array();
+        $paths[] = new restore_path_element('safeassign_config', $this->get_pathfor('/safeassign_configs/safeassign_config'));
+        $paths[] = new restore_path_element('safeassign_files', $this->get_pathfor('/safeassign_files/safeassign_file'));
+
+        return $paths;
+    }
+
+    /**
+     * {@inheritdoc}
+     * Restore the SafeAssign assignment id for this module
+     * This will only be done this if the module is from the same site it was backed up from
+     * and if the SafeAssign assignment id does not currently exist in the database.
+     */
+    public function process_safeassign_config($data) {
+        global $DB;
+        if ($this->task->is_samesite()) {
+            $data = (object)$data;
+            $cmid = $this->task->get_moduleid();
+            $data->cm = $cmid;
+            $DB->insert_record('plagiarism_safeassign_config', $data);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     * Restore the SafeAssignment assignment record on table plagiarism_safeassign_assign after being restored
+     * @throws moodle_exception
+     */
+    public function after_restore_module() {
+        global $DB;
+        $cmid = $this->task->get_moduleid();
+        list($course, $cm) = get_course_and_cm_from_cmid($cmid, 'assign');
+
+        // Create the data being restored from the course and cm.
+        $data = new stdClass();
+        $data->assignmentid = $cm->instance;
+        $data->courseid = $course->id;
+        $DB->insert_record('plagiarism_safeassign_assign', $data);
+    }
+
+    /**
+     * {@inheritdoc}
+     * Restore the links to SafeAssign files.
+     * This will only be done this if the module is from the same site it was backed up from
+     * and if the SafeAssign submission does not currently exist in the database.
+     */
+    public function process_safeassign_files($data) {
+
+    }
 }

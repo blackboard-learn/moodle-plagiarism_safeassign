@@ -25,4 +25,30 @@ defined('MOODLE_INTERNAL') || die();
  */
 class backup_plagiarism_safeassign_plugin extends backup_plagiarism_plugin {
 
+    /**
+     * {@inheritdoc}
+     * @return backup_plugin_element
+     * @throws base_element_struct_exception
+     */
+    protected function define_module_plugin_structure() {
+        $plugin = $this->get_plugin_element();
+        $pluginelement = new backup_nested_element($this->get_recommended_name());
+        $plugin->add_child($pluginelement);
+
+        // Add module config elements.
+        $safeassignconfigs = new backup_nested_element('safeassign_configs');
+        $safeassignconfig = new backup_nested_element('safeassign_config', array('id'), array('name', 'value'));
+        $pluginelement->add_child($safeassignconfigs);
+        $safeassignconfigs->add_child($safeassignconfig);
+        $safeassignconfig->set_source_table('plagiarism_safeassign_config', array('cm' => backup::VAR_PARENTID));
+
+        return $plugin;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function define_course_plugin_structure() {
+
+    }
 }
