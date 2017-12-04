@@ -126,9 +126,11 @@ $string['safeassign_file_not_supported'] = 'Not supported.';
 $string['safeassign_file_not_supported_help'] = 'The file extension is not supported by SafeAssign or the file size exceeds maximum capacity.';
 $string['safeassign_file_in_review'] = 'Report in progress...';
 $string['safeassign_file_similarity_score'] = 'Submission Text: {$a}%<br>';
-$string['safeassign_link_originality_report'] = 'View Originality Report';
+$string['safeassign_link_originality_report'] = 'View originality report';
 
 // Originality report.
 $string['originality_report'] = 'SafeAssign Originality Report';
 $string['originality_report_unavailable'] = 'The requested Originality Report is unavailable. Check back later or contact your System Administrator.';
 $string['originality_report_error'] = 'There was an error with SafeAssign\'s Originality Report. Contact your System Administrator.';
+
+$string['safeassign_overall_score'] = '<b>Plagiarism overall score: {$a}%</b>';
