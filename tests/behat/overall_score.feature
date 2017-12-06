@@ -76,7 +76,7 @@ Feature: See plagiarism overall score for a submission in an assignment with Saf
       | assignsubmission_onlinetext_enabled | 0 |
       | assignsubmission_onlinetext_wordlimit_enabled | 0 |
       | assignsubmission_file_enabled  | 1 |
-      | assignsubmission_file_maxfiles | 2 |
+      | assignsubmission_file_maxfiles | 6 |
       | safeassign_enabled             | 1 |
       | safeassign_originality_report  | 1 |
       | safeassign_global_reference    | 1 |
@@ -86,7 +86,11 @@ Feature: See plagiarism overall score for a submission in an assignment with Saf
     And I follow "Assignment Two"
    When I press "Add submission"
     And I upload "lib/tests/fixtures/empty.txt" file to "File submissions" filemanager
-    And I upload "plagiarism/safeassign/tests/fixtures/test.txt" file to "File submissions" filemanager
+    And I upload "plagiarism/safeassign/tests/fixtures/dummy-files/test1.txt" file to "File submissions" filemanager
+    And I upload "plagiarism/safeassign/tests/fixtures/dummy-files/test2.txt" file to "File submissions" filemanager
+    And I upload "plagiarism/safeassign/tests/fixtures/dummy-files/test3.txt" file to "File submissions" filemanager
+    And I upload "plagiarism/safeassign/tests/fixtures/dummy-files/test4.txt" file to "File submissions" filemanager
+    And I upload "plagiarism/safeassign/tests/fixtures/dummy-files/test5.txt" file to "File submissions" filemanager
     And I press "Save changes"
    Then I log out
   Given set test helper teacher "teacher1"
@@ -107,6 +111,7 @@ Feature: See plagiarism overall score for a submission in an assignment with Saf
      Then I log in as "student2"
       And I am on "Course 1" course homepage
       And I follow "Assignment Two"
+      And I click on ".plugincontentsummary .expandsummaryicon" "css_element"
      Then I should see "Submission Text"
       And I wait until "Plagiarism overall score" "text" exists
       And I log out
@@ -123,9 +128,16 @@ Feature: See plagiarism overall score for a submission in an assignment with Saf
      Then I am on "Course 1" course homepage
       And I follow "Assignment Two"
      Then I navigate to "View all submissions" in current page administration
+      And I should not see "Plagiarism overall score"
+      And I should see "6 files"
+      And I follow "View submission"
       And I wait until "Plagiarism overall score" "text" exists
+      And I am on "Course 1" course homepage
+     Then I follow "Assignment Two"
+      And I navigate to "View all submissions" in current page administration
+      And I should not see "Plagiarism overall score"
       And I click on "Grade" "link" in the "student2" "table_row"
-      And I wait until "Plagiarism overall score" "text" exists
+     Then I wait until "Plagiarism overall score" "text" exists
       And I am on "Course 1" course homepage
       And I log out
 

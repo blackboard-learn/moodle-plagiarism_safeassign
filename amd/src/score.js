@@ -81,21 +81,9 @@ define(['jquery', 'core/str'], function($, str) {
             // Checks if we are on assign grading view.
             var pageObject = $('#page-mod-assign-grading');
             var isFeedbackView = pageObject.length;
-            var selector = '';
+            var selector = '.ygtvchildren';
             if (isFeedbackView) {
                 selector = '.user' + userId + ' .ygtvchildren';
-            } else {
-                // Checks if we are on mr grader view or in mod_assign grader view.
-                pageObject = $('#page-local-joulegrader-view');
-                var isMrGraderView = pageObject.length;
-                pageObject = $('#page-mod-assign-grader');
-                var isModAssignGraderView = pageObject.length;
-                if (isMrGraderView || isModAssignGraderView) {
-                    selector = '.ygtvchildren';
-                } else {
-                    // By default, we are on student submission view.
-                    selector = '.plugincontentsummary .ygtvchildren';
-                }
             }
             var printScore = setInterval( function() { appendAvgScore(selector);}, 200);
         }
