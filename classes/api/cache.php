@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 
 /* @noinspection PhpIncludeInspection */
 require_once($CFG->libdir.'/filelib.php');
-
+use plagiarism_safeassign\local;
 /**
  * Class cache
  * @package   plagiarism_safeassign
@@ -43,7 +43,7 @@ class cache {
     protected $muc = null;
 
     public function __construct() {
-        if (PHPUNIT_TEST) {
+        if (local::duringtesting()) {
             return;
         }
         $this->muc = \cache::make('plagiarism_safeassign', 'request');
@@ -89,7 +89,7 @@ class cache {
      * @return bool|string
      */
     public function get($param) {
-        if (PHPUNIT_TEST) {
+        if (local::duringtesting()) {
             $result = testhelper::get_fixture_data($param);
             if ($result) {
                 rest_provider::instance()->settoken(0, 'sometokenvalue');
@@ -124,7 +124,7 @@ class cache {
      * @return void
      */
     public function set($param, $val, $timeout = false) {
-        if (PHPUNIT_TEST) {
+        if (local::duringtesting()) {
             if ($timeout) {
                 testhelper::set_timed_value($param, $val, $timeout);
             }
@@ -145,7 +145,7 @@ class cache {
      * @return int
      */
     public function delete($param) {
-        if (PHPUNIT_TEST) {
+        if (local::duringtesting()) {
             return 0;
         }
         return $this->muc->delete_many($this->getkeys($param));
@@ -155,7 +155,7 @@ class cache {
      * @return bool
      */
     public function refresh() {
-        if (PHPUNIT_TEST) {
+        if (local::duringtesting()) {
             return false;
         }
         return $this->muc->purge();
