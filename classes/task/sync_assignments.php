@@ -54,8 +54,8 @@ class sync_assignments extends \core\task\scheduled_task {
                     }
                 }
                 $safeassign = new \plagiarism_plugin_safeassign();
-                $serviceaval = $safeassign->test_credentials_before_tasks();
-                if ($serviceaval === true) {
+                $serviceavail = $safeassign->test_credentials_before_tasks();
+                if ($serviceavail === true) {
                     $safeassign->delete_submissions();
                     $unsynccourses = $DB->get_records('plagiarism_safeassign_course', array('uuid' => null));
                     if (!empty($unsynccourses)) {

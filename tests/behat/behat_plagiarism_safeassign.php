@@ -99,7 +99,7 @@ class behat_plagiarism_safeassign extends behat_base {
      * @throws exception
      */
     public function submission_with_file_is_synced($filepath, $globalcheck = true, $groupsubmission = false) {
-        global $CFG;
+        global $CFG, $DB;
         require_once($CFG->dirroot . '/plagiarism/safeassign/lib.php');
 
         // Given teacher and student log in to SafeAssign.
@@ -108,6 +108,9 @@ class behat_plagiarism_safeassign extends behat_base {
         testhelper::push_pair($teacherloginurl, 'user-login-final.json');
         $studentloginurl = test_safeassign_api_connectors::create_login_url(self::$student);
         testhelper::push_pair($studentloginurl, 'user-login-final.json');
+        $administ = $DB->get_record('user', array('id' => 2));
+        $adminloginurl = test_safeassign_api_connectors::create_login_url($administ);
+        testhelper::push_pair($adminloginurl, 'user-login-final.json');
 
         // Create the given course inside SafeAssign.
         $courseurl = test_safeassign_api_connectors::create_course_url();

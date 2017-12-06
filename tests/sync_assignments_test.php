@@ -151,11 +151,15 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
     }
 
     private function push_login_urls() {
-        // Add successful login responses for all users.
+        global $DB;
+
+        // Add successful login responses for all users, including the admin.
         $testhelper = new plagiarism_safeassign_safeassign_api_testcase();
         $testhelper->push_login_url($this->teacher, 'user-login-final.json');
         $testhelper->push_login_url($this->student1, 'user-login-final.json');
         $testhelper->push_login_url($this->student2, 'user-login-final.json');
+        $administ = $DB->get_record('user', array('id' => 2));
+        $testhelper->push_login_url($administ, 'user-login-final.json');
     }
 
     public function test_sync_just_course_ok() {

@@ -43,8 +43,8 @@ class get_scores extends \core\task\scheduled_task {
             });
             $safeassign = new \plagiarism_plugin_safeassign();
             try {
-                $serviceaval = $safeassign->test_credentials_before_tasks();
-                if ($serviceaval === true) {
+                $serviceavail = $safeassign->test_credentials_before_tasks();
+                if ($serviceavail === true) {
                     $safeassign->safeassign_get_scores();
                 } else {
                     $event = serv_unavailable_log::create();

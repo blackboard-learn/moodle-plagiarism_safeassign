@@ -1024,7 +1024,9 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     public function test_credentials_before_tasks() {
         global $USER;
 
-        rest_provider::instance()->reset_cache();
+        if (!defined('SAFEASSIGN_OMIT_CACHE')) {
+            define('SAFEASSIGN_OMIT_CACHE', true);
+        }
         $storedval = get_config('plagiarism_safeassign');
         $username = $storedval->safeassign_instructor_username;
         $password = $storedval->safeassign_instructor_password;
