@@ -251,7 +251,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      */
     public function get_form_elements_module($mform, $context, $modulename = "") {
 
-        global $DB;
+        global $DB, $PAGE;
 
         if (!$this->is_supported_module($modulename)) {
             return;
@@ -278,6 +278,9 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                     $mform->setDefault($element, $plagiarismvalues[$element]);
                 }
             }
+
+            $PAGE->requires->js_call_amd('plagiarism_safeassign/formelements', 'init', array());
+
         }
     }
 

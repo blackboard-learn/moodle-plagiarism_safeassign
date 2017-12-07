@@ -136,3 +136,4 @@ $string['originality_report_unavailable'] = 'The requested Originality Report is
 $string['originality_report_error'] = 'There was an error with SafeAssign\'s Originality Report. Contact your System Administrator.';
 
 $string['safeassign_overall_score'] = '<b>Plagiarism overall score: {$a}%</b>';
+$string['safeassign_loading_settings'] = 'Loading settings, please wait';
