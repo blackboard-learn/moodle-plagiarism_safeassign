@@ -16,6 +16,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+use plagiarism_safeassign\event\sync_content_log;
 /**
  * Restore class for the SafeAssign plugin.
  *
@@ -71,14 +72,18 @@ class restore_plagiarism_safeassign_plugin extends restore_plagiarism_plugin {
      */
     public function after_restore_module() {
         global $DB;
-        $cmid = $this->task->get_moduleid();
-        list($course, $cm) = get_course_and_cm_from_cmid($cmid, 'assign');
 
-        // Create the data being restored from the course and cm.
-        $data = new stdClass();
-        $data->assignmentid = $cm->instance;
-        $data->courseid = $course->id;
-        $DB->insert_record('plagiarism_safeassign_assign', $data);
+        $supportedmodules = ['assign'];
+        $modulename = $this->task->get_modulename();
+        if (in_array($modulename, $supportedmodules)) {
+            $cmid = $this->task->get_moduleid();
+            list($course, $cm) = get_course_and_cm_from_cmid($cmid, $modulename);
+            // Create the data being restored from the course and cm from SafeAssign assign.
+            $data = new stdClass();
+            $data->assignmentid = $cm->instance;
+            $data->courseid = $course->id;
+            $DB->insert_record('plagiarism_safeassign_assign', $data);
+        }
     }
 
     /**
@@ -88,6 +93,14 @@ class restore_plagiarism_safeassign_plugin extends restore_plagiarism_plugin {
      * and if the SafeAssign submission does not currently exist in the database.
      */
     public function process_safeassign_files($data) {
+
+    }
+
+    /**
+     * {@inheritdoc}
+     * @param $data
+     */
+    public function process_safeassign_course($data) {
 
     }
 }
