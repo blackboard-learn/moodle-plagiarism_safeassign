@@ -127,6 +127,41 @@ Feature: Enable SafeAssign in an assignment
       And I should not see "Plagiarism Tools"
       And I should not see "I agree to submit my paper(s) to the Global Reference Database."
 
+  @javascript
+  Scenario: SafeAssign settings should only appear in assignments
+    Given I log in as "admin"
+    Then the following config values are set as admin:
+      | safeassign_use   | 1 | plagiarism |
+    And I am on the course with shortname "C1"
+    Then I turn editing mode on
+    And I add a "Assignment" to section "1"
+    And I should see "SafeAssign Plagiarism plugin"
+    And I press "Expand all"
+    And I should see "Check submissions for plagiarism"
+    And I should see "Allow students to view originality report"
+    And I should see "Exclude submissions from institutional and global reference database"
+    And I am on the course with shortname "C1"
+    And I add a "Moodlerooms Forum" to section "1"
+    And I should not see "SafeAssign Plagiarism plugin"
+    And I press "Expand all"
+    And I should not see "Check submissions for plagiarism"
+    And I should not see "Allow students to view originality report"
+    And I should not see "Exclude submissions from institutional and global reference database"
+    And I am on the course with shortname "C1"
+    And I add a "Forum" to section "1"
+    And I should not see "SafeAssign Plagiarism plugin"
+    And I press "Expand all"
+    And I should not see "Check submissions for plagiarism"
+    And I should not see "Allow students to view originality report"
+    And I should not see "Exclude submissions from institutional and global reference database"
+    And I am on the course with shortname "C1"
+    And I add a "Workshop" to section "1"
+    And I should not see "SafeAssign Plagiarism plugin"
+    And I press "Expand all"
+    And I should not see "Check submissions for plagiarism"
+    And I should not see "Allow students to view originality report"
+    And I should not see "Exclude submissions from institutional and global reference database"
+
 
 
 

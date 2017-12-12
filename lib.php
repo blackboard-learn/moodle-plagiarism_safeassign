@@ -46,6 +46,11 @@ use plagiarism_safeassign\event\score_sync_fail;
 class plagiarism_plugin_safeassign extends plagiarism_plugin {
 
     /**
+     * Attribute to list the supported modules.
+     */
+    private $supportedmodules = ['mod_assign'];
+
+    /**
      * Return the list of form element names.
      *
      * @return array contains the form element names.
@@ -248,6 +253,10 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
 
         global $DB;
 
+        if (!$this->is_supported_module($modulename)) {
+            return;
+        }
+
         $cmid = optional_param('update', 0, PARAM_INT);
 
         $plagiarismelements = $this->get_configs();
@@ -270,7 +279,14 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 }
             }
         }
+    }
 
+    /**
+     * Returns if a module is supported or not.
+     * @return boolean true if the module is supported, false otherwise.
+     */
+    public function is_supported_module($modulename) {
+        return in_array( $modulename, $this->supportedmodules);
     }
 
     /**
