@@ -348,9 +348,16 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         if ($cmglobalref->value == 0) {
             $checkbox = html_writer::checkbox('agreement', $value, $checked, get_string('agreement', 'plagiarism_safeassign'));
         }
+        $institutionrelease = get_config('plagiarism_safeassign', 'safeassign_new_student_disclosure');
+        if (empty($institutionrelease)) {
+            $institutionrelease = '';
+        } else {
+            $institutionrelease .= '<br><br>';
+        }
+        $institutionrelease .= get_string('files_accepted', 'plagiarism_safeassign');
+        $institutionrelease .= '<br><br>'.$checkbox;
         $col1 = html_writer::tag('div', get_string('plagiarism_tools', 'plagiarism_safeassign'), array('class' => 'col-md-3'));
-        $col2 = html_writer::tag('div', get_string('files_accepted', 'plagiarism_safeassign').'<br><br>'.$checkbox,
-            array('class' => 'col-md-9'));
+        $col2 = html_writer::tag('div', $institutionrelease, array('class' => 'col-md-9'));
         $output = html_writer::tag('div', $col1.$col2, array('class' => 'row generalbox boxaligncenter intro'));
         $form = html_writer::tag('form', $output);
         $PAGE->requires->js_call_amd('plagiarism_safeassign/disclosure', 'init', array($cmid, $USER->id));
