@@ -16,7 +16,7 @@
  *
  * @package   plagiarism_safeassign
  * @author    Guillermo Leon Alvarez Salamanca guillermo.alvarez@blackboard.com
- * @copyright Blackboard 2017
+ * @copyright Copyright (c) 2017 Blackboard Inc.
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -58,21 +58,51 @@ define(['jquery', 'core/str'], function($, str) {
             };
 
             /**
+             * Checks if the element is disabled.
+             */
+            var isElementDisabled = function () {
+                return $('#id_safeassign_global_reference').prop('disabled');
+            };
+
+            /**
+             * Makes a JQuery promise to see if some element is disabled.
+             * @param {function} evaluateFunction
+             * @param {int} maxIterations
+             * @returns {promise} JQuery promise
+             */
+            var whenTrue = function(evaluateFunction, maxIterations) {
+                maxIterations = !maxIterations ? 10 : maxIterations;
+
+                var prom = $.Deferred();
+                var i = 0;
+                var checker = setInterval(function() {
+                    i = i + 1;
+                    if (i > maxIterations) {
+                        prom.reject();
+                        clearInterval(checker);
+                    } else {
+                        if (evaluateFunction()) {
+                            prom.resolve();
+                            clearInterval(checker);
+                        }
+                    }
+                }, 1000);
+
+                return prom.promise();
+            };
+
+            /**
              * Print the settings checkboxes when tha page has been loaded.
              */
             var printSettings = function () {
-                var isElementDisabled = $('#id_safeassign_global_reference').prop('disabled');
-                if (isElementDisabled) {
-                    var div = $('#safeassign_loading_div');
-                    div.hide();
-                    child.removeAttr('style');
-                    selectorCheckbox.prop('checked', checkboxInitialValue);
-                    selectorCheckbox.prop('disabled', false);
-                    if (checkboxInitialValue) {
-                        $('#id_safeassign_originality_report').prop('disabled', false);
-                        $('#id_safeassign_global_reference').prop('disabled', false);
-                    }
-                    clearInterval(showSettings);
+                var div = $('#safeassign_loading_div');
+                div.hide();
+                child.removeAttr('style');
+                selectorCheckbox.prop('checked', checkboxInitialValue);
+                selectorCheckbox.prop('disabled', false);
+                if (checkboxInitialValue) {
+                    $('#id_safeassign_originality_report').prop('disabled', false);
+                    $('#id_safeassign_global_reference').prop('disabled', false);
                 }
             };
 
@@ -89,7 +119,8 @@ define(['jquery', 'core/str'], function($, str) {
 
             createDiv();
 
-            var showSettings = setInterval( printSettings, 1000);
+            var ready = whenTrue(isElementDisabled, 30);
+            ready.then(printSettings);
 
         }
     };
