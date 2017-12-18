@@ -176,7 +176,9 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 $PAGE->requires->js_call_amd('plagiarism_safeassign/score', 'init',
                     array(intval($file['avgscore'] * 100), $userid));
             } else {
-                $message .= get_string('safeassign_file_in_review', 'plagiarism_safeassign');
+                if ($file['proceed']) {
+                    $message .= get_string('safeassign_file_in_review', 'plagiarism_safeassign');
+                }
             }
         } else {
             // This file is not supported by SafeAssign.
@@ -201,12 +203,14 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      */
     public function get_file_results($cmid, $userid, $fileid) {
         global $DB;
+
         $analyzed = 0;
         $score = '';
         $reporturl = '';
         $supported = 1;
         $subuuid = '';
         $avgscore = -1;
+        $proceed = 0;
         $filequery = "SELECT fil.id, sub.reportgenerated, fil.similarityscore, fil.reporturl, fil.supported, sub.uuid, sub.avgscore
                        FROM {plagiarism_safeassign_subm} sub
                        JOIN {plagiarism_safeassign_files} fil ON sub.submissionid = fil.submissionid
@@ -222,8 +226,17 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $subuuid = $fileinfo->uuid;
             $avgscore = $fileinfo->avgscore;
         }
+
+        // Checks if submission was done after Safeassign activation.
+        $procedencequery = "SELECT subm.id
+                              FROM {files} fls, {plagiarism_safeassign_subm} subm
+                             WHERE fls.id = ? AND fls.itemid = subm.submissionid";
+        $submprocedence = $DB->get_record_sql($procedencequery, array($fileid));
+        if (!empty($submprocedence)) {
+            $proceed = 1;
+        }
         return array('analyzed' => $analyzed, 'score' => $score, 'reporturl' => $reporturl, 'supported' => $supported,
-            'subuuid' => $subuuid, 'avgscore' => $avgscore);
+            'subuuid' => $subuuid, 'avgscore' => $avgscore, 'proceed' => $proceed);
     }
 
     /**
