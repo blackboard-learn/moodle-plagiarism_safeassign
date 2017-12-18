@@ -57,7 +57,8 @@ class plagiarism_safeassign_controller_default extends mr_controller {
     public function view_action() {
         global $OUTPUT, $USER;
         $uuid = required_param('uuid', PARAM_ALPHANUMEXT);
-        $out = safeassign_api::get_originality_report($USER->id, $uuid);
+        $fileuuid = optional_param('fileuuid', false, PARAM_ALPHANUMEXT);
+        $out = safeassign_api::get_originality_report($USER->id, $uuid, $fileuuid);
 
         if (empty($out)) {
             $errortext = '<p>';

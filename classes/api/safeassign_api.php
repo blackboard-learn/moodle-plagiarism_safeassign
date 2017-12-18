@@ -431,15 +431,20 @@ abstract class safeassign_api {
      * @param bool $print For getting a print version of the report
      * @param bool|string $cssurl to add some custom report styling
      * @param bool|string $logourl to use custom logo
+     * @param bool|string $fileuuid File uuid
      * @return bool|mixed
      */
-    public static function get_originality_report($userid, $submissionuuid, $print = false, $cssurl = false, $logourl = false) {
+    public static function get_originality_report($userid, $submissionuuid, $fileuuid = false, $print = false,
+                                                  $cssurl = false, $logourl = false) {
         $baseurl = get_config(self::PLUGIN, 'safeassign_api');
         if (empty($baseurl)) {
             return false;
         }
 
         $params = [];
+        if (!empty($fileuuid)) {
+            $params['file_uuid'] = $fileuuid;
+        }
         if ($print) {
             $params['print'] = true;
         }
