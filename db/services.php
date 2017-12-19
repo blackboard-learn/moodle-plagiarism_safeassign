@@ -39,5 +39,14 @@ $functions = [
         'type'          => 'write',
         'ajax'          => true,
         'loginrequired' => true
+    ],
+    'plagiarism_safeassign_resubmit_ack' => [
+        'classname' => 'plagiarism_safeassign_resubmit_ack_external',
+        'methodname'    => 'plagiarism_safeassign_resubmit_ack',
+        'description'   => 'Sends an ACK to the system about a re-submission',
+        'classpath'     => 'plagiarism/safeassign/externallib.php',
+        'type'          => 'write',
+        'ajax'          => true,
+        'loginrequired' => true
     ]
 ];

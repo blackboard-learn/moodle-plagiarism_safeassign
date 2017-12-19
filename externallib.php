@@ -125,3 +125,45 @@ class plagiarism_safeassign_update_flag_external extends external_api {
         return ['success' => $res];
     }
 }
+
+/**
+ * Sends an ACK to the system about a re-submission
+ * @autor David Castro <david.castro@blackboard.com>
+ * @copyright Copyright (c) 2017 Blackboard Inc.
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class plagiarism_safeassign_resubmit_ack_external extends external_api {
+
+    /**
+     * @return \external_function_parameters
+     */
+    public static function plagiarism_safeassign_resubmit_ack_parameters() {
+        $parameters = [
+            'submissionuuid' => new \external_value(PARAM_ALPHANUMEXT, 'SA Submission UUID', VALUE_REQUIRED)
+        ];
+        return new \external_function_parameters($parameters);
+    }
+
+    /**
+     * @return \external_single_structure
+     */
+    public static function plagiarism_safeassign_resubmit_ack_returns() {
+        $keys = [
+            'success' => new \external_value(PARAM_BOOL, 'Re-submission ACK received', VALUE_REQUIRED)
+        ];
+        return new \external_single_structure($keys, 'confirmed');
+    }
+
+    /**
+     * Processes the ACK to mark a submission as being processed again.
+     * @param string $submissionuuid
+     * @return mixed
+     */
+    public static function plagiarism_safeassign_resubmit_ack($submissionuuid) {
+        global $DB;
+        $submission = $DB->get_record('plagiarism_safeassign_subm', ['uuid' => $submissionuuid]);
+        $submission->reportgenerated = 0;
+        $DB->update_record('plagiarism_safeassign_subm', $submission);
+        return ['success' => true];
+    }
+}

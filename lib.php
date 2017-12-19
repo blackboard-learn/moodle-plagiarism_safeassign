@@ -226,7 +226,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                    sfil.reporturl,
                    sfil.supported,
                    sub.uuid,
-                   sub.avgscore
+                   sub.avgscore,
                    sfil.uuid as fileuuid
               FROM {files} fil
          LEFT JOIN {plagiarism_safeassign_subm} sub
