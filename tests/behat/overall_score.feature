@@ -105,15 +105,15 @@ Feature: See plagiarism overall score for a submission in an assignment with Saf
     Given I log in as "student1"
       And I am on "Course 1" course homepage
       And I follow "Assignment One"
-     Then I should see "Submission Text"
-      And I wait until "Plagiarism overall score" "text" exists
+     Then I should see "SafeAssign score"
+      And I wait until "SafeAssign overall score" "text" exists
       And I log out
      Then I log in as "student2"
       And I am on "Course 1" course homepage
       And I follow "Assignment Two"
       And I click on ".plugincontentsummary .expandsummaryicon" "css_element"
-     Then I should see "Submission Text"
-      And I wait until "Plagiarism overall score" "text" exists
+     Then I should see "SafeAssign score"
+      And I wait until "SafeAssign overall score" "text" exists
       And I log out
 
   @javascript
@@ -122,22 +122,22 @@ Feature: See plagiarism overall score for a submission in an assignment with Saf
       And I am on "Course 1" course homepage
       And I follow "Assignment One"
      Then I navigate to "View all submissions" in current page administration
-      And I wait until "Plagiarism overall score" "text" exists
+      And I wait until "SafeAssign overall score" "text" exists
       And I click on "Grade" "link" in the "student1" "table_row"
-      And I wait until "Plagiarism overall score" "text" exists
+      And I wait until "SafeAssign overall score" "text" exists
      Then I am on "Course 1" course homepage
       And I follow "Assignment Two"
      Then I navigate to "View all submissions" in current page administration
-      And I should not see "Plagiarism overall score"
+      And I should not see "SafeAssign overall score"
       And I should see "6 files"
       And I follow "View submission"
-      And I wait until "Plagiarism overall score" "text" exists
+      And I wait until "SafeAssign overall score" "text" exists
       And I am on "Course 1" course homepage
      Then I follow "Assignment Two"
       And I navigate to "View all submissions" in current page administration
-      And I should not see "Plagiarism overall score"
+      And I should not see "SafeAssign overall score"
       And I click on "Grade" "link" in the "student2" "table_row"
-     Then I wait until "Plagiarism overall score" "text" exists
+     Then I wait until "SafeAssign overall score" "text" exists
       And I am on "Course 1" course homepage
       And I log out
 
@@ -149,14 +149,14 @@ Feature: See plagiarism overall score for a submission in an assignment with Saf
       And I choose "Moodlerooms Grader" in the open action menu
      Then I wait until the page is ready
       And I select "Student 1" from the "guser" singleselect
-      And I wait until "Plagiarism overall score" "text" exists
+      And I wait until "SafeAssign overall score" "text" exists
       And I select "Student 2" from the "guser" singleselect
       And I wait until the page is ready
-      And I should not see "Plagiarism overall score"
+      And I should not see "SafeAssign overall score"
      Then I select "Assignment Two" from the "garea" singleselect
-      And I wait until "Plagiarism overall score" "text" exists
+      And I wait until "SafeAssign overall score" "text" exists
       And I select "Student 1" from the "guser" singleselect
       And I wait until the page is ready
-      And I should not see "Plagiarism overall score"
+      And I should not see "SafeAssign overall score"
      Then I press "Return to course"
       And I log out

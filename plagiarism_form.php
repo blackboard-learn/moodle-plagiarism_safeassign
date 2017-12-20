@@ -126,8 +126,7 @@ class plagiarism_setup_form extends moodleform {
 
         $mform->addElement('header', 'moodle', get_string('license_header', 'plagiarism_safeassign'));
 
-        $terms = new plagiarism_safeassign_terms();
-        $mform->addElement('html', $terms->get_license_agreement());
+        $mform->addElement('html', \plagiarism_safeassign\terms::get_license_agreement());
         $this->add_action_buttons(true, get_string('agree_continue', 'plagiarism_safeassign'));
     }
 }

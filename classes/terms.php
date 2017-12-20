@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace plagiarism_safeassign;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -23,14 +25,14 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  Copyright (c) 2017 Blackboard Inc.
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class plagiarism_safeassign_terms {
+abstract class terms {
 
     /**
      * Returns the License Agreement for use in the settings form.
      * @return string - License Agreement text.
      */
-    public function get_license_agreement() {
-        return '<p> I agree to the <a href="http://blackboard.com/legal/safeassign" target="_blank"> Terms of Service
+    public static function get_license_agreement() {
+        return '<p> I agree to the <a href="http://www.blackboard.com/safeassign/tos.html" target="_blank">Terms of Service
             </a> and the <a href="http://blackboard.com/footer/privacy-policy.aspx" target="_blank">Blackboard Privacy
             Policy</a> and confirm that I have the authority to install SafeAssign on behalf of my institution.</p>';
     }

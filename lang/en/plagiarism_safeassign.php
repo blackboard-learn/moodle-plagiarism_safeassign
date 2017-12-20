@@ -58,7 +58,7 @@ $string['safeassign_contactemail'] = 'Contact Email: ';
 $string['safeassign_contactjob'] = 'Contact Job Title: ';
 $string['safeassign_showid'] = 'Show Student ID';
 $string['safeassign_alloworganizations'] = 'Allow SafeAssignments in Organizations';
-$string['safeassign_referencedbactivity'] = 'Global Reference Database Activity';
+$string['safeassign_referencedbactivity'] = '<a href="https://help.blackboard.com/Learn/Instructor/Assignments/SafeAssign#global_reference" target="_blank">Global Reference Database</a> Activity';
 $string['safeassing_response_header'] = '<br>SafeAssign server response: <br>';
 $string['safeassign_instructor_credentials'] = 'Instructor Role Credentials: ';
 $string['safeassign_student_credentials'] = 'Student Role Credentials: ';
@@ -66,7 +66,7 @@ $string['safeassign_credentials_verified'] = 'Connection verified.';
 $string['safeassign_credentials_fail'] = 'Connection not verified. Check key, secret and url.';
 $string['credentials'] = 'Credentials and Service URL';
 $string['shareinfo'] = 'Share info with SafeAssign';
-$string['disclaimer'] = '<br>Submitting to the SafeAssign Global Reference Database allows papers from other institutions <br>
+$string['disclaimer'] = '<br>Submitting to the SafeAssign <a href="https://help.blackboard.com/Learn/Instructor/Assignments/SafeAssign#global_reference" target="_blank">Global Reference Database</a> allows papers from other institutions <br>
                         to be checked against your students paper to protect the origin of their work.';
 $string['settings'] = 'SafeAssign Settings';
 $string['timezone_help'] = 'The timezone set in your Moodlerooms environment.';
@@ -95,18 +95,24 @@ $string['error_behat_getjson'] = 'Error to get json file "{$a}" from folder plag
     'simulating a call to SafeAssign webservices when running behat tests.';
 $string['error_behat_instancefail'] = 'This is an instance configured to fail with behat tests.';
 $string['safeassign'] = 'SafeAssign Plagiarism plugin';
-$string['assignment_check_submissions'] = 'Check submissions for plagiarism';
+$string['assignment_check_submissions'] = 'Check submissions with SafeAssign';
 $string['assignment_check_submissions_help'] = 'SafeAssign Originality Reports will not be available to Teachers if anonymous grading
  is set, but Students will be able to view their own SafeAssign Originality Reports if "Allow students to view originality report" is selected.
-<br>N.B. SafeAssign currently only supports English-language submissions.';
+<br><br>Although SafeAssign officially supports only English, clients are welcome to attempt to use SafeAssign with languages other than English.
+SafeAssign has no technical limitations that preclude using it with other languages.
+See <a href="http://www.blackboard.com/docs/documentation.htm?DocID=191SafeAssign001en_US" target="_blank">Blackboard help</a> for more information.';
 $string['students_originality_report'] = 'Allow students to view originality report';
-$string['submissions_global_reference'] = 'Exclude submissions from institutional and global reference database';
+$string['submissions_global_reference'] = 'Exclude submissions from institutional and <a href="https://help.blackboard.com/Learn/Instructor/Assignments/SafeAssign#global_reference" target="_blank">Global Reference Database</a>';
 $string['submissions_global_reference_help'] = 'Submissions will still be processed by SafeAssign but won’t be registered in databases. ' .
     'This avoids files being marked as plagiarized when teachers allow re-submissions in a specific assignment.';
 // Disclosure agreement.
 $string['plagiarism_tools'] = 'Plagiarism Tools';
-$string['files_accepted'] = 'SafeAssign accepts files in .doc, .docx, .docm, .ppt, .pptx, .odt, .txt, .rtf, .pdf and .html file formats only. Files of any other format will not be checked through SafeAssign.';
-$string['agreement'] = 'I agree to submit my paper(s) to the Global Reference Database.';
+$string['files_accepted'] = 'SafeAssign accepts files in .doc, .docx, .docm, .ppt, .pptx, .odt, .txt, .rtf, .pdf and .html file formats only. Files of any other format will not be checked through SafeAssign.
+<br><br>By submitting this paper, you agree:
+ (1) that you are submitting your paper to be used and stored as part of the SafeAssign&trade; services in accordance with the Blackboard <a href="http://www.blackboard.com/safeassign/tos.htm" target="_blank">Terms and Service</a> and <a href="http://blackboard.com/footer/privacy-policy.aspx" target="_blank">Blackboard Privacy Policy</a>;
+ (2) that your institution may use your paper in accordance with your institution\'s policies; and
+ (3) that your use of SafeAssign will be without recourse against Blackboard Inc. and its affiliates.';
+$string['agreement'] = 'I agree to submit my paper(s) to the <a href="https://help.blackboard.com/Learn/Instructor/Assignments/SafeAssign#global_reference" target="_blank">Global Reference Database</a>.';
 $string['error_api_generic'] = 'There was an error processing your request';
 $string['error_api_unauthorized'] = 'There was an authentication error processing your request';
 $string['error_api_forbidden'] = 'There was an authorization error processing your request';
@@ -126,8 +132,8 @@ $string['agree_continue'] = 'Agree and Save';
 
 $string['safeassign_file_not_supported'] = 'Not supported.';
 $string['safeassign_file_not_supported_help'] = 'The file extension is not supported by SafeAssign or the file size exceeds maximum capacity.';
-$string['safeassign_file_in_review'] = 'Report in progress...';
-$string['safeassign_file_similarity_score'] = 'Submission Text: {$a}%<br>';
+$string['safeassign_file_in_review'] = 'SafeAssign Originality Report in progress...';
+$string['safeassign_file_similarity_score'] = 'SafeAssign score: {$a}%<br>';
 $string['safeassign_link_originality_report'] = 'View originality report';
 
 // Originality report.
@@ -135,5 +141,5 @@ $string['originality_report'] = 'SafeAssign Originality Report';
 $string['originality_report_unavailable'] = 'The requested Originality Report is unavailable. Check back later or contact your System Administrator.';
 $string['originality_report_error'] = 'There was an error with SafeAssign\'s Originality Report. Contact your System Administrator.';
 
-$string['safeassign_overall_score'] = '<b>Plagiarism overall score: {$a}%</b>';
+$string['safeassign_overall_score'] = '<b>SafeAssign overall score: {$a}%</b>';
 $string['safeassign_loading_settings'] = 'Loading settings, please wait';

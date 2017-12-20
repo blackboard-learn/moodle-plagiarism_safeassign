@@ -89,15 +89,15 @@ Feature: Send an submission to a SafeAssign assignment
     When I press "Add submission"
     And I upload "lib/tests/fixtures/empty.txt" file to "File submissions" filemanager
     And I press "Save changes"
-    Then I should see "Report in progress..."
+    Then I should see "SafeAssign Originality Report in progress..."
     Then I log out
     Then I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I follow "Assignment One"
     And I navigate to "View all submissions" in current page administration
-    And I should see "Report in progress" in the "Student 1" "table_row"
+    And I should see "SafeAssign Originality Report in progress" in the "Student 1" "table_row"
     And I click on "Grade" "link" in the "Student 1" "table_row"
-    And I should see "Report in progress..."
+    And I should see "SafeAssign Originality Report in progress..."
     And I follow "Assignment One"
     Then I log out
 
@@ -118,5 +118,5 @@ Feature: Send an submission to a SafeAssign assignment
     Then I log in as "student1"
     And I am on "Course 1" course homepage
     And I follow "Assignment One"
-    Then I should see "Submission Text"
+    Then I should see "SafeAssign score"
     Then I log out
