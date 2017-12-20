@@ -86,8 +86,14 @@ class sync_content_log extends base {
                 if (!is_null($this->other['message'])) {
                     $message .= ': <br>' .$this->other['message'];
                 } else {
-                    $message .= '.';
+                    $message .= '.<br>';
                 }
+            }
+        }
+        if (!empty($this->other['params'])) {
+            $message .= 'Parameters:<br>';
+            foreach ($this->other['params'] as $key => $value) {
+                $message .= $key . ': ' . $value . '<br>';
             }
         }
         return $message;
@@ -99,10 +105,11 @@ class sync_content_log extends base {
      * @param int $itemid
      * @param bool $error
      * @param mixed $message
+     * @param array $params
      * @return self
      * @throws \coding_exception
      */
-    public static function create_log_message($resource, $itemid = null, $error = true, $message = null) {
+    public static function create_log_message($resource, $itemid = null, $error = true, $message = null, $params = array()) {
         $lasterror = $message;
         if ($error === true && $message === null) {
             $lasterror = error_handler::process_last_api_error(false, true, true);
@@ -113,7 +120,8 @@ class sync_content_log extends base {
                 'message' => $lasterror,
                 'itemid' => $itemid,
                 'resource' => $resource,
-                'error' => $error
+                'error' => $error,
+                'params' => $params
             ]
         ]);
     }

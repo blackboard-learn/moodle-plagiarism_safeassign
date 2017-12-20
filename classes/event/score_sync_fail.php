@@ -64,6 +64,12 @@ class score_sync_fail extends base {
         } else if ($this->other['resource'] === 'task_error') {
             $messagedesc = $this->other['message'];
         }
+        if (!empty($this->other['params'])) {
+            $messagedesc .= '<br>Parameters:<br>';
+            foreach ($this->other['params'] as $key => $value) {
+                $messagedesc .= $key . ': ' . $value . '<br>';
+            }
+        }
         return $messagedesc;
     }
 
@@ -72,10 +78,11 @@ class score_sync_fail extends base {
      * @param int $submid
      * @param mixed $message
      * @param string $resource
+     * @param array $params
      * @return self
      * @throws \coding_exception
      */
-    public static function create_from_error_handler($submid, $message = false, $resource = 'api_error') {
+    public static function create_from_error_handler($submid, $message = false, $resource = 'api_error', $params = array()) {
         $id = '';
         if ($resource === 'api_error') {
             $lasterror = error_handler::process_last_api_error(false, true, true);
@@ -88,7 +95,8 @@ class score_sync_fail extends base {
             'other' => [
                 'message' => $lasterror,
                 'submissionid' => $id,
-                'resource' => $resource
+                'resource' => $resource,
+                'params' => $params
             ]
         ]);
     }

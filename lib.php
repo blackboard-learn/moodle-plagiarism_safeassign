@@ -598,12 +598,13 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      * Checks if the submissions already have a report generated on SafeAssign side and mark the flag.
      */
     public function safeassign_get_scores() {
-        global $DB;
+        global $DB, $CFG;
 
         $submissions = $DB->get_records_sql("SELECT plg.*, asg.userid
         FROM {plagiarism_safeassign_subm} plg, {assign_submission} asg
         WHERE plg.deprecated = 0 AND plg.reportgenerated = 0 AND plg.submitted = 1 AND plg.submissionid = asg.id;");
         $count = 0;
+        $baseurl = get_config('plagiarism_safeassign', 'safeassign_api');
         foreach ($submissions as $submission) {
             $userid = $submission->userid;
             $submissionuuid = $submission->uuid;
@@ -630,7 +631,13 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 $DB->update_record('plagiarism_safeassign_subm', $submission);
                 $count ++;
             } else {
-                $event = score_sync_fail::create_from_error_handler($submission->id);
+                $params = array();
+                if (!empty($CFG->plagiarism_safeassign_debugging)) {
+                    $params['User ID'] = $userid;
+                    $params['Submission UUID'] = $submissionuuid;
+                    $params['Url'] = $baseurl . '/api/v1/submissions/' . $submissionuuid . '/report/metadata';
+                }
+                $event = score_sync_fail::create_from_error_handler($submission->id, false, 'api_error', $params);
                 $event->trigger();
             }
         }
@@ -676,13 +683,20 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      * @param object array $courses
      */
     public function sync_courses($courses) {
-        global $DB;
+        global $DB, $CFG;
         $count = 0;
+        $baseurl = get_config('plagiarism_safeassign', 'safeassign_api');
         foreach ($courses as $course) {
             if ($course->instructorid != 0) {
                 $validation = safeassign_api::get_course($course->instructorid, $course->courseid);
                 if ($validation === false) {
                     $response = safeassign_api::create_course($course->instructorid, $course->courseid);
+                    $params = array();
+                    if (!empty($CFG->plagiarism_safeassign_debugging)) {
+                        $params['Instructor Id'] = $course->instructorid;
+                        $params['Course ID'] = $course->courseid;
+                        $params['Url'] = $baseurl . '/api/v1/courses';
+                    }
                     if ($response) {
                         $lastresponse = json_decode(rest_provider::instance()->lastresponse());
                         if (isset($lastresponse->uuid)) {
@@ -692,11 +706,11 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                             $count ++;
                             continue;
                         } else {
-                            $event = sync_content_log::create_log_message('Course', $course->courseid);
+                            $event = sync_content_log::create_log_message('Course', $course->courseid, true, null, $params);
                             $event->trigger();
                         }
                     } else {
-                        $event = sync_content_log::create_log_message('Course', $course->courseid);
+                        $event = sync_content_log::create_log_message('Course', $course->courseid, true, null, $params);
                         $event->trigger();
                     }
                 } else if (isset($validation->uuid)) {
@@ -717,7 +731,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      * Syncs the existing assignments. It is necessary that the course have the corresponding uuid.
      */
     public function sync_course_assignments() {
-        global $DB;
+        global $DB, $CFG;
         $courses = $this->get_valid_courses();
         if (!empty($courses)) {
             foreach ($courses as $course) {
@@ -741,11 +755,20 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             list($sqlin, $params) = $DB->get_in_or_equal($ids);
             $assignments = $DB->get_records_sql($sql . $sqlin, $params);
             $count = 0;
+            $baseurl = get_config('plagiarism_safeassign', 'safeassign_api');
             foreach ($assignments as $assignment) {
 
                 // Check that the assignment does not exits in the SafeAssign database.
                 $validation = safeassign_api::check_assignment($courses[$assignment->courseid]->instructorid,
                     $assignment->courseuuid, $assignment->assignmentid);
+                $params = array();
+                if (!empty($CFG->plagiarism_safeassign_debugging)) {
+                    $params['Instructor ID'] = $courses[$assignment->courseid]->instructorid;
+                    $params['Course UUID'] = $assignment->courseuuid;
+                    $params['Assignment ID'] = $assignment->assignmentid;
+                    $params['Assignment Name'] = $assignment->assignmentname;
+                    $params['Url'] = $baseurl . '/api/v1/courses/' . $assignment->courseuuid . '/assignments';
+                }
                 if ($validation === false) {
                     $response = safeassign_api::create_assignment($courses[$assignment->courseid]->instructorid,
                         $assignment->courseuuid, $assignment->assignmentid, $assignment->assignmentname);
@@ -757,7 +780,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                             $count ++;
                         }
                     } else if ($response === false) {
-                        $event = sync_content_log::create_log_message('Assignment', $assignment->assignmentid);
+                        $event = sync_content_log::create_log_message('Assignment', $assignment->assignmentid, true, null, $params);
                         $event->trigger();
                     }
                 } else if ($validation) {
@@ -767,7 +790,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                             $lastresponse->uuid, array('assignmentid' => $assignment->assignmentid));
                         $count ++;
                     } else {
-                        $event = sync_content_log::create_log_message('Assignment', $assignment->assignmentid);
+                        $event = sync_content_log::create_log_message('Assignment', $assignment->assignmentid, true, null, $params);
                         $event->trigger();
                     }
                 }
@@ -919,7 +942,18 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $DB->update_record('plagiarism_safeassign_subm', $record);
             return true;
         } else {
-            $event = sync_content_log::create_log_message('submission', $data['id']);
+            $params = array();
+            if (!empty($CFG->plagiarism_safeassign_debugging)) {
+                $baseurl = get_config('plagiarism_safeassign', 'safeassign_api');
+                $params['User Id'] = $wrapper->userid;
+                $params['Course UUID'] = $wrapper->courseuuid;
+                $params['Assign UUID'] = $wrapper->assignuuid;
+                $params['Global Check'] = $wrapper->globalcheck;
+                $params['Group Permission'] = $wrapper->grouppermission;
+                $params['Url'] = $baseurl . '/api/v1/courses/' . $wrapper->courseuuid . '/assignments/'
+                    . $wrapper->assignuuid . '/submissions';
+            }
+            $event = sync_content_log::create_log_message('submission', $data['id'], true, null, $params);
             $event->trigger();
             return false;
         }
@@ -1029,7 +1063,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      * Deletes all deprecated submissions from the SafeAssign server.
      */
     public function delete_submissions() {
-        global $DB;
+        global $DB, $CFG;
         $sql = "SELECT sa_subm.id, sa_subm.uuid, sa_course.instructorid
                 FROM {plagiarism_safeassign_subm} sa_subm
                 JOIN {plagiarism_safeassign_assign} sa_assign ON sa_assign.assignmentid = sa_subm.assignmentid
@@ -1039,6 +1073,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 AND sa_subm.deleted = 0";
         $submissions = $DB->get_records_sql($sql, array());
         $count = 0;
+        $baseurl = get_config('plagiarism_safeassign', 'safeassign_api');
         foreach ($submissions as $submission) {
             $response = safeassign_api::delete_submission($submission->uuid, $submission->instructorid);
             if ($response) {
@@ -1046,7 +1081,13 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 $DB->set_field('plagiarism_safeassign_subm', 'deleted', 1, array('uuid' => $submission->uuid));
 
             } else {
-                $event = sync_content_log::create_log_message('delete', $submission->uuid);
+                $params = array();
+                if (!empty($CFG->plagiarism_safeassign_debugging)) {
+                    $params['Instructor id'] = $submission->instructorid;
+                    $params['Submission UUID'] = $submission->uuid;
+                    $params['Url'] = $baseurl . '/api/v1/submissions/' . $submission->uuid;
+                }
+                $event = sync_content_log::create_log_message('delete', $submission->uuid, true, null, $params);
                 $event->trigger();
             }
         }
