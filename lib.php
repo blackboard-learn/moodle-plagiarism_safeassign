@@ -211,30 +211,46 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         $subuuid = '';
         $avgscore = -1;
         $proceed = 0;
-        $filequery = "SELECT fil.id, sub.reportgenerated, fil.similarityscore, fil.reporturl, fil.supported, sub.uuid, sub.avgscore
-                       FROM {plagiarism_safeassign_subm} sub
-                       JOIN {plagiarism_safeassign_files} fil ON sub.submissionid = fil.submissionid
-                      WHERE fil.cm = ? AND fil.userid = ? AND fil.fileid = ? AND sub.submitted = 1 AND sub.deprecated = 0
-                      ORDER BY fil.id";
-        $files = $DB->get_records_sql($filequery, array($cmid, $userid, $fileid));
+        $filequery = '
+            SELECT fil.id,
+                   sub.id as sasubid,
+                   sfil.id as safilid,
+                   sub.reportgenerated,
+                   sfil.similarityscore,
+                   sfil.reporturl,
+                   sfil.supported,
+                   sub.uuid,
+                   sub.avgscore
+              FROM {files} fil
+         LEFT JOIN {plagiarism_safeassign_subm} sub
+                ON fil.itemid = sub.submissionid
+               AND sub.deprecated = 0
+         LEFT JOIN {plagiarism_safeassign_files} sfil
+                ON fil.id = sfil.fileid
+               AND sfil.cm = :cmid
+               AND sfil.userid = :userid
+             WHERE fil.id = :fileid
+          ORDER BY fil.id';
+
+        $params = [
+            'cmid' => $cmid,
+            'userid' => $userid,
+            'fileid' => $fileid
+        ];
+        $files = $DB->get_records_sql($filequery, $params);
         $fileinfo = end($files);
         if (!empty($fileinfo)) {
-            $analyzed = $fileinfo->reportgenerated;
-            $score = $fileinfo->similarityscore;
-            $reporturl = $fileinfo->reporturl;
-            $supported = $fileinfo->supported;
-            $subuuid = $fileinfo->uuid;
-            $avgscore = $fileinfo->avgscore;
+            $proceed = !empty($fileinfo->sasubid) ? 1 : 0;
+            if (!empty($fileinfo->safilid)) {
+                $analyzed = $fileinfo->reportgenerated;
+                $score = $fileinfo->similarityscore;
+                $reporturl = $fileinfo->reporturl;
+                $supported = $fileinfo->supported;
+                $subuuid = $fileinfo->uuid;
+                $avgscore = $fileinfo->avgscore;
+            }
         }
 
-        // Checks if submission was done after Safeassign activation.
-        $procedencequery = "SELECT subm.id
-                              FROM {files} fls, {plagiarism_safeassign_subm} subm
-                             WHERE fls.id = ? AND fls.itemid = subm.submissionid";
-        $submprocedence = $DB->get_record_sql($procedencequery, array($fileid));
-        if (!empty($submprocedence)) {
-            $proceed = 1;
-        }
         return array('analyzed' => $analyzed, 'score' => $score, 'reporturl' => $reporturl, 'supported' => $supported,
             'subuuid' => $subuuid, 'avgscore' => $avgscore, 'proceed' => $proceed);
     }
