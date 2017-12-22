@@ -174,7 +174,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                     ]);
                     $message .= html_writer::link($reporturl,
                         get_string('safeassign_link_originality_report', 'plagiarism_safeassign'),
-                        ['target' => '_blank']);
+                        ['target' => '_sa_originality_report']);
                 }
 
                 // Print the overall score for this submission.

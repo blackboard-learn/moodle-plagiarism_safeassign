@@ -209,6 +209,19 @@ abstract class test_safeassign_api_connectors {
     }
 
     /**
+     * Creates an url to get the originality report.
+     * @param string $submissionuuid
+     * @param string $fileuuid
+     * @return string
+     */
+    public static function create_get_originality_report_with_file_url($submissionuuid, $fileuuid) {
+        $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
+        $getreporturl = '%s/api/v1/submissions/%s/report?file_uuid=%s';
+        $getreporturl = sprintf($getreporturl, $baseapiurl, $submissionuuid, $fileuuid);
+        return $getreporturl;
+    }
+
+    /**
      * Creates an url to resubmit a file.
      * @param string $submissionuuid
      * @return string

@@ -159,4 +159,8 @@ abstract class testhelper {
         return $res;
     }
 
+    public static function push_originality_report_data() {
+
+    }
+
 }

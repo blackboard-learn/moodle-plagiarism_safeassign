@@ -26,6 +26,8 @@ defined('MOODLE_INTERNAL') or die('Direct access to this script is forbidden.');
 
 use plagiarism_safeassign\api\safeassign_api;
 use plagiarism_safeassign\api\rest_provider;
+use plagiarism_safeassign\api\fixture_helper;
+use plagiarism_safeassign\local;
 
 /**
  * SafeAssign default controller.
@@ -60,7 +62,9 @@ class plagiarism_safeassign_controller_default extends mr_controller {
         $uuid = required_param('uuid', PARAM_ALPHANUMEXT);
         $fileuuid = optional_param('fileuuid', false, PARAM_ALPHANUMEXT);
 
-        define('SAFEASSIGN_OMIT_CACHE', true);
+        if (!local::duringtesting() || !defined('SAFEASSIGN_OMIT_CACHE')) {
+            define('SAFEASSIGN_OMIT_CACHE', true);
+        }
 
         // Login as teacher or instructor.
         $context = context_course::instance($courseid);
@@ -76,6 +80,9 @@ class plagiarism_safeassign_controller_default extends mr_controller {
         }
 
         // This saves the correct token for the report display (student or instructor).
+        if (local::duringtesting()) {
+            fixture_helper::push_login_and_report($USER, $uuid, $fileuuid);
+        }
         safeassign_api::login($USER->id, $isinstructor);
         $out = safeassign_api::get_originality_report($USER->id, $uuid, $fileuuid);
 
