@@ -37,11 +37,13 @@ Feature: See plagiarism overall score for a submission in an assignment with Saf
       | teacher1 | Teacher   | 1        | teacher@example.com  |
       | student1 | Student   | 1        | student1@example.com |
       | student2 | Student   | 2        | student2@example.com |
+      | student3 | Student   | 3        | student3@example.com |
     And the following "course enrolments" exist:
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
       | student1 | C1     | student        |
       | student2 | C1     | student        |
+      | student3 | C1     | student        |
     And the following config values are set as admin:
       | safeassign_use   | 1 | plagiarism |
    Then I log in as "teacher1"
@@ -49,7 +51,7 @@ Feature: See plagiarism overall score for a submission in an assignment with Saf
     And I add a "Assignment" to section "1" and I fill the form with:
       | Assignment name | Assignment One |
       | Description | Submit your online text |
-      | assignsubmission_onlinetext_enabled | 0 |
+      | assignsubmission_onlinetext_enabled | 1 |
       | assignsubmission_onlinetext_wordlimit_enabled | 0 |
       | assignsubmission_file_enabled | 1 |
       | safeassign_enabled            | 1 |
@@ -99,6 +101,19 @@ Feature: See plagiarism overall score for a submission in an assignment with Saf
     And set test helper assignment with name "Assignment Two"
     And submission with file "lib/tests/fixtures/empty.txt" is synced
     And submission with file "plagiarism/safeassign/tests/fixtures/test.txt" is synced
+   Then I log in as "student3"
+    And I am on "Course 1" course homepage
+    And I follow "Assignment One"
+   When I press "Add submission"
+    And I set the following fields to these values:
+      | Online text | I'm the student first submission |
+    And I press "Save changes"
+   Then I log out
+  Given set test helper teacher "teacher1"
+    And set test helper student "student3"
+    And set test helper course with shortname "C1"
+    And set test helper assignment with name "Assignment One"
+    And submission with online text is synced
 
   @javascript
   Scenario: See plagiarism overall score in the submission view with one file and more files
@@ -115,6 +130,13 @@ Feature: See plagiarism overall score for a submission in an assignment with Saf
      Then I should see "SafeAssign score"
       And I wait until "SafeAssign overall score" "text" exists
       And I log out
+     Then I log in as "student3"
+      And I am on "Course 1" course homepage
+      And I follow "Assignment One"
+     Then I should see "SafeAssign score"
+      And I wait until "SafeAssign overall score" "text" exists
+      And I log out
+
 
   @javascript
   Scenario: See plagiarism overall score in the assignment feedback view
@@ -158,5 +180,9 @@ Feature: See plagiarism overall score for a submission in an assignment with Saf
       And I select "Student 1" from the "guser" singleselect
       And I wait until the page is ready
       And I should not see "SafeAssign overall score"
+     Then I select "Student 3" from the "guser" singleselect
+      And I should not see "SafeAssign overall score"
+      And I select "Assignment One" from the "garea" singleselect
+      And I wait until "SafeAssign overall score" "text" exists
      Then I press "Return to course"
       And I log out

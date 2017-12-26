@@ -114,6 +114,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $message = '';
             $file = null;
             $userid = $linkarray['userid'];
+            $isonlinesubmission = false;
             if (isset($linkarray['file'])) {
                 // This submission has a file associated with it.
                 $file = $this->get_file_results($cmid, $userid, $linkarray['file']->get_id());
@@ -126,11 +127,12 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                     $filerecord = $DB->get_record('files', array('filename' => $namefile));
                     if (is_object($filerecord)) {
                         $file = $this->get_file_results($cmid, $userid, $filerecord->id);
+                        $isonlinesubmission = true;
                     }
                 }
             }
             if ($file != null) {
-                $message = $this->get_message_result($file, $cm, $courseconfiguration, $userid);
+                $message = $this->get_message_result($file, $cm, $courseconfiguration, $userid, $isonlinesubmission);
             }
             return $message;
         } else {
@@ -146,12 +148,14 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      * @param int $cm
      * @param array $courseconfiguration
      * @param int $userid
+     * @param boolean $isonlinesubmission
      * @return string
      */
-    private function get_message_result($file, $cm, array $courseconfiguration, $userid) {
+    private function get_message_result($file, $cm, array $courseconfiguration, $userid, $isonlinesubmission) {
         global $USER, $OUTPUT, $COURSE, $PAGE;
 
-        $message = '<div class="plagiarism-inline">';
+        $onlinetextclass = $isonlinesubmission ? 'online-text-div' : '';
+        $message = '<div class="plagiarism-inline ' . $onlinetextclass . '">';
         if ($file['supported']) {
             if ($file['analyzed']) {
                 // We have a valid report for this file.
