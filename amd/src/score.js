@@ -37,20 +37,20 @@ define(['jquery', 'core/str'], function($, str) {
         init: function(avgScore, userId) {
 
             /**
-             * Checks if we have already added a new DOM element in the submission tree.
-             * @returns {boolean}
+             * Checks if some element exist in page DOM.
+             * @param {string} selector
              */
-            var alreadyHaveAvgScore = function () {
-                var table = $('#safeassign_score_' + userId);
-                return (table.length) ? true : false;
+            var elementExists = function(selector) {
+                var el = $(selector);
+                return (el.length) ? true : false;
             };
 
             /**
              * Creates a new DOM element and attach it into the file submission tree.
              * @param {string} selector
              */
-            var appendAvgScore = function (selector) {
-                if (!alreadyHaveAvgScore()) {
+            var appendAvgScoreFilesTree = function (selector) {
+                if (!elementExists('#safeassign_text_' + userId)) {
                     var tree = $(selector);
                     var td = $('<td></td>').attr('id', 'safeassign_text_' + userId);
                     td.addClass('ygtvcell ygtvhtml ygtvcontent');
@@ -58,8 +58,20 @@ define(['jquery', 'core/str'], function($, str) {
                     var table = $('<table></table>').attr('id', 'safeassign_score_' + userId).append(trow);
                     var div = $('<div></div>').addClass('ygtvitem').append(table);
                     tree.prepend(div);
-                    clearInterval(printScore);
-                    getMessage(avgScore);
+                    getMessage(avgScore, '#safeassign_text_' + userId);
+                }
+            };
+
+            /**
+             * Creates a new DOM element and attach it into the online submission region.
+             * @param {string} selector
+             */
+            var appendAvgScoreOnlineSubm = function (selector) {
+                if (!elementExists('#safeassign_online_sub_' + userId)) {
+                    var el = $(selector).parent();
+                    var div = $('<div></div>').attr('id', 'safeassign_online_sub_' + userId);
+                    el.prepend(div);
+                    getMessage(avgScore, '#safeassign_online_sub_' + userId);
                 }
             };
 
@@ -67,25 +79,64 @@ define(['jquery', 'core/str'], function($, str) {
              * Returns a message with the average score.
              * @param {int} avgScore
              */
-            var getMessage = function (avgScore) {
+            var getMessage = function (avgScore, selector) {
 
                 // Get overall score string via ajax.
                 var messageString = str.get_string('safeassign_overall_score', 'plagiarism_safeassign', avgScore);
 
                 $.when(messageString).done(function(s) {
-                    $('#safeassign_text_' + userId).append(s);
+                    $(selector).append(s);
                 });
 
+            };
+
+            /**
+             * Makes a JQuery promise to see if some element exist in the DOM.
+             * @param {string} evaluateFunction
+             * @param {int} maxIterations
+             * @returns {promise} JQuery promise
+             */
+            var whenTrue = function(containerSelector, maxIterations) {
+                maxIterations = !maxIterations ? 10 : maxIterations;
+
+                var prom = $.Deferred();
+                var i = 0;
+                var checker = setInterval(function() {
+                    i = i + 1;
+                    if (i > maxIterations) {
+                        prom.reject();
+                        clearInterval(checker);
+                    } else {
+                        if (elementExists(containerSelector)) {
+                            prom.resolve();
+                            clearInterval(checker);
+                        }
+                    }
+                }, 200);
+
+                return prom.promise();
             };
 
             // Checks if we are on assign grading view.
             var pageObject = $('#page-mod-assign-grading');
             var isFeedbackView = pageObject.length;
-            var selector = '.ygtvchildren';
+            var fileSelector = '.ygtvchildren';
             if (isFeedbackView) {
-                selector = '.user' + userId + ' .ygtvchildren';
+                fileSelector = '.user' + userId + ' .ygtvchildren';
             }
-            var printScore = setInterval( function() { appendAvgScore(selector);}, 200);
+
+            var onlineSelector = '.plagiarism-inline.online-text-div';
+
+            var readyFiles = whenTrue(fileSelector, 20);
+            readyFiles.then(function() {
+                appendAvgScoreFilesTree(fileSelector);
+            });
+
+            var readyOnline = whenTrue(onlineSelector, 20);
+            readyOnline.then(function() {
+                appendAvgScoreOnlineSubm(onlineSelector);
+            });
+
         }
     };
 });

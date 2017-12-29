@@ -96,9 +96,11 @@ class behat_plagiarism_safeassign extends behat_base {
      * @param string $filepath
      * @param boolean $globalcheck optional
      * @param boolean $groupsubmission optional
+     * @param boolean $onlinesubmission optional
      * @throws exception
      */
-    public function i_send_a_submission_with_file($filepath, $globalcheck = true, $groupsubmission = false) {
+    public function i_send_a_submission_with_file($filepath, $globalcheck = true, $groupsubmission = false,
+                                                   $onlinesubmission = false) {
         global $CFG, $DB;
         require_once($CFG->dirroot . '/plagiarism/safeassign/lib.php');
 
@@ -136,7 +138,11 @@ class behat_plagiarism_safeassign extends behat_base {
 
         // Create a submission for the given assignment.
         $submissionurl = test_safeassign_api_connectors::create_submission_url($courseuuid, $assignmentuuid);
-        testhelper::push_pair($submissionurl, 'create-submission-one-file-ok.json');
+        if ($onlinesubmission) {
+            testhelper::push_pair($submissionurl, 'create-online-submission-ok.json');
+        } else {
+            testhelper::push_pair($submissionurl, 'create-submission-one-file-ok.json');
+        }
         safeassign_api::create_submission(self::$student->id, $courseuuid,
             $assignmentuuid, array($filepath), $globalcheck, $groupsubmission);
         $safeassignsubmission = json_decode(rest_provider::instance()->lastresponse());
@@ -173,6 +179,24 @@ class behat_plagiarism_safeassign extends behat_base {
         $DB->insert_record('user_preferences', array('userid' => $user->id,
             'name' => 'message_provider_plagiarism_safeassign_safeassign_graded_loggedoff',
             'value' => $preferences));
+    }
+
+    /**
+     * @Given /^submission with online text is synced$/
+     * @throws exception
+     */
+    public function submission_with_online_text_is_synced() {
+        $fs = get_file_storage();
+        $usercontext = context_user::instance(self::$student->id);
+        $safeassign = new \plagiarism_plugin_safeassign();
+        $unsynced = $safeassign->get_unsynced_submissions();
+        $submission = reset($unsynced);
+
+        $textfile = $fs->get_file($usercontext->id, 'assignsubmission_text_as_file', 'submission_text_files',
+            $submission->submissionid , '/', 'userid_' . self::$student->id . '_text_submissionid_' .
+            $submission->submissionid . '.txt');
+
+        $this->i_send_a_submission_with_file($textfile, true, false, true);
     }
 
     /**
