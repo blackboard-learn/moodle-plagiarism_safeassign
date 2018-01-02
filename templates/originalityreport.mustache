@@ -104,16 +104,8 @@
             $('#resubmitBtn').on('click', function(e) {
                 e.preventDefault();
                 $.ajax({
-                    url: wwwroot + '/lib/ajax/service.php?sesskey=' + sesskey,
-                    type: 'POST',
+                    url: wwwroot + '/plagiarism/safeassign/view.php?controller=resubmit_ack&action=ack&uuid=' + uuid,
                     dataType: "json",
-                    data: JSON.stringify([{
-                        index: 0,
-                        methodname: 'plagiarism_safeassign_resubmit_ack',
-                        args: {
-                            submissionuuid: uuid
-                        }
-                    }]),
                     success: function (data, status, xhr) {
                         $('[name="citationsForm"]').submit();
                     },

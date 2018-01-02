@@ -1140,6 +1140,17 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         return $result;
     }
 
+    /**
+     * Marks a submission as not scored.
+     * @param $uuid Submission UUID
+     */
+    public function resubmit_acknowlegment($uuid) {
+        global $DB;
+        $submission = $DB->get_record('plagiarism_safeassign_subm', ['uuid' => $uuid]);
+        $submission->reportgenerated = 0;
+        $DB->update_record('plagiarism_safeassign_subm', $submission);
+    }
+
 }
 
 /**
