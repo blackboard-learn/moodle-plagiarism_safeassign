@@ -18,18 +18,20 @@
  * SafeAssign resubmit ack controller.
  *
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2016 Moodlerooms Inc. (http://www.moodlerooms.com)
+ * @copyright Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') or die('Direct access to this script is forbidden.');
+global $CFG;
+require_once($CFG->dirroot . '/plagiarism/safeassign/lib.php');
 
 /**
  * SafeAssign resubmit ack controller.
  *
  * @author    David Castro
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2016 Moodlerooms Inc. (http://www.moodlerooms.com)
+ * @copyright Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class plagiarism_safeassign_controller_resubmit_ack extends mr_controller {

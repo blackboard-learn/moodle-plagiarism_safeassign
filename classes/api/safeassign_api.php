@@ -428,14 +428,16 @@ abstract class safeassign_api {
      * Get the originality report from SafeAssign.
      * @param int $userid
      * @param string $submissionuuid
+     * @param bool $isinstructor
+     * @param bool|string File uuid
      * @param bool $print For getting a print version of the report
      * @param bool|string $cssurl to add some custom report styling
      * @param bool|string $logourl to use custom logo
      * @param bool|string $fileuuid File uuid
      * @return bool|mixed
      */
-    public static function get_originality_report($userid, $submissionuuid, $fileuuid = false, $print = false,
-                                                  $cssurl = false, $logourl = false) {
+    public static function get_originality_report($userid, $submissionuuid, $isinstructor = false, $fileuuid = false,
+                                                  $print = false, $cssurl = false, $logourl = false) {
         $baseurl = get_config(self::PLUGIN, 'safeassign_api');
         if (empty($baseurl)) {
             return false;
@@ -462,7 +464,7 @@ abstract class safeassign_api {
             'Accept: text/html'
         ];
 
-        $result = self::generic_getcall_raw($url->out(false), $userid, true, $headers);
+        $result = self::generic_getcall_raw($url->out(false), $userid, $isinstructor, $headers);
         return $result;
     }
 

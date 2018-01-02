@@ -197,7 +197,7 @@ class behat_plagiarism_safeassign extends behat_base {
         global $CFG;
         $wwwroot = $CFG->wwwroot;
         $evaljs = <<<JS
-            return $(".attachments-list a[href*='${wwwroot}']").length > 0;
+            return document.querySelectorAll(".attachments-list a[href*='${wwwroot}']").length > 0;
 JS;
 
         if (!$this->getSession()->evaluateScript($evaljs)) {

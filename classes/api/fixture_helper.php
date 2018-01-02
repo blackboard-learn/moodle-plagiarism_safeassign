@@ -18,7 +18,7 @@
  * SafeAssign plagiarism integration package.
  *
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2017 Blackboard Inc.
+ * @copyright Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -29,7 +29,7 @@ defined('MOODLE_INTERNAL') || die();
  * Class originality_report_fixture_helper
  *
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2017 Blackboard Inc.
+ * @copyright Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class fixture_helper {

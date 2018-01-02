@@ -13,10 +13,10 @@
 # You should have received a copy of the GNU General Public License
 # along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Tests for students sending assignment using SafeAssign plagiarism plugin
+# Tests for verifying links update in Originality Report
 #
 # @package    plagiarism_safeassign
-# @copyright  Copyright (c) 2017 Blackboard Inc.
+# @copyright  Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
 # @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 
 @plugin @plagiarism_safeassign @plagiarism_safeassign_originality_report_links

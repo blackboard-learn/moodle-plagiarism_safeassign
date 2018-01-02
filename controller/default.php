@@ -83,8 +83,14 @@ class plagiarism_safeassign_controller_default extends mr_controller {
         if (local::duringtesting()) {
             fixture_helper::push_login_and_report($USER, $uuid, $fileuuid);
         }
-        safeassign_api::login($USER->id, $isinstructor);
-        $out = safeassign_api::get_originality_report($USER->id, $uuid, $fileuuid);
+        $out = safeassign_api::get_originality_report($USER->id, $uuid, $isinstructor, $fileuuid);
+
+        if (local::duringtesting()) {
+            require_once($CFG->dirroot.'/lib/jquery/plugins.php');
+            /* @noinspection PhpUndefinedFieldInspection */
+            $jqueryfile = $plugins['jquery']['files'][0];
+            $out .= '<script src="'.$CFG->wwwroot.'/lib/jquery/'.$jqueryfile.'"></script>';
+        }
 
         if (empty($out)) {
             $errortext = '<p>';
