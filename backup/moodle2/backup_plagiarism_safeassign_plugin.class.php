@@ -20,7 +20,7 @@ defined('MOODLE_INTERNAL') || die();
  * Backup class for the SafeAssign plugin.
  *
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2017 Blackboard Inc.
+ * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @licence   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class backup_plagiarism_safeassign_plugin extends backup_plagiarism_plugin {

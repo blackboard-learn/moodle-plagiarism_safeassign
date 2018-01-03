@@ -14,12 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Services
+ * @author    Jonathan García Gómez
+ * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
+ */
 defined('MOODLE_INTERNAL') || die();
-
-// Services
-// @author    Jonathan García Gómez
-// @copyright Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
-// @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
 
 $functions = [
     'plagiarism_safeassign_test_api_credentials' => [
