@@ -80,7 +80,11 @@ abstract class testhelper {
         $result = null;
         $filename = self::generate_name($url);
         if (!empty($filename)) {
-            $result = self::load_data($CFG->dirroot.'/plagiarism/safeassign/tests/fixtures/', $filename);
+            if ($filename === 'create-online-submission-ok.json') {
+                $result = self::load_data($CFG->dataroot . '/safeassign/', $filename);
+            } else {
+                $result = self::load_data($CFG->dirroot . '/plagiarism/safeassign/tests/fixtures/', $filename);
+            }
         }
 
         // Review if there's a value for that url in the timed values stash.

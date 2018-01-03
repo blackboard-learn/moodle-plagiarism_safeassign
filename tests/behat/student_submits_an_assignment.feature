@@ -114,7 +114,8 @@ Feature: Send an submission to a SafeAssign assignment
     And set test helper student "student1"
     And set test helper course with shortname "C1"
     And set test helper assignment with name "Assignment One"
-    And submission with file "lib/tests/fixtures/empty.txt" is synced
+    And I send a submission with file "lib/tests/fixtures/empty.txt"
+    Then I sync submissions
     Then I log in as "student1"
     And I am on "Course 1" course homepage
     And I follow "Assignment One"
