@@ -100,7 +100,7 @@ class behat_plagiarism_safeassign extends behat_base {
      * @throws exception
      */
     public function i_send_a_submission_with_file($filepath, $globalcheck = true, $groupsubmission = false,
-                                                   $onlinesubmission = false) {
+                                                  $onlinesubmission = false) {
         global $CFG, $DB;
         require_once($CFG->dirroot . '/plagiarism/safeassign/lib.php');
 
@@ -186,17 +186,54 @@ class behat_plagiarism_safeassign extends behat_base {
      * @throws exception
      */
     public function submission_with_online_text_is_synced() {
+        global $CFG;
+        require_once($CFG->dirroot . '/plagiarism/safeassign/lib.php');
         $fs = get_file_storage();
         $usercontext = context_user::instance(self::$student->id);
         $safeassign = new \plagiarism_plugin_safeassign();
         $unsynced = $safeassign->get_unsynced_submissions();
         $submission = reset($unsynced);
 
+        $filename = 'userid_' . self::$student->id . '_text_submissionid_' . $submission->submissionid . '.txt';
         $textfile = $fs->get_file($usercontext->id, 'assignsubmission_text_as_file', 'submission_text_files',
-            $submission->submissionid , '/', 'userid_' . self::$student->id . '_text_submissionid_' .
-            $submission->submissionid . '.txt');
+            $submission->submissionid , '/', $filename);
 
+        $this->create_onlinetext_json_file($filename);
         $this->i_send_a_submission_with_file($textfile, true, false, true);
+        $this->i_sync_submissions();
+        $this->delete_onlinetext_json_file();
+    }
+
+    /**
+     * Creates a file that simulates the JSON response from SafeAssign server.
+     * @param string $filename
+     */
+    private function create_onlinetext_json_file($filename) {
+        global $CFG;
+        $file = new stdClass();
+        $file->file_name = $filename;
+        $file->file_uuid = '5140a223-8cbc-7a85-3cb4-f52d959ee067';
+        $submission = new stdClass();
+        $submission->submission_uuid = '5140a223-8cbc-7a85-3cb4-f52d959ee06';
+        $submission->submission_files = array($file);
+        $jsonobject = new stdClass();
+        $jsonobject->submissions = array($submission);
+        $jsonobject->unprocessed_file_names = array();
+        // We should create a file to simulate the json response from SafeAssign server.
+        // It should be created in every test because te name of the file depends of several IDs records.
+        make_upload_directory('safeassign');
+        $file = fopen($CFG->dataroot . '/safeassign/create-online-submission-ok.json', 'w');
+        fwrite($file, json_encode($jsonobject));
+        fclose($file);
+    }
+
+    /**
+     * Deletes the file with the JSON response.
+     */
+    private function delete_onlinetext_json_file() {
+        global $CFG;
+        $filename = $CFG->dataroot . '/safeassign/create-online-submission-ok.json';
+        unlink($filename);
     }
 
     /**
