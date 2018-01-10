@@ -231,4 +231,19 @@ class behat_plagiarism_safeassign extends behat_base {
         $targetnode = $linknodes[$duplicatenumber];
         $targetnode->click();
     }
+
+    /**
+     * @Given /^I should see the SafeAssign links updated$/
+     */
+    public function safeassign_links_updated() {
+        global $CFG;
+        $wwwroot = $CFG->wwwroot;
+        $evaljs = <<<JS
+            return document.querySelectorAll(".attachments-list a[href*='${wwwroot}']").length > 0;
+JS;
+
+        if (!$this->getSession()->evaluateScript($evaljs)) {
+            throw new Exception("No SafeAssign file links were updated.");
+        }
+    }
 }
