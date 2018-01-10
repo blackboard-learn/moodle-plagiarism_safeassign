@@ -195,6 +195,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $submission->reportgenerated = $report;
         $submission->submissionid = $subid;
         $submission->deprecated = $deprecated;
+        $submission->uuid = uniqid();
         $DB->insert_record('plagiarism_safeassign_subm', $submission, true);
         return $submission;
     }
@@ -276,5 +277,21 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $lib = new plagiarism_plugin_safeassign();
         $result = $lib->get_submission_results(22222);
         $this->assertFalse($result);
+    }
+
+    /**
+     * Tests if resubmit ack marks submission as having no report generated.
+     */
+    public function test_resubmit_ack() {
+        $this->resetAfterTest(true);
+
+        $testobject = $this->insert_submission_for_testing(1, 1, 11111, 0);
+        $uuid = $testobject->uuid;
+
+        $lib = new plagiarism_plugin_safeassign();
+        $lib->resubmit_acknowlegment($uuid);
+
+        $result = $lib->get_submission_results(11111);
+        $this->assertEquals($result->reportgenerated, 0);
     }
 }

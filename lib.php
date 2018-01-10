@@ -170,11 +170,12 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                     // The report is enabled for this user.
                     $reporturl = new moodle_url('/plagiarism/safeassign/view.php', [
                         'courseid' => $COURSE->id,
-                        'uuid' => $file['subuuid']
+                        'uuid' => $file['subuuid'],
+                        'fileuuid' => $file['fileuuid']
                     ]);
                     $message .= html_writer::link($reporturl,
                         get_string('safeassign_link_originality_report', 'plagiarism_safeassign'),
-                        ['target' => '_blank']);
+                        ['target' => '_sa_originality_report']);
                 }
 
                 // Print the overall score for this submission.
@@ -216,6 +217,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         $subuuid = '';
         $avgscore = -1;
         $proceed = 0;
+        $fileuuid = '';
         $filequery = '
             SELECT fil.id,
                    sub.id as sasubid,
@@ -225,7 +227,8 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                    sfil.reporturl,
                    sfil.supported,
                    sub.uuid,
-                   sub.avgscore
+                   sub.avgscore,
+                   sfil.uuid as fileuuid
               FROM {files} fil
          LEFT JOIN {plagiarism_safeassign_subm} sub
                 ON fil.itemid = sub.submissionid
@@ -253,11 +256,12 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 $supported = $fileinfo->supported;
                 $subuuid = $fileinfo->uuid;
                 $avgscore = $fileinfo->avgscore;
+                $fileuuid = $fileinfo->fileuuid;
             }
         }
 
         return array('analyzed' => $analyzed, 'score' => $score, 'reporturl' => $reporturl, 'supported' => $supported,
-            'subuuid' => $subuuid, 'avgscore' => $avgscore, 'proceed' => $proceed);
+            'subuuid' => $subuuid, 'avgscore' => $avgscore, 'proceed' => $proceed, 'fileuuid' => $fileuuid);
     }
 
     /**
@@ -1165,6 +1169,17 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         $result = safeassign_api::test_credentials($USER->id, $username, $password, $baseurl);
 
         return $result;
+    }
+
+    /**
+     * Marks a submission as not scored.
+     * @param $uuid Submission UUID
+     */
+    public function resubmit_acknowlegment($uuid) {
+        global $DB;
+        $submission = $DB->get_record('plagiarism_safeassign_subm', ['uuid' => $uuid]);
+        $submission->reportgenerated = 0;
+        $DB->update_record('plagiarism_safeassign_subm', $submission);
     }
 
     /**

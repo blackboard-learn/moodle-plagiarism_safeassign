@@ -26,6 +26,8 @@ defined('MOODLE_INTERNAL') or die('Direct access to this script is forbidden.');
 
 use plagiarism_safeassign\api\safeassign_api;
 use plagiarism_safeassign\api\rest_provider;
+use plagiarism_safeassign\api\fixture_helper;
+use plagiarism_safeassign\local;
 
 /**
  * SafeAssign default controller.
@@ -55,9 +57,40 @@ class plagiarism_safeassign_controller_default extends mr_controller {
      * @return string - the html for the view action
      */
     public function view_action() {
-        global $OUTPUT, $USER;
+        global $OUTPUT, $USER, $CFG;
+        $courseid = required_param('courseid', PARAM_INT);
         $uuid = required_param('uuid', PARAM_ALPHANUMEXT);
-        $out = safeassign_api::get_originality_report($USER->id, $uuid);
+        $fileuuid = optional_param('fileuuid', false, PARAM_ALPHANUMEXT);
+
+        if (!local::duringtesting() || !defined('SAFEASSIGN_OMIT_CACHE')) {
+            define('SAFEASSIGN_OMIT_CACHE', true);
+        }
+
+        // Login as teacher or instructor.
+        $context = context_course::instance($courseid);
+        // This capability is for instructors only.
+        $enablecap = 'plagiarism/safeassign:enable';
+        $teachers = get_enrolled_users($context, $enablecap);
+        $isinstructor = false;
+        foreach ($teachers as $teacher) {
+            if ($teacher->id == $USER->id) {
+                $isinstructor = true;
+                break;
+            }
+        }
+
+        // This saves the correct token for the report display (student or instructor).
+        if (local::duringtesting()) {
+            fixture_helper::push_login_and_report($USER, $uuid, $fileuuid);
+        }
+        $out = safeassign_api::get_originality_report($USER->id, $uuid, $isinstructor, $fileuuid);
+
+        if (local::duringtesting()) {
+            require_once($CFG->dirroot.'/lib/jquery/plugins.php');
+            /* @noinspection PhpUndefinedFieldInspection */
+            $jqueryfile = $plugins['jquery']['files'][0];
+            $out .= '<script src="'.$CFG->wwwroot.'/lib/jquery/'.$jqueryfile.'"></script>';
+        }
 
         if (empty($out)) {
             $errortext = '<p>';
@@ -74,7 +107,15 @@ class plagiarism_safeassign_controller_default extends mr_controller {
             return $out;
         }
 
-        echo $out;
+        echo $OUTPUT->render_from_template('plagiarism_safeassign/originalityreport',
+            (object) [
+                'content' => $out,
+                'uuid' => $uuid,
+                'courseid' => $courseid,
+                'wwwroot' => $CFG->wwwroot,
+                'sesskey' => sesskey()
+            ]);
+
         return;
     }
 }
