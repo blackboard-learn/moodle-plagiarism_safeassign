@@ -1,8 +1,8 @@
 # SafeAssign plagiarism plugin
 
-The SafeAssign plagiarism plugin (plagiarism_safeassign) provides settings and integration that enable the usage of
-SafeAssign with moodle assignments. SafeAssign compares submitted assignments against a set of sources to identify areas
-of overlap between the submitted assignment and existing works.
+The [SafeAssign](http://www.blackboard.com/safeassign/index.html) plagiarism plugin (plagiarism_safeassign) provides 
+settings and integration that enable the usage of SafeAssign with Moodle assignments. SafeAssign compares submitted
+assignments against a set of sources to identify areas of overlap between the submitted assignment and existing works.
 
 ## Installation
 
@@ -15,7 +15,8 @@ This plugin should be located and named as:
 
 ## Configuring the SafeAssign plagiarism plugin
 
-To open SafeAssign settings, you'll need to setup a url in moodle config as so.
+To open [SafeAssign](http://www.blackboard.com/safeassign/index.html) settings, you'll need to setup a url in Moodle 
+configuration as so.
 
 ```php
 $CFG->plagiarism_safeassign_urls = [
@@ -24,7 +25,8 @@ $CFG->plagiarism_safeassign_urls = [
 ```
 
 Where ```<SafeAssign host url>``` is the url to the SafeAssign server that will score your assignments.
-The *SafeAssign host url*, should be populated with values provided to you by a SafeAssign representative.
+The *SafeAssign host url*, should be populated with values provided to you by a 
+[SafeAssign representative](http://www.blackboard.com/safeassign/index.html).
 
 Open the settings for the SafeAssign plagiarism plugin:
 
