@@ -67,7 +67,8 @@ Feature: Navigate a wrapped version of the originality report and review the wra
     And set test helper student "student1"
     And set test helper course with shortname "C1"
     And set test helper assignment with name "Assignment One"
-    And submission with file "lib/tests/fixtures/empty.txt" is synced
+    And I send a submission with file "lib/tests/fixtures/empty.txt"
+    Then I sync submissions
 
   @javascript
   Scenario: See the changed links in the originality report
