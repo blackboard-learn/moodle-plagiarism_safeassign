@@ -18,7 +18,7 @@
  * MUC support.
  *
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2017 Blackboard Inc.
+ * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -32,7 +32,7 @@ use plagiarism_safeassign\local;
 /**
  * Class cache
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2017 Blackboard Inc.
+ * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class cache {

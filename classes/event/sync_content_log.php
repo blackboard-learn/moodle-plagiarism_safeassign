@@ -19,7 +19,7 @@
  *
  * @package    plagiarism_safeassign
  * @author     Jonathan Garcia
- * @copyright  Copyright (c) 2017 Moodlerooms Inc. (http://www.moodlerooms.com)
+ * @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -34,7 +34,7 @@ defined('MOODLE_INTERNAL') || die();
  *
  * @package    plagiarism_safeassign
  * @author     Jonathan Garcia
- * @copyright  Copyright (c) 2017 Moodlerooms Inc. (http://www.moodlerooms.com)
+ * @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class sync_content_log extends base {

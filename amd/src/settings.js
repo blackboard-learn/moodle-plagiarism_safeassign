@@ -16,7 +16,7 @@
  *
  * @package   plagiarism_safeassign
  * @author    Jonathan Garcia Gomez jonathan.garcia@blackboard.com
- * @copyright Blackboard 2017
+ * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

@@ -18,7 +18,7 @@
  * lib.php - Contains Plagiarism plugin specific functions called by Modules.
  *
  * @package    plagiarism_safeassign
- * @copyright  Copyright (c) 2017 Blackboard Inc.
+ * @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -41,7 +41,7 @@ use plagiarism_safeassign\local;
  * Extends plagiarism core base class.
  *
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2017 Blackboard Inc.
+ * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class plagiarism_plugin_safeassign extends plagiarism_plugin {

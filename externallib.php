@@ -29,7 +29,7 @@ require_once($CFG->libdir . '/externallib.php');
 /**
  * Test the intructor and student credentiales.
  * @autor Jonathan Garcia
- * @copyright Copyright (c) 2017 Blackboard Inc.
+ * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -75,7 +75,7 @@ class plagiarism_safeassign_test_api_credentials_external extends external_api {
 /**
  * Save the global check flag state in the DB.
  * @autor Juan Felipe Martinez Ramos
- * @copyright Copyright (c) 2017 Blackboard Inc.
+ * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class plagiarism_safeassign_update_flag_external extends external_api {

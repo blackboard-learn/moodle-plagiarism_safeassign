@@ -21,7 +21,7 @@ use plagiarism_safeassign\event\sync_content_log;
  * Restore class for the SafeAssign plugin.
  *
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2017 Blackboard Inc.
+ * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @licence   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_plagiarism_safeassign_plugin extends restore_plagiarism_plugin {

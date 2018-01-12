@@ -16,7 +16,7 @@
 
 /**
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2017 Blackboard Inc.
+ * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -26,7 +26,7 @@ $plugin->version = 2017121501;
 $plugin->release = "3.2+";
 $plugin->requires = 2016120503;
 $plugin->component = 'plagiarism_safeassign';
-$plugin->maturity  = MATURITY_BETA;
+$plugin->maturity  = MATURITY_STABLE;
 $plugin->cron      = 0;
 $plugin->dependencies = [
     'local_mr'       => ANY_VERSION,

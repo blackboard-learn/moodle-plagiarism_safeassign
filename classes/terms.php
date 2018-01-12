@@ -22,7 +22,7 @@ defined('MOODLE_INTERNAL') || die();
  * terms.php - Contains the License Agreement Text for SafeAssign.
  *
  * @package    plagiarism_safeassign
- * @copyright  Copyright (c) 2017 Blackboard Inc.
+ * @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class terms {
