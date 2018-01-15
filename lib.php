@@ -373,7 +373,8 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         $cmenabled = $DB->get_record('plagiarism_safeassign_config', array('cm' => $cmid, 'name' => 'safeassign_enabled'));
         $cmglobalref = $DB->get_record('plagiarism_safeassign_config',
             array('cm' => $cmid, 'name' => 'safeassign_global_reference'));
-        if ($cmenabled->value == 0) {
+
+        if ( !is_object($cmenabled) || $cmenabled->value == 0) {
             return '';
         }
         $info = $DB->get_record('plagiarism_safeassign_config', array('cm' => $cmid, 'name' => $USER->id));
