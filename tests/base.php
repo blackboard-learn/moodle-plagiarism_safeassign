@@ -14,19 +14,31 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Base class defines reusable things must place abstract here to avoid CI warning for non existing test.
+ * @package   plagiarism_safeassign
+ * @copyright Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 defined('MOODLE_INTERNAL') || die();
 
 use plagiarism_safeassign\api\rest_provider;
 use plagiarism_safeassign\api\testhelper;
 
 /**
- * Class plagiarism_safeassign_base_testcase - base class defines reusable things
- * Must place abstract here to avoid CI warning for non existing tests.
+ * Class plagiarism_safeassign_base_testcase
+ * @copyright Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class plagiarism_safeassign_base_testcase extends advanced_testcase {
+    /**
+     * @var string PLUGIN
+     */
     const PLUGIN = 'plagiarism_safeassign';
 
     /**
+     * Cleans some variables for testing.
      * @return void
      */
     protected function reset_ws() {
@@ -37,6 +49,7 @@ abstract class plagiarism_safeassign_base_testcase extends advanced_testcase {
     }
 
     /**
+     * Set configuration values.
      * @return void
      */
     protected function config_set_ok() {
@@ -49,6 +62,7 @@ abstract class plagiarism_safeassign_base_testcase extends advanced_testcase {
     }
 
     /**
+     * Cleans configuration values.
      * @return void
      */
     protected function config_cleanup() {

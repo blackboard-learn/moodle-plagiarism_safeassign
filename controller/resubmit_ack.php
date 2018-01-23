@@ -36,12 +36,18 @@ require_once($CFG->dirroot . '/plagiarism/safeassign/lib.php');
  */
 class plagiarism_safeassign_controller_resubmit_ack extends mr_controller {
 
+    /**
+     * View action.
+     */
     public function view_action() {
         $this->ajax_err_response('404 Unauthorized');
     }
 
+    /**
+     * Defines the json headers.
+     */
     private function define_json_headers() {
-        if (!defined('AJAX_CRIPT') && !defined('NO_DEBUG_DISPLAY')) {
+        if (!defined('AJAX_SCRIPT') && !defined('NO_DEBUG_DISPLAY')) {
             define('AJAX_SCRIPT', true);
             define('NO_DEBUG_DISPLAY', true);
         }
@@ -64,7 +70,7 @@ class plagiarism_safeassign_controller_resubmit_ack extends mr_controller {
     /**
      * Generate ajax error
      *
-     * @param $errstr
+     * @param string $errstr
      */
     protected function ajax_err_response($errstr) {
         header("HTTP/1.0 401 Not Authorized");

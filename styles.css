@@ -4,7 +4,8 @@
     width: 21em;
 }
 
-#page-admin-plagiarism-safeassign-settings #instructor_credentials p, #student_credentials p {
+#page-admin-plagiarism-safeassign-settings #instructor_credentials p,
+#student_credentials p {
     display: inline-block;
 }
 
@@ -17,11 +18,11 @@
 }
 
 #page-mod-assign-editsubmission .row {
-    margin-left: 0px;
+    margin-left: 0;
 }
 
 #page-mod-assign-editsubmission .col-md-3 {
-    padding-left: 0px;
+    padding-left: 0;
 }
 
 /**
@@ -31,6 +32,6 @@
     display: inline-flex;
 }
 
-#page-local-joulegrader-view .plagiarism-inline a{
+#page-local-joulegrader-view .plagiarism-inline a {
     padding-left: .5em;
 }

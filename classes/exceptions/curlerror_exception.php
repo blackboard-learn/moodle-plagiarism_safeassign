@@ -35,6 +35,7 @@ defined('MOODLE_INTERNAL') || die();
  */
 class curlerror_exception extends \Exception {
     /**
+     * curlerror_exception constructor.
      * @param nethold $ch
      */
     public function __construct(nethold $ch) {

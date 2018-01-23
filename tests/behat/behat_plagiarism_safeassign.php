@@ -40,12 +40,28 @@ use plagiarism_safeassign\api\rest_provider;
  */
 class behat_plagiarism_safeassign extends behat_base {
 
+    /**
+     * @var $student
+     */
     static private $student;
+
+    /**
+     * @var $teacher
+     */
     static private $teacher;
+
+    /**
+     * @var $course
+     */
     static private $course;
+
+    /**
+     * @var $assignment
+     */
     static private $assignment;
 
     /**
+     * Redirects to a course with an specific shortname.
      * @Given /^I am on the course with shortname "(?P<shortname_string>(?:[^"]|\\")*)"$/
      * @param string $shortname
      */
@@ -56,6 +72,7 @@ class behat_plagiarism_safeassign extends behat_base {
     }
 
     /**
+     * Sets a student.
      * @Given /^set test helper student "(?P<username_string>(?:[^"]|\\")*)"$/
      * @param string $username
      */
@@ -65,6 +82,7 @@ class behat_plagiarism_safeassign extends behat_base {
     }
 
     /**
+     * Sets a teacher.
      * @Given /^set test helper teacher "(?P<username_string>(?:[^"]|\\")*)"$/
      * @param string $username
      */
@@ -74,6 +92,7 @@ class behat_plagiarism_safeassign extends behat_base {
     }
 
     /**
+     * Sets a course.
      * @Given /^set test helper course with shortname "(?P<shortname_string>(?:[^"]|\\")*)"$/
      * @param string $shortname
      */
@@ -83,6 +102,7 @@ class behat_plagiarism_safeassign extends behat_base {
     }
 
     /**
+     * Sets an assignment.
      * @Given /^set test helper assignment with name "(?P<name_string>(?:[^"]|\\")*)"$/
      * @param string $name
      */
@@ -92,6 +112,7 @@ class behat_plagiarism_safeassign extends behat_base {
     }
 
     /**
+     * Sends a submission to SafeAssign mock service.
      * @Given /^I send a submission with file "(?P<filepath_string>(?:[^"]|\\")*)"$/
      * @param string $filepath
      * @param boolean $globalcheck optional
@@ -154,6 +175,7 @@ class behat_plagiarism_safeassign extends behat_base {
     }
 
     /**
+     * Sync a submission with SafeAssign mock server.
      * @Given /^I sync submissions$/
      * @throws exception
      */
@@ -165,9 +187,10 @@ class behat_plagiarism_safeassign extends behat_base {
     }
 
     /**
+     * Change the notifications settings for some user.
      * @Given /^I change notifications setup for user "(?P<name_string>(?:[^"]|\\")*)" with "(?P<prefs_string>(?:[^"]|\\")*)"$/
      * @param string $username
-     * @paran string $preferences
+     * @param string $preferences
      * @throws exception
      */
     public function i_change_safeassign_notification_setup_for_user($username, $preferences) {
@@ -182,6 +205,7 @@ class behat_plagiarism_safeassign extends behat_base {
     }
 
     /**
+     * Sync a submission with an online text.
      * @Given /^submission with online text is synced$/
      * @throws exception
      */
@@ -237,6 +261,7 @@ class behat_plagiarism_safeassign extends behat_base {
     }
 
     /**
+     * Follows the duplicate of one assignment.
      * @Given /^I follow duplicate "(?P<duplicate_number_int>(?:[^"]|\\")*)" of assignment "(?P<assignment_string>(?:[^"]|\\")*)"$/
      * @param int $duplicatenumber
      * @param string $assignmentname
@@ -250,15 +275,14 @@ class behat_plagiarism_safeassign extends behat_base {
     }
 
     /**
+     * Updates some SafeAssign links.
      * @Given /^I should see the SafeAssign links updated$/
      */
     public function safeassign_links_updated() {
         global $CFG;
         $wwwroot = $CFG->wwwroot;
-        $evaljs = <<<JS
-            return document.querySelectorAll(".attachments-list a[href*='${wwwroot}']").length > 0;
-JS;
-
+        $evaljs = 'return document.querySelectorAll(".attachments-list a[href*=' .
+            "'" . $wwwroot . "']" . '").length > 0;';
         if (!$this->getSession()->evaluateScript($evaljs)) {
             throw new Exception("No SafeAssign file links were updated.");
         }

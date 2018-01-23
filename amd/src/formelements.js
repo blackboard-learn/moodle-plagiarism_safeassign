@@ -46,7 +46,7 @@ define(['jquery', 'core/str'], function($, str) {
             /**
              * Returns a string with the loading message.
              */
-            var getMessage = function () {
+            var getMessage = function() {
 
                 // Get loading message via ajax.
                 var messageString = str.get_string('safeassign_loading_settings', 'plagiarism_safeassign');
@@ -59,8 +59,9 @@ define(['jquery', 'core/str'], function($, str) {
 
             /**
              * Checks if the element is disabled.
+             * @returns {boolean}
              */
-            var isElementDisabled = function () {
+            var isElementDisabled = function() {
                 return $('#id_safeassign_global_reference').prop('disabled');
             };
 
@@ -94,7 +95,7 @@ define(['jquery', 'core/str'], function($, str) {
             /**
              * Print the settings checkboxes when tha page has been loaded.
              */
-            var printSettings = function () {
+            var printSettings = function() {
                 var div = $('#safeassign_loading_div');
                 div.hide();
                 child.removeAttr('style');

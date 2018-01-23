@@ -35,6 +35,7 @@ defined('MOODLE_INTERNAL') || die();
  */
 class safeassign_exception extends \moodle_exception {
     /**
+     * safeassign_exception constructor.
      * @param string $errorcode
      * @param string $link
      * @param null $a

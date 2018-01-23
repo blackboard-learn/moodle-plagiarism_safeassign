@@ -36,25 +36,85 @@ use plagiarism_safeassign\local;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class rest_provider {
+
+    /**
+     * @var string HTTP_GET
+     */
     const HTTP_GET     = 'GET';
+
+    /**
+     * @var string HTTP_POST
+     */
     const HTTP_POST    = 'POST';
+
+    /**
+     * @var string HTTP_PUT
+     */
     const HTTP_PUT     = 'PUT';
+
+    /**
+     * @var string HTTP_HEAD
+     */
     const HTTP_HEAD    = 'HEAD';
+
+    /**
+     * @var string HTTP_DELETE
+     */
     const HTTP_DELETE  = 'DELETE';
 
+    /**
+     * @var int ERR_UNKNOWN
+     */
     const ERR_UNKNOWN  = 1010;
+
+    /**
+     * @var string ERR_JSON
+     */
     const ERR_JSON     = 1020;
+
+    /**
+     * @var string PLUGIN
+     */
     const PLUGIN       = 'plagiarism_safeassign';
+
+    /**
+     * @var string TOKEN
+     */
     const TOKEN        = 'plagiarism_safeassign_token';
 
+    /**
+     * @var string STR_HTTP
+     */
     const STR_HTTP     = 'HTTP'; // Raw HTTP response parsing.
 
+    /**
+     * @var string HEADER_KEY_CONTENT_TYPE
+     */
     const HEADER_KEY_CONTENT_TYPE = "Content-Type";
+
+    /**
+     * @var string HEADER_KEY_ACCEPT
+     */
     const HEADER_KEY_ACCEPT = "Accept";
+
+    /**
+     * @var string HEADER_KEY_AUTHORIZATION
+     */
     const HEADER_KEY_AUTHORIZATION = "Authorization";
+
+    /**
+     * @var string HEADER_KEY_CONTENT_LENGTH
+     */
     const HEADER_KEY_CONTENT_LENGTH = "Content-length";
 
+    /**
+     * @var string HEADER_VAL_MULTIPART_FORM
+     */
     const HEADER_VAL_MULTIPART_FORM = "multipart/form-data";
+
+    /**
+     * @var string HEADER_VAL_APP_JSON
+     */
     const HEADER_VAL_APP_JSON = "Application/json";
 
     /**
@@ -116,6 +176,7 @@ class rest_provider {
     private $currentuserid = null;
 
     /**
+     * rest_provider constructor.
      * @throws nocurl_exception
      */
     private function __construct() {
@@ -128,11 +189,15 @@ class rest_provider {
         $this->cache = new cache();
     }
 
+    /**
+     * Empty clone function.
+     */
     private function __clone() {
         // Prevent cloning.
     }
 
     /**
+     * Returns singleton instance.
      * @return rest_provider|null
      * @throws nocurl_exception
      */
@@ -152,7 +217,7 @@ class rest_provider {
     }
 
     /**
-     *
+     * Gets default options.
      * @param array $custopts
      * @return array
      */
@@ -347,7 +412,7 @@ class rest_provider {
     /**
      * Simulated request handling for behat tests.
      *
-     * @param $url
+     * @param string $url
      * @return bool|string
      */
     private function request_behat($url) {
@@ -409,6 +474,7 @@ class rest_provider {
     }
 
     /**
+     * Gets API last response.
      * @return null|string
      */
     public function lastresponse() {
@@ -416,6 +482,7 @@ class rest_provider {
     }
 
     /**
+     * Gets last response headers.
      * @return null|string
      */
     public function response_headers() {
@@ -423,6 +490,7 @@ class rest_provider {
     }
 
     /**
+     * Gets request headers.
      * @return string
      */
     public function request_headers() {
@@ -493,7 +561,8 @@ class rest_provider {
 
 
     /**
-     * @param $url
+     * Does a POST request.
+     * @param string $url
      * @param null $data
      * @param array $custheaders
      * @param array $options
@@ -516,6 +585,7 @@ class rest_provider {
     }
 
     /**
+     * Does a GET request.
      * @param string $url
      * @param array $custheaders
      * @param array $options
@@ -529,6 +599,7 @@ class rest_provider {
     }
 
     /**
+     * Does a PUT request.
      * @param string $url
      * @param array $custheaders
      * @param array $options
@@ -542,6 +613,7 @@ class rest_provider {
     }
 
     /**
+     * Does a DELETE request.
      * @param string $url
      * @param array $custheaders
      * @param array $options
@@ -555,6 +627,7 @@ class rest_provider {
     }
 
     /**
+     * Does a request with token.
      * @param string $url
      * @param int $userid
      * @param string $method
@@ -576,6 +649,7 @@ class rest_provider {
     }
 
     /**
+     * Does a request with auth.
      * @param string $url
      * @param string $username
      * @param string $password
@@ -596,6 +670,7 @@ class rest_provider {
     }
 
     /**
+     * Does a GET request with token.
      * @param string $url
      * @param int $userid
      * @param array $custheaders
@@ -607,6 +682,7 @@ class rest_provider {
     }
 
     /**
+     * Does a POST request with token.
      * @param string $url
      * @param int $userid
      * @param array $custheaders
@@ -623,6 +699,7 @@ class rest_provider {
     }
 
     /**
+     * Does a POST request with token.
      * @param string $url
      * @param int $userid
      * @param array $custheaders
@@ -634,6 +711,7 @@ class rest_provider {
     }
 
     /**
+     * Does a DELETE request with token.
      * @param string $url
      * @param int $userid
      * @param array $custheaders
@@ -645,6 +723,7 @@ class rest_provider {
     }
 
     /**
+     * Does a POST request with auth.
      * @param string $url
      * @param string $username
      * @param string $password
@@ -663,6 +742,7 @@ class rest_provider {
     }
 
     /**
+     * Gets the HTML error code.
      * @return int
      */
     public function geterrorcode() {
@@ -670,6 +750,7 @@ class rest_provider {
     }
 
     /**
+     * Gets the error message.
      * @return null|string
      */
     public function geterrormsg() {
@@ -677,6 +758,7 @@ class rest_provider {
     }
 
     /**
+     * Gets the user token.
      * @param int $userid
      * @return null|string
      */
@@ -697,6 +779,7 @@ class rest_provider {
     }
 
     /**
+     * Resets the token for a user.
      * @param int $userid
      */
     public function resettoken($userid) {
@@ -715,6 +798,7 @@ class rest_provider {
     }
 
     /**
+     * Sets the token in cache for an user.
      * @param int $userid
      * @param string $value
      * @param int $timeout
@@ -728,6 +812,7 @@ class rest_provider {
     }
 
     /**
+     * Gets the value of an option.
      * @param string $opt
      * @return mixed
      */
@@ -737,6 +822,7 @@ class rest_provider {
     }
 
     /**
+     * Checks if the user has a token.
      * @param int $userid
      * @return bool
      */
@@ -746,6 +832,7 @@ class rest_provider {
     }
 
     /**
+     * Gets last http response code.
      * @return int|null
      */
     public function lasthttpcode() {

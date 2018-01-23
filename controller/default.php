@@ -32,7 +32,9 @@ use plagiarism_safeassign\local;
 /**
  * SafeAssign default controller.
  *
- * @package plagiarism/safeassign
+ * @package plagiarism_safeassign
+ * @copyright Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class plagiarism_safeassign_controller_default extends mr_controller {
 
@@ -87,7 +89,7 @@ class plagiarism_safeassign_controller_default extends mr_controller {
 
         if (local::duringtesting()) {
             require_once($CFG->dirroot.'/lib/jquery/plugins.php');
-            /* @noinspection PhpUndefinedFieldInspection */
+
             $jqueryfile = $plugins['jquery']['files'][0];
             $out .= '<script src="'.$CFG->wwwroot.'/lib/jquery/'.$jqueryfile.'"></script>';
         }

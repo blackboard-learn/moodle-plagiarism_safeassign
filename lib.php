@@ -47,7 +47,7 @@ use plagiarism_safeassign\local;
 class plagiarism_plugin_safeassign extends plagiarism_plugin {
 
     /**
-     * Attribute to list the supported modules.
+     * @var array $supportedmodules Attribute to list the supported modules.
      */
     private $supportedmodules = ['mod_assign'];
 
@@ -63,7 +63,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     /**
      * This function should be used to initialise settings and check if plagiarism is enabled.
      *
-     * @returned array|bool - false if not enabled, or return an array of relevant settings.
+     * @return array|bool - false if not enabled, or return an array of relevant settings.
      */
     static public function get_settings() {
         static $plagiarismsettings;
@@ -87,8 +87,8 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
 
 
     /**
-     * Hook to allow plagiarism specific information to be displayed beside a submission.
-     * @return string
+     * {@inheritdoc}
+     * @param array $linkarray
      */
     public function get_links($linkarray) {
         global $DB;
@@ -324,6 +324,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
 
     /**
      * Returns if a module is supported or not.
+     * @param string $modulename
      * @return boolean true if the module is supported, false otherwise.
      */
     public function is_supported_module($modulename) {
@@ -532,7 +533,8 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
 
     /**
      * Creates the submission record on plagiarism_safeassign_subm table.
-     * @param object $eventdata
+     * @param stdClass $eventdata
+     * @param array $params
      */
     private function create_submission_record($eventdata, $params) {
         global $DB;
@@ -706,7 +708,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     /**
      * Gets the courses that already have been synced.
      *
-     * @returns @array object
+     * @return array object
      */
     public function get_valid_courses() {
         global $DB;
@@ -721,7 +723,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     /**
      * Gets the assignments that already have been synced.
      *
-     * @returns array object
+     * @return array object
      */
     public function get_valid_assignments() {
         global $DB;
@@ -735,8 +737,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
 
     /**
      * Syncs the local SafeAssign course table with the identifier from the SafeAssign service.
-     *
-     * @param object array $courses
+     * @param stdClass[] $courses
      */
     public function sync_courses($courses) {
         global $DB, $CFG;
@@ -1106,7 +1107,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
 
     /**
      * Gets the course module ID for the given assignment id.
-     * @param $assignmentid
+     * @param int $assignmentid
      * @return mixed
      */
     public function get_cmid($assignmentid) {
@@ -1174,7 +1175,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
 
     /**
      * Marks a submission as not scored.
-     * @param $uuid Submission UUID
+     * @param string $uuid Submission UUID
      */
     public function resubmit_acknowlegment($uuid) {
         global $DB;

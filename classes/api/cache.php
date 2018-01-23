@@ -26,7 +26,6 @@ namespace plagiarism_safeassign\api;
 
 defined('MOODLE_INTERNAL') || die();
 
-/* @noinspection PhpIncludeInspection */
 require_once($CFG->libdir.'/filelib.php');
 use plagiarism_safeassign\local;
 /**
@@ -42,6 +41,9 @@ class cache {
      */
     protected $muc = null;
 
+    /**
+     * cache constructor.
+     */
     public function __construct() {
         if (local::duringtesting()) {
             return;
@@ -50,6 +52,7 @@ class cache {
     }
 
     /**
+     * Get the cache timeout.
      * @return int
      */
     public static function cache_timeout() {
@@ -58,6 +61,7 @@ class cache {
     }
 
     /**
+     * Get the cache timeout in hours.
      * @return int
      */
     public static function cache_timeout_hours() {
@@ -66,6 +70,7 @@ class cache {
     }
 
     /**
+     * Calculates the md5 of a string.
      * @param  mixed  $seed
      * @return string
      */
@@ -75,6 +80,7 @@ class cache {
     }
 
     /**
+     * Get keys.
      * @param mixed $seed
      * @return array
      */
@@ -85,6 +91,7 @@ class cache {
     }
 
     /**
+     * Retrieves elements from cache.
      * @param mixed $param
      * @return bool|string
      */
@@ -118,9 +125,10 @@ class cache {
     }
 
     /**
+     * Stores a value in the cache.
      * @param mixed $param
      * @param mixed $val
-     * @param bool|int timeout False if using default timeout, secs otherwise
+     * @param bool|int $timeout False if using default timeout, secs otherwise
      * @return void
      */
     public function set($param, $val, $timeout = false) {
@@ -141,6 +149,7 @@ class cache {
     }
 
     /**
+     * Deletes element from the cache.
      * @param mixed $param
      * @return int
      */
@@ -152,6 +161,7 @@ class cache {
     }
 
     /**
+     * Purges cache.
      * @return bool
      */
     public function refresh() {

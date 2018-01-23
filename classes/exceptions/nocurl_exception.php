@@ -34,6 +34,12 @@ defined('MOODLE_INTERNAL') || die();
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class nocurl_exception extends safeassign_exception {
+    /**
+     * nocurl_exception constructor.
+     * @param string $link
+     * @param null $a
+     * @param null $debuginfo
+     */
     public function __construct($link='', $a=null, $debuginfo=null) {
         parent::__construct('rest_error_nocurl', $link, $a, $debuginfo);
     }

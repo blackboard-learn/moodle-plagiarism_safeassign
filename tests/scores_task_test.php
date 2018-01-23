@@ -18,7 +18,6 @@
  * Test safeassign task interaction with Moodle.
  *
  * @package   plagiarism_safeassign
- * @category  phpunit
  * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -35,8 +34,16 @@ use plagiarism_safeassign\api\safeassign_api;
 use plagiarism_safeassign\api\testhelper;
 use plagiarism_safeassign\api\rest_provider;
 
+/**
+ * Class plagiarism_safeassign_tasks_testcase
+ * @copyright Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class plagiarism_safeassign_tasks_testcase extends plagiarism_safeassign_base_testcase {
 
+    /**
+     * @var stdClass $user
+     */
     private $user;
 
     protected function setUp() {

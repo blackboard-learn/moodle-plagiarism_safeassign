@@ -14,6 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Test SafeAssign events and how the records are stored when a submission is made.
+ *
+ * @package   plagiarism_safeassign
+ * @copyright Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -21,6 +29,11 @@ global $CFG;
 require_once($CFG->dirroot . '/mod/assign/tests/base_test.php');
 require_once($CFG->dirroot . '/plagiarism/safeassign/classes/observer.php');
 
+/**
+ * Class plagiarism_safeassign_submission_test
+ * @copyright Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class plagiarism_safeassign_submission_test extends advanced_testcase  {
 
 
@@ -45,6 +58,9 @@ class plagiarism_safeassign_submission_test extends advanced_testcase  {
     /** @var stdClass $data General data for the assignment submission. */
     protected $data;
 
+    /**
+     * @var boolean GLOBALCHECK.
+     */
     const GLOBALCHECK = 1;
 
     /**
@@ -189,6 +205,11 @@ class plagiarism_safeassign_submission_test extends advanced_testcase  {
         }
     }
 
+    /**
+     * Checks that the values of a record are the expected.
+     * @param stdClass $record
+     * @param boolean $deprecated
+     */
     private function evaluate_safeassign_subm_recor($record, $deprecated) {
         $this->assertNull($record->uuid);
         $this->assertEquals(0, $record->globalcheck);

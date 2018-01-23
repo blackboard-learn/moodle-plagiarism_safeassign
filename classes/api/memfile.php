@@ -39,10 +39,16 @@ class memfile {
      */
     private $fp = null;
 
+    /**
+     * memfile constructor.
+     */
     public function __construct() {
         $this->open();
     }
 
+    /**
+     * Opens a file.
+     */
     protected function open() {
         $fp = fopen('php://temp', 'wb+');
         if (is_resource($fp)) {
@@ -50,11 +56,15 @@ class memfile {
         }
     }
 
+    /**
+     * Closes the file.
+     */
     public function __destruct() {
         $this->close();
     }
 
     /**
+     * Gets the pointer to the file.
      * @return null|resource
      */
     public function get() {
@@ -62,6 +72,7 @@ class memfile {
     }
 
     /**
+     * Gets the content of the file.
      * @return null|string
      */
     public function get_content() {
@@ -74,7 +85,7 @@ class memfile {
     }
 
     /**
-     * reset
+     * Closes the file.
      */
     public function close() {
         if (is_resource($this->fp)) {
@@ -83,6 +94,9 @@ class memfile {
         }
     }
 
+    /**
+     * Resets the file.
+     */
     public function reset() {
         $this->close();
         $this->open();

@@ -35,13 +35,13 @@ define(['jquery', 'core/ajax'],
              * @param {int} cmid - course module ID
              * @param {int} userid - user ID
              */
-            init: function (cmid, userid) {
+            init: function(cmid, userid) {
                 $("input[name = agreement]").click(function() {
                     var flag = 0;
                     if ($("input[name = agreement]").is(':checked')) {
                         flag = 1;
                     }
-                    var promise = ajax.call(
+                    ajax.call(
                         [{
                             methodname: 'plagiarism_safeassign_update_flag',
                             args: {
@@ -50,7 +50,7 @@ define(['jquery', 'core/ajax'],
                                 flag: flag
                             }
                         }]
-                    )[0];
+                    );
                 });
             }
         };

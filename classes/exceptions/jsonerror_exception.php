@@ -35,6 +35,9 @@ defined('MOODLE_INTERNAL') || die();
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class jsonerror_exception extends \Exception {
+    /**
+     * jsonerror_exception constructor.
+     */
     public function __construct() {
         $error = 'No Error!';
         $errornr = 0;

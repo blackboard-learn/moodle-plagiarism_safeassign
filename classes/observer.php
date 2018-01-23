@@ -14,6 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Event observers used in SafeAssign Plagiarism plugin.
+ *
+ * @package   plagiarism_safeassign
+ * @copyright Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 if (!defined('MOODLE_INTERNAL')) {
     die('Direct access to this script is forbidden.'); // It must be included from a Moodle page.
 }
@@ -21,9 +29,7 @@ if (!defined('MOODLE_INTERNAL')) {
 require_once($CFG->dirroot.'/plagiarism/safeassign/lib.php');
 
 /**
- * Event observers used in SafeAssign Plagiarism plugin.
- *
- * @package   plagiarism_safeassign
+ * Class plagiarism_safeassign_observer
  * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

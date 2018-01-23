@@ -35,8 +35,9 @@ use plagiarism_safeassign\task\sync_assignments;
 
 /**
  * Test the sync functions.
+ * @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeassign_base_testcase {
 
     public function setUp() {
@@ -150,6 +151,9 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         $DB->set_field('assign_submission', 'status', 'submitted', array('id' => $this->student1submission->id));
     }
 
+    /**
+     * Add login responses for several users.
+     */
     private function push_login_urls() {
         global $DB;
 
@@ -371,6 +375,9 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         $this->assertEquals('1', $submission->deprecated);
     }
 
+    /**
+     * Insert some SafeAssign records directly on the database.
+     */
     public function set_safeassign_records() {
         global $DB;
         $record = new stdClass();

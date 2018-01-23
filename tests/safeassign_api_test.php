@@ -14,6 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * All tests in this class will fail in case there is no appropriate fixture to be loaded.
+ * @package   plagiarism_safeassign
+ * @copyright Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__.'/base.php');
@@ -25,16 +32,18 @@ use plagiarism_safeassign\api\error_handler;
 
 /**
  * Class plagiarism_safeassign_safeassign_api_testcase
- *
- * All tests in this class will fail in case there is no appropriate fixture to be loaded.
- *
- * @group plagiarism_safeassign
+ * @copyright Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassign_base_testcase {
 
+    /**
+     * @var stdClass $user
+     */
     private $user;
 
     /**
+     * Set up the environment.
      * @return void
      */
     public function setUp() {
@@ -42,7 +51,8 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
     }
 
     /**
-     * @param $user
+     * Creates an url to login an user.
+     * @param stdClass $user
      * @return string
      */
     private function create_login_url($user) {
@@ -55,8 +65,8 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
 
     /**
      * Pushes a response for the login url for a user
-     * @param $user
-     * @param $filename
+     * @param stdClass $user
+     * @param string $filename
      */
     public function push_login_url($user, $filename) {
         $loginurl = $this->create_login_url($user);
@@ -64,6 +74,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
     }
 
     /**
+     * Creates an url to create a course on SafeAssign.
      * @return string
      */
     public function create_course_url() {
@@ -76,7 +87,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
     /**
      * Attempts a login with a specified fixture response file.
      * User attribute is populated with logged in user.
-     * @param $filename
+     * @param string $filename
      * @return bool
      */
     public function attempt_login($filename) {
@@ -94,7 +105,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
 
     /**
      * Creates an url to put/delete an instructor to/from the course with the given uuid.
-     * @param $courseuuid
+     * @param string $courseuuid
      * @return string
      */
     public function create_put_delete_instructor_url($courseuuid) {
@@ -106,7 +117,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
 
     /**
      * Creates an url to create an assignment in a course.
-     * @param $courseuuid
+     * @param string $courseuuid
      * @return string
      */
     public function create_assignment_url($courseuuid) {
@@ -191,6 +202,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
     }
 
     /**
+     * Attempts to login with a correct configuration.
      * @return void
      */
     public function test_login_configured_ok() {
@@ -202,6 +214,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
     }
 
     /**
+     * Simulates a failure login.
      * @return void
      */
     public function test_login_fail() {
@@ -213,6 +226,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
     }
 
     /**
+     * Attempts to login with an empty configuration.
      * @return void
      */
     public function test_login_notconfigured_fail() {
@@ -224,6 +238,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
     }
 
     /**
+     * Attempts to create a course with a valid response.
      * @return void
      */
     public function test_create_course_ok() {
@@ -250,6 +265,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
     }
 
     /**
+     * Simulates a failure creating a course.
      * @return void
      */
     public function test_create_course_fail() {
@@ -278,6 +294,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
     }
 
     /**
+     * Attempts to delete an instructor from a course with a valid response.
      * @return void
      */
     public function test_put_delete_instructor_to_course_ok() {
@@ -316,6 +333,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
     }
 
     /**
+     * Simulates a failure deleting an instructor from a course.
      * @return void
      */
     public function test_put_instructor_to_course_fail_wrong_token() {
@@ -354,6 +372,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
     }
 
     /**
+     * Attempts to create an assignment.
      * @return void
      */
     public function test_create_assignment_ok() {
@@ -385,6 +404,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
     }
 
     /**
+     * Simulates a failure creating an assignment.
      * @return void
      */
     public function test_create_assignment_fail() {
@@ -417,6 +437,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
 
 
     /**
+     *  Attempts to check an assignment.
      * @return void
      */
     public function test_check_assignment_ok() {
@@ -454,6 +475,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
     }
 
     /**
+     * Simulates a failure checking an assignment.
      * @return void
      */
     public function test_check_assignment_fail() {
@@ -491,6 +513,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
     }
 
     /**
+     * Attempts to create a submission.
      * @return void
      */
     public function test_create_submission_ok() {
@@ -530,6 +553,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
     }
 
     /**
+     * Simulates a failure creating a submission.
      * @return void
      */
     public function test_create_submission_fail() {
@@ -570,6 +594,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
     }
 
     /**
+     * Attempts to get the basic originality report.
      * @return void
      */
     public function test_get_originality_report_basic_data_ok() {
@@ -611,6 +636,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
     }
 
     /**
+     * Simulates a failure getting the basic originality report.
      * @return void
      */
     public function test_get_originality_report_basic_data_fail() {
@@ -652,6 +678,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
     }
 
     /**
+     * Attempts to get the originality report.
      * @return void
      */
     public function test_get_originality_report_ok() {
@@ -695,6 +722,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
     }
 
     /**
+     * Simulates a failure getting the originality report.
      * @return void
      */
     public function test_get_originality_report_fail() {
@@ -741,6 +769,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
     }
 
     /**
+     * Attempt to resubmit a file.
      * @return void
      */
     public function test_resubmit_file_ok() {
@@ -782,6 +811,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
     }
 
     /**
+     * Simulates a failure resubmitting a file.
      * @return void
      */
     public function test_resubmit_file_fail() {
@@ -823,6 +853,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
     }
 
     /**
+     * Skips last API error.
      * @return void
      */
     public function test_process_last_api_error_skip() {
@@ -845,6 +876,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
     }
 
     /**
+     * Process last API error.
      * @return void
      */
     public function test_process_last_api_error_process() {
@@ -870,6 +902,9 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
         $this->assertEquals($expected, error_handler::process_last_api_error(false, true));
     }
 
+    /**
+     * Multiple login test.
+     */
     public function test_multi_login() {
 
         $this->resetAfterTest(true);
@@ -922,6 +957,9 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
         self::assertNull($tokenc);
     }
 
+    /**
+     * Login cache test.
+     */
     public function test_login_cache() {
         $this->resetAfterTest(true);
         $this->config_set_ok();

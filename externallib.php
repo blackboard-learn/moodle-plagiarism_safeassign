@@ -14,10 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 //
-// @package   plagiarism_safeassign
-// @author    Jonathan Garcia Gomez jonathan.garcia@blackboard.com
-// @copyright Blackboard 2017
-// @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
+
+/**
+ * SafeAssign external file.
+ * @package   plagiarism_safeassign
+ * @copyright Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -27,15 +30,15 @@ use plagiarism_safeassign\api\safeassign_api;
 require_once($CFG->libdir . '/externallib.php');
 
 /**
- * Test the intructor and student credentiales.
- * @autor Jonathan Garcia
+ * Test the instructor and student credentials.
+ * @author    Jonathan Garcia
  * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 class plagiarism_safeassign_test_api_credentials_external extends external_api {
 
     /**
+     * Defines the input parameters of the web service.
      * @return \external_function_parameters
      */
     public static function plagiarism_safeassign_test_api_credentials_parameters() {
@@ -49,6 +52,7 @@ class plagiarism_safeassign_test_api_credentials_external extends external_api {
     }
 
     /**
+     * Defines the response of the web service.
      * @return \external_single_structure
      */
     public static function plagiarism_safeassign_test_api_credentials_returns() {
@@ -59,6 +63,7 @@ class plagiarism_safeassign_test_api_credentials_external extends external_api {
     }
 
     /**
+     * Checks if the API credentials are working correctly.
      * @param string $username
      * @param string $password
      * @param string $baseurl
@@ -74,13 +79,14 @@ class plagiarism_safeassign_test_api_credentials_external extends external_api {
 
 /**
  * Save the global check flag state in the DB.
- * @autor Juan Felipe Martinez Ramos
+ * @author    Juan Felipe Martinez Ramos
  * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class plagiarism_safeassign_update_flag_external extends external_api {
 
     /**
+     * Defines the input parameters of the web service.
      * @return \external_function_parameters
      */
     public static function plagiarism_safeassign_update_flag_parameters() {
@@ -93,6 +99,7 @@ class plagiarism_safeassign_update_flag_external extends external_api {
     }
 
     /**
+     * Defines the response of the web service.
      * @return \external_single_structure
      */
     public static function plagiarism_safeassign_update_flag_returns() {

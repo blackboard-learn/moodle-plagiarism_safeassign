@@ -14,6 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * get_scores class - used to get scores for submitted files from SafeAssign.
+ *
+ * @package    plagiarism_safeassign
+ * @copyright  Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace plagiarism_safeassign\task;
 use plagiarism_safeassign\event\score_sync_fail;
 use plagiarism_safeassign\event\serv_unavailable_log;
@@ -21,18 +29,23 @@ use plagiarism_safeassign\event\serv_unavailable_log;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * get_scores class - used to get scores for submitted files from SafeAssign.
- *
- * @package    plagiarism_safeassign
+ * Class get_scores
  * @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class get_scores extends \core\task\scheduled_task {
+    /**
+     * {@inheritdoc}
+     * @return string
+     */
     public function get_name() {
         // Shown in admin screens.
         return get_string('getscores', 'plagiarism_safeassign');
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function execute() {
         global $CFG;
         if (get_config('plagiarism', 'safeassign_use')) {

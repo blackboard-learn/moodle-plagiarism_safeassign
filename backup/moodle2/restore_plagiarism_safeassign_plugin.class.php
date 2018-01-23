@@ -14,15 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
-use plagiarism_safeassign\event\sync_content_log;
 /**
  * Restore class for the SafeAssign plugin.
  *
  * @package   plagiarism_safeassign
  * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
- * @licence   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+defined('MOODLE_INTERNAL') || die();
+
+use plagiarism_safeassign\event\sync_content_log;
+
+/**
+ * Class restore_plagiarism_safeassign_plugin
+ * @copyright Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_plagiarism_safeassign_plugin extends restore_plagiarism_plugin {
 
@@ -50,10 +57,10 @@ class restore_plagiarism_safeassign_plugin extends restore_plagiarism_plugin {
     }
 
     /**
-     * {@inheritdoc}
      * Restore the SafeAssign assignment id for this module
      * This will only be done this if the module is from the same site it was backed up from
      * and if the SafeAssign assignment id does not currently exist in the database.
+     * @param stdClass $data
      */
     public function process_safeassign_config($data) {
         global $DB;
@@ -91,6 +98,7 @@ class restore_plagiarism_safeassign_plugin extends restore_plagiarism_plugin {
      * Restore the links to SafeAssign files.
      * This will only be done this if the module is from the same site it was backed up from
      * and if the SafeAssign submission does not currently exist in the database.
+     * @param stdClass $data
      */
     public function process_safeassign_files($data) {
 
@@ -98,7 +106,7 @@ class restore_plagiarism_safeassign_plugin extends restore_plagiarism_plugin {
 
     /**
      * {@inheritdoc}
-     * @param $data
+     * @param stdClass $data
      */
     public function process_safeassign_course($data) {
 

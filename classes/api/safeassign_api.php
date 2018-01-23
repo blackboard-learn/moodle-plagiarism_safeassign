@@ -34,6 +34,10 @@ defined('MOODLE_INTERNAL') || die();
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class safeassign_api {
+
+    /**
+     * @var string PLUGIN
+     */
     const PLUGIN = 'plagiarism_safeassign';
 
     /**
@@ -342,10 +346,10 @@ abstract class safeassign_api {
 
     /**
      * Creates an assignment inside SafeAssign.
-     * @param $userid
-     * @param $courseuuid
-     * @param $assignmentid
-     * @param $assignmenttitle
+     * @param int $userid
+     * @param string $courseuuid
+     * @param int $assignmentid
+     * @param string $assignmenttitle
      * @return bool|mixed
      */
     public static function create_assignment($userid, $courseuuid, $assignmentid, $assignmenttitle) {
@@ -429,11 +433,10 @@ abstract class safeassign_api {
      * @param int $userid
      * @param string $submissionuuid
      * @param bool $isinstructor
-     * @param bool|string File uuid
+     * @param bool|string $fileuuid File uuid
      * @param bool $print For getting a print version of the report
      * @param bool|string $cssurl to add some custom report styling
      * @param bool|string $logourl to use custom logo
-     * @param bool|string $fileuuid File uuid
      * @return bool|mixed
      */
     public static function get_originality_report($userid, $submissionuuid, $isinstructor = false, $fileuuid = false,
@@ -473,6 +476,7 @@ abstract class safeassign_api {
      * Resubmit files from a submission.
      * @param int $userid
      * @param string $submissionuuid
+     * @param string $fileuuid
      * @param array $urls
      * @param array $engines
      * @return bool | mixed

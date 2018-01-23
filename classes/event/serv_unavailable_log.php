@@ -29,6 +29,13 @@ use core\event\base;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Class serv_unavailable_log
+ *
+ * @package   plagiarism_safeassign
+ * @copyright Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class serv_unavailable_log extends base {
 
     /**

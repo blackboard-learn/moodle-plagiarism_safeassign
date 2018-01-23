@@ -39,6 +39,9 @@ defined('MOODLE_INTERNAL') || die();
  */
 class sync_content_log extends base {
 
+    /**
+     * @var string PLUGIN
+     */
     const PLUGIN = 'plagiarism_safeassign';
 
     /**

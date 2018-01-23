@@ -14,15 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace plagiarism_safeassign\api;
-
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Class api_error_handler
  *
  * @package   plagiarism_safeassign
  * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+namespace plagiarism_safeassign\api;
+
+defined('MOODLE_INTERNAL') || die();
+
+/**
+ * Class error_handler
+ * @copyright Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class error_handler {

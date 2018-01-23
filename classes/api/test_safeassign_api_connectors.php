@@ -29,13 +29,28 @@ use stdClass;
 use testing_data_generator;
 
 /**
- * Test the sync functions.
+ * Class test_safeassign_api_connectors
+ *
+ * @package   plagiarism_safeassign
+ * @copyright Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 abstract class test_safeassign_api_connectors {
+
+    /**
+     * @var string PLUGIN
+     */
     const PLUGIN = 'plagiarism_safeassign';
+
+    /**
+     * @var testing_data_generator $datagenerator
+     */
     protected static $datagenerator;
 
+    /**
+     * Gets the singleton instance of testing_data_generator class.
+     * @return testing_data_generator
+     */
     protected static function get_data_generator() {
         if (self::$datagenerator == null) {
             self::$datagenerator = new testing_data_generator();

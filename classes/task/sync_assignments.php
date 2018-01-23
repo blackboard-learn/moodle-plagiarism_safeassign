@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- *
+ * Task to sync assignments, course and submissions from Moodle to SafeAssign.
  * @package    plagiarism_safeassign
  * @subpackage plagiarism
- * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
+ * @copyright Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  */
 
@@ -31,13 +31,26 @@ require_once($CFG->dirroot . '/plagiarism/safeassign/lib.php');
 use plagiarism_safeassign\event\sync_content_log;
 use plagiarism_safeassign\event\serv_unavailable_log;
 
+/**
+ * Class sync_assignments
+ * @package    plagiarism_safeassign
+ * @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class sync_assignments extends \core\task\scheduled_task {
 
+    /**
+     * {@inheritdoc}
+     * @return string
+     */
     public function get_name() {
 
         return get_string('sync_assignments', 'plagiarism_safeassign');
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function execute() {
         global $DB;
 

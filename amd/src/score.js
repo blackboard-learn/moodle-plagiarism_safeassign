@@ -39,6 +39,7 @@ define(['jquery', 'core/str'], function($, str) {
             /**
              * Checks if some element exist in page DOM.
              * @param {string} selector
+             * @returns {boolean}
              */
             var elementExists = function(selector) {
                 var el = $(selector);
@@ -49,7 +50,7 @@ define(['jquery', 'core/str'], function($, str) {
              * Creates a new DOM element and attach it into the file submission tree.
              * @param {string} selector
              */
-            var appendAvgScoreFilesTree = function (selector) {
+            var appendAvgScoreFilesTree = function(selector) {
                 if (!elementExists('#safeassign_text_' + userId)) {
                     var tree = $(selector);
                     var td = $('<td></td>').attr('id', 'safeassign_text_' + userId);
@@ -66,7 +67,7 @@ define(['jquery', 'core/str'], function($, str) {
              * Creates a new DOM element and attach it into the online submission region.
              * @param {string} selector
              */
-            var appendAvgScoreOnlineSubm = function (selector) {
+            var appendAvgScoreOnlineSubm = function(selector) {
                 if (!elementExists('#safeassign_online_sub_' + userId)) {
                     var el = $(selector).parent();
                     var div = $('<div></div>').attr('id', 'safeassign_online_sub_' + userId);
@@ -78,8 +79,9 @@ define(['jquery', 'core/str'], function($, str) {
             /**
              * Returns a message with the average score.
              * @param {int} avgScore
+             * @param {string} selector
              */
-            var getMessage = function (avgScore, selector) {
+            var getMessage = function(avgScore, selector) {
 
                 // Get overall score string via ajax.
                 var messageString = str.get_string('safeassign_overall_score', 'plagiarism_safeassign', avgScore);
@@ -92,7 +94,7 @@ define(['jquery', 'core/str'], function($, str) {
 
             /**
              * Makes a JQuery promise to see if some element exist in the DOM.
-             * @param {string} evaluateFunction
+             * @param {string} containerSelector
              * @param {int} maxIterations
              * @returns {promise} JQuery promise
              */

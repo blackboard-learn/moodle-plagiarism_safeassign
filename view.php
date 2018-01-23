@@ -30,7 +30,6 @@ require_once('../../config.php');
 
 global $CFG;
 
-/* @noinspection PhpIncludeInspection */
 require($CFG->dirroot.'/local/mr/bootstrap.php');
 
 mr_controller::render('plagiarism/safeassign', 'pluginname', 'plagiarism_safeassign');

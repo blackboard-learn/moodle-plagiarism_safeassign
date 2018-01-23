@@ -30,6 +30,7 @@ define(['jquery', 'core/modal_factory', 'core/templates', 'core/str', 'core/noti
             /**
              * Through the Moodle core functions sends the data for instructor and student so their credentials
              * can be tested.
+             * @param {string} storedUrl
              */
             init: function(storedUrl) {
 
@@ -51,39 +52,38 @@ define(['jquery', 'core/modal_factory', 'core/templates', 'core/str', 'core/noti
                     $(inputs).each(function() {
                         if ($(this).val() == '') {
                             disableButton(localizedString);
-                            return false;
                         }
                     });
 
                     // Changes in the input fields should be saved to enable the "Test connection" button.
-                    $(inputs).on('input',function() {
+                    $(inputs).on('input', function() {
                         disableButton(localizedString);
                     });
 
-                    //If the stored URL is different from the one selected in the dropdown, disable the "Test connection" button.
+                    // If the stored URL is different from the one selected in the dropdown, disable the "Test connection" button.
                     var url = $('#id_safeassign_api').val();
                     if (url != storedUrl) {
                         disableButton(localizedString);
                     }
                 });
 
-               /**
-                * Changes the class of the html element to match the response status.
-                * @param {string} selector Id for the html element
-                * @param {bool} status Response status
-                */
+                /**
+                 * Changes the class of the html element to match the response status.
+                 * @param {string} selector Id for the html element
+                 * @param {bool} status Response status
+                 */
                 var swapClasses = function(selector, status) {
                     if (status) {
                         if ($(selector).hasClass('alert-warning')) {
-                            $(selector).removeClass( "alert-warning" ).addClass('alert-success');
+                            $(selector).removeClass("alert-warning").addClass('alert-success');
                         } else if ($(selector).hasClass('alert-danger')) {
-                            $(selector).removeClass( "alert-danger" ).addClass('alert-success');
+                            $(selector).removeClass("alert-danger").addClass('alert-success');
                         }
                     } else {
                         if ($(selector).hasClass('alert-warning')) {
-                            $(selector).removeClass( "alert-warning" ).addClass('alert-danger');
+                            $(selector).removeClass("alert-warning").addClass('alert-danger');
                         } else if ($(selector).hasClass('alert-success')) {
-                            $(selector).removeClass( "alert-success" ).addClass('alert-danger');
+                            $(selector).removeClass("alert-success").addClass('alert-danger');
                         }
                     }
                 };
@@ -115,9 +115,9 @@ define(['jquery', 'core/modal_factory', 'core/templates', 'core/str', 'core/noti
                  */
                 var setDefault = function(selector) {
                     if ($(selector).hasClass('alert-success')) {
-                        $(selector).removeClass( "alert-success" ).addClass('alert-warning');
+                        $(selector).removeClass("alert-success").addClass('alert-warning');
                     } else if ($(selector).hasClass('alert-danger')) {
-                        $(selector).removeClass( "alert-danger" ).addClass('alert-warning');
+                        $(selector).removeClass("alert-danger").addClass('alert-warning');
                     }
                 };
 
@@ -144,7 +144,7 @@ define(['jquery', 'core/modal_factory', 'core/templates', 'core/str', 'core/noti
                         }]
                     )[0];
                     promise.done(function(response) {
-                        if (response.success){
+                        if (response.success) {
                             swapClasses(resultElement, true);
                             $(resultText).text(localizedStrings[1]);
                         } else {
@@ -157,7 +157,7 @@ define(['jquery', 'core/modal_factory', 'core/templates', 'core/str', 'core/noti
                     });
                 };
 
-                credentialsTrigger.click(function(e){
+                credentialsTrigger.click(function(e) {
                     e.preventDefault();
                     setDefault('#instructor_credentials');
                     $('#instructor_result').text('...');

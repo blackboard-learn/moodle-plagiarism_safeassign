@@ -53,6 +53,7 @@ abstract class testhelper {
     protected static $timeoutvalstash = [];
 
     /**
+     * Loads data from a file.
      * @param  string $rpath
      * @param  string $name
      * @return null|string
@@ -72,6 +73,7 @@ abstract class testhelper {
     }
 
     /**
+     * Get fixture data for a specific url.
      * @param  string $url
      * @return null|string
      */
@@ -95,7 +97,8 @@ abstract class testhelper {
     }
 
     /**
-     * @param $url
+     * Gets the http response code for an url.
+     * @param string $url
      * @return int
      */
     public static function get_code_data($url) {
@@ -103,6 +106,7 @@ abstract class testhelper {
     }
 
     /**
+     * Maps a url with a filename and an http response code.
      * @param string $url
      * @param string $filename
      * @param int $httpcode
@@ -114,6 +118,7 @@ abstract class testhelper {
     }
 
     /**
+     * Gets the mapped name of the file with the fixture data for an url.
      * @param string $url
      * @return null|string
      */
@@ -125,6 +130,7 @@ abstract class testhelper {
     }
 
     /**
+     * Cleans stashes.
      * @return void
      */
     public static function reset_stash() {
@@ -135,9 +141,9 @@ abstract class testhelper {
 
     /**
      * Simulates MUC storage with a timeout.
-     * @param $param
-     * @param $val
-     * @param $timeout
+     * @param mixed $param
+     * @param mixed $val
+     * @param bool|int $timeout
      */
     public static function set_timed_value($param, $val, $timeout) {
         self::$timeoutvalstash[$param] = new \stdClass();
@@ -148,7 +154,7 @@ abstract class testhelper {
 
     /**
      * Reviews and returns a stored value if found.
-     * @param $param
+     * @param string $param
      * @return null|mixed
      */
     protected static function get_timed_value($param) {

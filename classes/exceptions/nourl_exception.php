@@ -36,9 +36,10 @@ defined('MOODLE_INTERNAL') || die();
  */
 class nourl_exception extends safeassign_exception {
     /**
+     * nourl_exception constructor.
      * @param string $link
-     * @param mixed  $a
-     * @param mixed  $debuginfo
+     * @param null $a
+     * @param null $debuginfo
      */
     public function __construct($link='', $a=null, $debuginfo=null) {
         parent::__construct('rest_error_nourl', $link, $a, $debuginfo);

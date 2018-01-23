@@ -14,14 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * terms.php - Contains the License Agreement Text for SafeAssign.
+ *
+ * @package    plagiarism_safeassign
+ * @copyright  Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace plagiarism_safeassign;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * terms.php - Contains the License Agreement Text for SafeAssign.
- *
- * @package    plagiarism_safeassign
+ * Class terms
  * @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
