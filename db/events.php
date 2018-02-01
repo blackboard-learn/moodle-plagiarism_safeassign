@@ -44,5 +44,13 @@ $observers = array (
     array(
         'eventname' => '\assignsubmission_onlinetext\event\submission_updated',
         'callback' => 'plagiarism_safeassign_observer::assignsubmission_onlinetext_updated'
+    ),
+    array(
+        'eventname' => '\core\event\role_assigned',
+        'callback' => 'plagiarism_safeassign_observer::role_assigned'
+    ),
+    array(
+        'eventname' => '\core\event\role_unassigned',
+        'callback' => 'plagiarism_safeassign_observer::role_unassigned'
     )
 );
