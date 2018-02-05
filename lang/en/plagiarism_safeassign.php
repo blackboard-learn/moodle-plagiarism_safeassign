@@ -91,8 +91,7 @@ $string['connectionfailed'] = 'Connection Failed';
 $string['connectionverified'] = 'Connection Verified';
 $string['cachedef_request'] = 'SafeAssign request cache';
 // Behat test.
-$string['error_behat_getjson'] = 'Error to get json file "{$a}" from folder plagiarism/safeassign/tests/fixtures for '.
-    'simulating a call to SafeAssign webservices when running behat tests.';
+$string['error_behat_getjson'] = 'Error to get json file "{$a}" from folder plagiarism/safeassign/tests/fixtures for simulating a call to SafeAssign webservices when running behat tests.';
 $string['error_behat_instancefail'] = 'This is an instance configured to fail with behat tests.';
 $string['safeassign'] = 'SafeAssign Plagiarism plugin';
 $string['assignment_check_submissions'] = 'Check submissions with SafeAssign';
@@ -103,8 +102,7 @@ SafeAssign has no technical limitations that preclude using it with other langua
 See <a href="http://www.blackboard.com/docs/documentation.htm?DocID=191SafeAssign001en_US" target="_blank">Blackboard help</a> for more information.';
 $string['students_originality_report'] = 'Allow students to view originality report';
 $string['submissions_global_reference'] = 'Exclude submissions from institutional and <a href="https://help.blackboard.com/Learn/Instructor/Assignments/SafeAssign#global_reference" target="_blank">Global Reference Database</a>';
-$string['submissions_global_reference_help'] = 'Submissions will still be processed by SafeAssign but won’t be registered in databases. ' .
-    'This avoids files being marked as plagiarized when teachers allow re-submissions in a specific assignment.';
+$string['submissions_global_reference_help'] = 'Submissions will still be processed by SafeAssign but won’t be registered in databases. This avoids files being marked as plagiarized when teachers allow re-submissions in a specific assignment.';
 // Disclosure agreement.
 $string['plagiarism_tools'] = 'Plagiarism Tools';
 $string['files_accepted'] = 'SafeAssign accepts files in .doc, .docx, .docm, .ppt, .pptx, .odt, .txt, .rtf, .pdf and .html file formats only. Files of any other format will not be checked through SafeAssign.
