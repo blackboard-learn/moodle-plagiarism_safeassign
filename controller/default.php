@@ -68,16 +68,20 @@ class plagiarism_safeassign_controller_default extends mr_controller {
             define('SAFEASSIGN_OMIT_CACHE', true);
         }
 
-        // Login as teacher or instructor.
-        $context = context_course::instance($courseid);
-        // This capability is for instructors only.
-        $enablecap = 'plagiarism/safeassign:enable';
-        $teachers = get_enrolled_users($context, $enablecap);
         $isinstructor = false;
-        foreach ($teachers as $teacher) {
-            if ($teacher->id == $USER->id) {
-                $isinstructor = true;
-                break;
+        if (array_key_exists($USER->id, get_admins())) {
+            $isinstructor = true;
+        } else {
+            // Login as teacher or instructor.
+            $context = context_course::instance($courseid);
+            // This capability is for instructors only.
+            $enablecap = 'plagiarism/safeassign:enable';
+            $teachers = get_enrolled_users($context, $enablecap);
+            foreach ($teachers as $teacher) {
+                if ($teacher->id == $USER->id) {
+                    $isinstructor = true;
+                    break;
+                }
             }
         }
 

@@ -52,7 +52,7 @@ class sync_assignments extends \core\task\scheduled_task {
      * {@inheritdoc}
      */
     public function execute() {
-        global $DB;
+        global $DB, $CFG;
 
         if (get_config('plagiarism', 'safeassign_use')) {
 
@@ -76,6 +76,10 @@ class sync_assignments extends \core\task\scheduled_task {
                     }
                     $safeassign->sync_course_assignments();
                     $safeassign->sync_assign_submissions();
+                    if ($CFG->siteadmins != get_config('plagiarism_safeassign', 'siteadmins')) {
+                        $safeassign->set_siteadmins();
+                    }
+                    $safeassign->sync_instructors();
                 } else {
                     $event = serv_unavailable_log::create();
                     $event->trigger();

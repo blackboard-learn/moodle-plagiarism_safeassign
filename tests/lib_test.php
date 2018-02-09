@@ -52,7 +52,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
     }
 
     public function test_assigndbsaver_assignments() {
-        global $DB;
+        global $DB, $CFG;
 
         $this->resetAfterTest(true);
 
@@ -61,6 +61,16 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
 
         // Create an activity.
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_assign');
+        $this->teacher = self::getDataGenerator()->create_user([
+            'firstname' => 'Teacher',
+            'lastname' => 'WhoTeaches']);
+        $editingteacherrole = $DB->get_record('role', array('shortname' => 'editingteacher'));
+        $this->getDataGenerator()->enrol_user($this->teacher->id, $course1->id, $editingteacherrole->id);
+        $this->teacher2 = self::getDataGenerator()->create_user([
+            'firstname' => 'Not editing Teacher', 'lastname' => 'WhoTeaches']);
+        $noteditingteacherrole = $DB->get_record('role', array('shortname' => 'teacher'));
+        $this->getDataGenerator()->enrol_user($this->teacher2->id, $course1->id, $noteditingteacherrole->id);
+
         $instance = $generator->create_instance(array('course' => $course1->id));
         $cm = get_coursemodule_from_instance('assign', $instance->id);
 
@@ -77,6 +87,12 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
 
         $this->assertEquals($instance->id, $confirmdbassign->assignmentid);
         $this->assertEquals($course1->id, $confirmdbcourse->courseid);
+
+        // Test that the editing instructor has been added to the instructors table and also the admin.
+        $instructors1 = $DB->get_records('plagiarism_safeassign_instr', array('courseid' => $course1->id));
+        $this->assertCount(2, $instructors1);
+        $this->assertTrue($DB->record_exists('plagiarism_safeassign_instr', array('courseid' => $course1->id,
+            'instructorid' => $this->teacher->id, 'synced' => 0)));
 
         // Now let's add a second assign on the same course without SafeAssign enabled
         // and see that course records are not being duplicated.
@@ -99,7 +115,13 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         // Now let's add a third assign on a different course and check that course records are being saved.
 
         $course2 = $this->getDataGenerator()->create_course();
-
+        $this->teacher3 = self::getDataGenerator()->create_user([
+            'firstname' => 'Teacher3',
+            'lastname' => 'WhoTeaches'
+        ]);
+        $this->getDataGenerator()->enrol_user($this->teacher3->id,
+            $course2->id,
+            $editingteacherrole->id);
         $instance3 = $generator->create_instance(array('course' => $course2->id));
         $cm3 = get_coursemodule_from_instance('assign', $instance3->id);
 
@@ -117,6 +139,87 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $this->assertEquals($course2->id, $confirmdbcourse3->courseid);
         $this->assertEquals(2, $DB->count_records('plagiarism_safeassign_assign'));
         $this->assertEquals(2, $DB->count_records('plagiarism_safeassign_course'));
+
+        // Now there must be 2 records for editing teachers.
+        $this->assertCount(4, $DB->get_records('plagiarism_safeassign_instr'));
+        $this->assertTrue($DB->record_exists('plagiarism_safeassign_instr', array('courseid' => $course2->id,
+            'instructorid' => $this->teacher3->id, 'synced' => 0)));
+
+        set_config('safeassign_use', 0, 'plagiarism');
+        $course3 = $this->getDataGenerator()->create_course();
+
+        // Create an activity.
+        $instance = $generator->create_instance(array('course' => $course3->id));
+        $this->teacher4 = self::getDataGenerator()->create_user([
+            'firstname' => 'Teacher4',
+            'lastname' => 'WhoTeaches'
+        ]);
+        $this->getDataGenerator()->enrol_user($this->teacher4->id,
+            $course3->id,
+            $editingteacherrole->id);
+
+        $cm = get_coursemodule_from_instance('assign', $instance->id);
+
+        // Create an activity with SafeAssign enabled.
+        $data = new stdClass();
+        $data->coursemodule = $cm->id;
+        $data->safeassign_enabled = 0;
+        $data->course = $course3->id;
+        $data->instance = $instance->id;
+        $safeassign = new plagiarism_plugin_safeassign();
+        $safeassign->save_form_elements($data);
+
+        // Test that the editing instructor has not been added to the instructors table.
+        $instructors2 = $DB->get_records('plagiarism_safeassign_instr', array('courseid' => $course3->id));
+        $this->assertCount(0, $instructors2);
+        $this->assertFalse($DB->record_exists('plagiarism_safeassign_instr', array('courseid' => $course3->id,
+            'instructorid' => $this->teacher4->id, 'synced' => 0)));
+
+    }
+
+    /**
+     * Test the function that handles that a user has become a site admin.
+     */
+    public function test_new_admin_added() {
+        global $DB, $CFG;
+        $this->resetAfterTest(true);
+        // Generate course.
+        $course1 = $this->getDataGenerator()->create_course();
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_assign');
+        $this->teacher = self::getDataGenerator()->create_user([
+            'firstname' => 'Teacher',
+            'lastname' => 'WhoTeaches']);
+        $editingteacherrole = $DB->get_record('role', array('shortname' => 'editingteacher'));
+        $this->getDataGenerator()->enrol_user($this->teacher->id, $course1->id, $editingteacherrole->id);
+        $instance = $generator->create_instance(array('course' => $course1->id));
+        $cm = get_coursemodule_from_instance('assign', $instance->id);
+
+        // Create an activity with SafeAssign enabled.
+        $data = new stdClass();
+        $data->coursemodule = $cm->id;
+        $data->safeassign_enabled = 1;
+        $data->course = $course1->id;
+        $data->instance = $instance->id;
+        $safeassign = new plagiarism_plugin_safeassign();
+        $safeassign->save_form_elements($data);
+        $this->assertCount(2, $DB->get_records('plagiarism_safeassign_instr'));
+        $this->admin2 = self::getDataGenerator()->create_user();
+
+        $admins = array();
+        foreach (explode(',', $CFG->siteadmins) as $admin) {
+            $admin = (int)$admin;
+            if ($admin) {
+                $admins[$admin] = $admin;
+            }
+        }
+        $admins[] = $this->admin2->id;
+
+        set_config('siteadmins', implode(',', $admins));
+        $CFG->siteadmins = implode(',', $admins);
+        $safeassign = new plagiarism_plugin_safeassign();
+        $safeassign->set_siteadmins();
+        $this->assertCount(3, $DB->get_records('plagiarism_safeassign_instr'));
+
     }
 
     /**

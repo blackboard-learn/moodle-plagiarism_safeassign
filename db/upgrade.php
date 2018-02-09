@@ -259,6 +259,39 @@ function xmldb_plagiarism_safeassign_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2017111558, 'plagiarism', 'safeassign');
     }
 
+    if ($oldversion < 2017121502) {
+
+        // Define table plagiarism_safeassign_instr to be created.
+        $table = new xmldb_table('plagiarism_safeassign_instr');
+
+        // Adding fields to table plagiarism_safeassign_instr.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('instructorid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('synced', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('unenrolled', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('deleted', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+
+        // Adding keys to table plagiarism_safeassign_instr.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('courseid', XMLDB_KEY_FOREIGN, array('courseid'), 'course', array('id'));
+        $table->add_key('instructorid', XMLDB_KEY_FOREIGN, array('instructorid'), 'user', array('id'));
+
+        // Conditionally launch create table for plagiarism_safeassign_instr.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Safeassign savepoint reached.
+        upgrade_plugin_savepoint(true, 2017121502, 'plagiarism', 'safeassign');
+
+        if ($dbman->table_exists($table)) {
+            set_config('siteadmins', $CFG->siteadmins, 'plagiarism_safeassign');
+            $safeassign = new plagiarism_plugin_safeassign();
+            $safeassign->set_course_instructors();
+        }
+    }
+
     return true;
 
 }

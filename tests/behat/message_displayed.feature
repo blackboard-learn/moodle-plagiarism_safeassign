@@ -63,7 +63,7 @@ Feature: SafeAssign displays the submission status for the correct files
     When I press "Add submission"
     And I upload "lib/tests/fixtures/empty.txt" file to "File submissions" filemanager
     And I press "Save changes"
-    Then I should not see "Report in progress..."
+    Then I should not see "SafeAssign Originality Report in progress..."
     Then I log out
     Then I log in as "teacher1"
     And I am on "Course 1" course homepage
@@ -83,7 +83,7 @@ Feature: SafeAssign displays the submission status for the correct files
     When I press "Add submission"
     And I upload "lib/tests/fixtures/empty.txt" file to "File submissions" filemanager
     And I press "Save changes"
-    Then I should see "Report in progress..."
+    Then I should see "SafeAssign Originality Report in progress..."
     Then I log out
     Then I log in as "teacher1"
     And I am on "Course 1" course homepage

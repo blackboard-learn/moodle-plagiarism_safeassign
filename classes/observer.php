@@ -93,4 +93,24 @@ class plagiarism_safeassign_observer {
         $safeassign->make_file_from_text_submission($eventdata);
     }
 
+    /**
+     * Creates an instructor record if the given enrolment correspond to an editing teacher.
+     * @param \core\event\user_enrolment_created
+     */
+    public static function role_assigned(\core\event\role_assigned $event) {
+        $eventdata = $event->get_data();
+        $safeassign = new plagiarism_plugin_safeassign();
+        $safeassign->process_role_assignments($eventdata, 'create');
+    }
+
+    /**
+     * Creates an instructor record if the given enrolment correspond to an editing teacher.
+     * @param \core\event\user_enrolment_created
+     */
+    public static function role_unassigned(\core\event\role_unassigned $event) {
+        $eventdata = $event->get_data();
+        $safeassign = new plagiarism_plugin_safeassign();
+        $safeassign->process_role_assignments($eventdata, 'delete');
+    }
+
 }

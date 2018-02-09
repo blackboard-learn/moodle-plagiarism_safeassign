@@ -50,7 +50,7 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
             'firstname' => 'Teacher',
             'lastname' => 'WhoTeaches'
         ]);
-        $teacherrole = $DB->get_record('role', array('shortname' => 'teacher'));
+        $teacherrole = $DB->get_record('role', array('shortname' => 'editingteacher'));
         $this->getDataGenerator()->enrol_user($this->teacher->id,
             $this->course->id,
             $teacherrole->id);
@@ -301,8 +301,13 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         $submissionurl = $testhelper->create_submission_url('123e4567-e89b-12d3-a456-426655440000',
             'c93e61c6-be1f-6c49-5c86-76d8f04f3f2f');
         testhelper::push_pair($submissionurl, 'create-submission-ok.json');
+        $safeassign = new plagiarism_plugin_safeassign();
+        $safeassign->set_course_instructors();
+        $this->assertTrue($DB->record_exists('plagiarism_safeassign_instr', array('courseid' => $this->course->id,
+            'synced' => 0, 'instructorid' => $this->teacher->id)));
         $task->execute();
-
+        $this->assertTrue($DB->record_exists('plagiarism_safeassign_instr', array('courseid' => $this->course->id,
+            'synced' => 1, 'instructorid' => $this->teacher->id)));
         $course = $DB->get_record('plagiarism_safeassign_course', array('courseid' => $this->course->id));
         $this->assertNotNull($course->uuid);
         $assignment = $DB->get_record('plagiarism_safeassign_assign', array('assignmentid' => $this->assigninstance->id));
