@@ -1240,57 +1240,62 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                          FROM {plagiarism_safeassign_course}';
             $courses = $DB->get_fieldset_sql($select);
         }
-        $contexts = array();
-        $params1 = array();
-        foreach ($courses as $course) {
-            $coursecontext = \context_course::instance($course);
-            $contexts[$coursecontext->id] = $course;
-            $params1[] = $coursecontext->id;
-        }
-        $admins = explode(',', get_config('plagiarism_safeassign', 'siteadmins'));
-        if (local::duringbehattesting() or local::duringphptesting()) {
-            $admins = explode(',', $CFG->siteadmins);
-        }
-        $select = 'SELECT id
+        if (!empty($courses)) {
+            $contexts = array();
+            $contextids = array();
+            foreach ($courses as $course) {
+                $coursecontext = \context_course::instance($course);
+                $contexts[$coursecontext->id] = $course;
+                $contextids[] = $coursecontext->id;
+            }
+            $admins = explode(',', get_config('plagiarism_safeassign', 'siteadmins'));
+            if (local::duringbehattesting() or local::duringphptesting()) {
+                $admins = explode(',', $CFG->siteadmins);
+            }
+            $select = 'SELECT id
                      FROM {role}
                     WHERE archetype = "editingteacher" OR archetype = "manager"';
-        $editingroles = $DB->get_fieldset_sql($select);
-
-        $sql = 'SELECT id, userid AS instructorid, contextid
+            $editingroles = $DB->get_fieldset_sql($select);
+            $sql = 'SELECT id, userid AS instructorid, contextid
                   FROM {role_assignments}
                  WHERE contextid ';
-        list($sql2, $params1) = $DB->get_in_or_equal($params1);
-        list($sql3, $editingroles) = $DB->get_in_or_equal($editingroles);
-        $sql4 = '';
-        $adminids = array();
-        if (count($admins) > 1) {
-            list($sql4, $adminids) = $DB->get_in_or_equal($admins, SQL_PARAMS_QM, 'param', false);
-            $users = $DB->get_records_sql($sql . $sql2 . ' AND roleid ' . $sql3 . ' AND userid ' . $sql4,
-                array_merge($params1, $editingroles, $adminids));
-        } else if (count($admins) == 1 && !empty($admins[0])) {
-            $users = $DB->get_records_sql($sql . $sql2 . ' AND roleid ' . $sql3 . ' AND userid <> ?',
-                array_merge($params1, $editingroles, $admins));
-        }
-        if ($users) {
-            foreach ($users as $user) {
-                $user->courseid = $contexts[$user->contextid];
-                unset($user->contextid);
-                unset($user->id);
+            list($sql2, $contextids) = $DB->get_in_or_equal($contextids);
+            $sql3 = '';
+            if (!empty($editingroles)) {
+                list($sql3, $editingroles) = $DB->get_in_or_equal($editingroles);
             }
-            foreach ($courses as $course) {
-                foreach ($admins as $admin) {
-                    $adminuser = new stdClass();
-                    $adminuser->instructorid = $admin;
-                    $adminuser->courseid = $course;
-                    $users[] = $adminuser;
+            $sql4 = '';
+            $adminids = array();
+            $users = array();
+            if (count($admins) > 1) {
+                list($sql4, $adminids) = $DB->get_in_or_equal($admins, SQL_PARAMS_QM, 'param', false);
+                $users = $DB->get_records_sql($sql . $sql2 . ' AND roleid ' . $sql3 . ' AND userid ' . $sql4,
+                    array_merge($contextids, $editingroles, $adminids));
+            } else if (count($admins) == 1 && !empty($admins[0])) {
+                $users = $DB->get_records_sql($sql . $sql2 . ' AND roleid ' . $sql3 . ' AND userid <> ?',
+                    array_merge($contextids, $editingroles, $admins));
+            }
+            if ($users) {
+                foreach ($users as $user) {
+                    $user->courseid = $contexts[$user->contextid];
+                    unset($user->contextid);
+                    unset($user->id);
                 }
-            }
-            // Only 1 record per user is needed, even if the user has multiple roles in a course.
-            $users = array_unique($users, SORT_REGULAR);
-            $DB->insert_records('plagiarism_safeassign_instr', $users);
-            // This should run only when the upgrade is applied.
-            if (!get_config('plagiarism_safeassign', 'synced_admins') && !empty($admins)) {
-                set_config('syncedadmins', $CFG->siteadmins, 'plagiarism_safeassign');
+                foreach ($courses as $course) {
+                    foreach ($admins as $admin) {
+                        $adminuser = new stdClass();
+                        $adminuser->instructorid = $admin;
+                        $adminuser->courseid = $course;
+                        $users[] = $adminuser;
+                    }
+                }
+                // Only 1 record per user is needed, even if the user has multiple roles in a course.
+                $users = array_unique($users, SORT_REGULAR);
+                $DB->insert_records('plagiarism_safeassign_instr', $users);
+                // This should run only when the upgrade is applied.
+                if (!get_config('plagiarism_safeassign', 'synced_admins') && !empty($admins)) {
+                    set_config('syncedadmins', $CFG->siteadmins, 'plagiarism_safeassign');
+                }
             }
         }
     }
