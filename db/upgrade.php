@@ -23,6 +23,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+global $CFG;
+require_once($CFG->dirroot . '/plagiarism/safeassign/lib.php');
+
 /**
  * Updates SafeAssign data model.
  * @param int $oldversion
