@@ -287,12 +287,20 @@ function xmldb_plagiarism_safeassign_upgrade($oldversion) {
 
         // Safeassign savepoint reached.
         upgrade_plugin_savepoint(true, 2017121502, 'plagiarism', 'safeassign');
+    }
 
+    if ($oldversion < 2017121503) {
+
+        $table = new xmldb_table('plagiarism_safeassign_instr');
+        // Update the 'plagiarism_safeassign_instr' table with course instructors and site admins.
         if ($dbman->table_exists($table)) {
             set_config('siteadmins', $CFG->siteadmins, 'plagiarism_safeassign');
             $safeassign = new plagiarism_plugin_safeassign();
             $safeassign->set_course_instructors();
         }
+
+        // Safeassign savepoint reached.
+        upgrade_plugin_savepoint(true, 2017121503, 'plagiarism', 'safeassign');
     }
 
     return true;
