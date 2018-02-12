@@ -1236,8 +1236,9 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
 
         $courses = array($courseid);
         if (is_null($courseid)) {
-            $select = 'SELECT courseid
-                         FROM {plagiarism_safeassign_course}';
+            $select = 'SELECT sa_course.courseid
+                         FROM {plagiarism_safeassign_course} sa_course
+                         JOIN {course} c ON c.id = sa_course.courseid';
             $courses = $DB->get_fieldset_sql($select);
         }
         if (!empty($courses)) {
