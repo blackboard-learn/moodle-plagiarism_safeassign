@@ -104,20 +104,6 @@ class plagiarism_setup_form extends moodleform {
         $mform->addElement('html', get_string('safeassign_cachedefault', 'plagiarism_safeassign'));
         $mform->addElement('submit', 'test_credentials', get_string('test_credentials', 'plagiarism_safeassign'), null);
 
-        if (!empty($CFG->plagiarism_safeassign_display_general_settings)) {
-
-            $mform->addElement('header', 'moodle', get_string('general'));
-
-            $mform->addElement('text', 'safeassign_institutioninfo',
-                get_string('safeassign_institutioninfo', 'plagiarism_safeassign'));
-            $mform->addRule('safeassign_institutioninfo', null, 'required', null, 'client');
-            $mform->setType('safeassign_institutioninfo', PARAM_TEXT);
-
-            $mform->addElement('text', 'safeassign_contactemail', get_string('safeassign_contactemail', 'plagiarism_safeassign'));
-            $mform->addRule('safeassign_contactemail', null, 'required', null, 'client');
-            $mform->setType('safeassign_contactemail', PARAM_EMAIL);
-        }
-
         $mform->addElement('header', 'moodle', get_string('settings', 'plagiarism_safeassign'));
         $mform->addElement('html', get_string('disclaimer', 'plagiarism_safeassign'));
         $mform->addElement('checkbox', 'safeassign_referencedbactivity',

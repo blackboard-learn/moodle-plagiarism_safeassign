@@ -50,12 +50,7 @@ $string['safeassign_student_username_help'] = "Student's shared key provided by 
 $string['safeassign_student_password'] = 'Shared secret';
 $string['safeassign_student_password_help'] = "Student's shared secret provided by SafeAssign.";
 $string['safeassign_enableplugin'] = 'Enable SafeAssign for {$a}';
-$string['safeassign_institutioninfo'] = 'Institution name: ';
 $string['safeassign_cachedefault'] = '<div class="form-defaultinfo text-muted">&nbsp Default value: 0</div> <br>';
-$string['safeassign_contactname'] = 'Contact First Name: ';
-$string['safeassign_contactlastname'] = 'Contact Last Name: ';
-$string['safeassign_contactemail'] = 'Contact Email: ';
-$string['safeassign_contactjob'] = 'Contact Job Title: ';
 $string['safeassign_showid'] = 'Show Student ID';
 $string['safeassign_alloworganizations'] = 'Allow SafeAssignments in Organizations';
 $string['safeassign_referencedbactivity'] = '<a href="https://help.blackboard.com/Learn/Instructor/Assignments/SafeAssign#global_reference" target="_blank">Global Reference Database</a> Activity';
