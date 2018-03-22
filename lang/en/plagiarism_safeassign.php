@@ -125,6 +125,8 @@ $string['agree_continue'] = 'Agree and Save';
 
 $string['safeassign_file_not_supported'] = 'Not supported.';
 $string['safeassign_file_not_supported_help'] = 'The file extension is not supported by SafeAssign or the file size exceeds maximum capacity.';
+$string['safeassign_submission_not_supported'] = 'This submission will not be reviewed by SafeAssign.';
+$string['safeassign_submission_not_supported_help'] = 'Submissions created by course instructors are not sent to SafeAssign.';
 $string['safeassign_file_in_review'] = 'SafeAssign Originality Report in progress...';
 $string['safeassign_file_similarity_score'] = 'SafeAssign score: {$a}%<br>';
 $string['safeassign_link_originality_report'] = 'View originality report';
