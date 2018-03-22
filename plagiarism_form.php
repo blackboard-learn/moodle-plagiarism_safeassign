@@ -104,6 +104,19 @@ class plagiarism_setup_form extends moodleform {
         $mform->addElement('html', get_string('safeassign_cachedefault', 'plagiarism_safeassign'));
         $mform->addElement('submit', 'test_credentials', get_string('test_credentials', 'plagiarism_safeassign'), null);
 
+        $systemcontext = context_system::instance();
+        $roles = array();
+        $roles[0] = get_string('none');
+        $systemroles = get_assignable_roles($systemcontext);
+        foreach ($systemroles as $systemroleid => $systemrolename) {
+            $roles[$systemroleid] = $systemrolename;
+        }
+        $select = $mform->addElement('select', 'safeassign_additional_roles', get_string('safeassign_additionalroles',
+            'plagiarism_safeassign'), $roles);
+        $mform->addHelpButton('safeassign_additional_roles', 'safeassign_additionalroles', 'plagiarism_safeassign');
+        $mform->setType('safeassign_additional_roles', PARAM_INT);
+        $select->setMultiple(true);
+
         $mform->addElement('header', 'moodle', get_string('settings', 'plagiarism_safeassign'));
         $mform->addElement('html', get_string('disclaimer', 'plagiarism_safeassign'));
         $mform->addElement('checkbox', 'safeassign_referencedbactivity',

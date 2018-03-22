@@ -37,6 +37,9 @@ $string['safeassign:enable'] = 'Allow the teacher to enable/disable SafeAssign i
 $string['safeassign:report'] = 'Allow viewing the originality report from SafeAssign';
 $string['usesafeassign'] = 'Enable SafeAssign';
 $string['savedconfigsuccess'] = 'Plagiarism Settings Saved';
+$string['safeassign_additionalroles'] = 'Additional roles';
+$string['safeassign_additionalroles_help'] = 'Users with these roles at system level will be added to each SafeAssign
+course as instructors.';
 $string['safeassign_api'] = 'SafeAssign integration URL';
 $string['safeassign_api_help'] = 'This is the address of the SafeAssign API.';
 $string['instructor_role_credentials'] = 'Instructor Role Credentials';
