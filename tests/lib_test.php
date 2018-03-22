@@ -223,6 +223,112 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
     }
 
     /**
+     * Test additional roles configuration.
+     */
+    public function test_additional_roles() {
+        global $DB;
+        $this->resetAfterTest(true);
+        $this->getDataGenerator()->create_role(['name' => 'Dean', 'shortname' => 'dean', 'archetype' => 'manager']);
+        $manager = $DB->get_record('role', array('shortname' => 'manager', 'archetype' => 'manager'));
+        $dean = $DB->get_record('role', array('shortname' => 'dean', 'archetype' => 'manager'));
+
+        $course1 = $this->getDataGenerator()->create_course();
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_assign');
+        $this->teacher = $this->getDataGenerator()->create_user([
+            'firstname' => 'Teacher',
+            'lastname' => 'WhoTeaches']);
+        $editingteacherrole = $DB->get_record('role', array('shortname' => 'editingteacher'));
+        $this->getDataGenerator()->enrol_user($this->teacher->id, $course1->id, $editingteacherrole->id);
+        $instance = $generator->create_instance(array('course' => $course1->id));
+        $cm = get_coursemodule_from_instance('assign', $instance->id);
+
+        // Create an activity with SafeAssign enabled.
+        $data = new stdClass();
+        $data->coursemodule = $cm->id;
+        $data->safeassign_enabled = 1;
+        $data->course = $course1->id;
+        $data->instance = $instance->id;
+        $safeassign = new plagiarism_plugin_safeassign();
+        $safeassign->save_form_elements($data);
+        // Teacher and admin should be there.
+        $this->assertCount(2, $DB->get_records('plagiarism_safeassign_instr'));
+        // Now add the roles that are going to be synced.
+        $roles = array();
+        $roles[] = $manager->id;
+        $roles[] = $dean->id;
+        $roles = implode(',', $roles);
+        set_config('safeassign_additional_roles', $roles, 'plagiarism_safeassign');
+
+        // Emulate SA task.
+        $additionalroles = get_config('plagiarism_safeassign', 'safeassign_additional_roles');
+        $syncedroles = get_config('plagiarism_safeassign', 'safeassign_synced_roles');
+        $safeassign->set_additional_role_users($additionalroles, $syncedroles);
+
+        $systemcontext = context_system::instance();
+        // Still have 2 users since enrolments at site level have not been created.
+        $this->assertCount(2, $DB->get_records('plagiarism_safeassign_instr'));
+        $deanuser = $this->getDataGenerator()->create_user();
+        role_assign($dean->id, $deanuser->id, $systemcontext->id);
+        $manageruser = $this->getDataGenerator()->create_user();
+        role_assign($manager->id, $manageruser->id, $systemcontext->id);
+
+        // We should have 4 records.
+        $this->assertCount(4, $DB->get_records('plagiarism_safeassign_instr'));
+        $this->assertTrue($DB->record_exists('plagiarism_safeassign_instr',
+            array('instructorid' => $deanuser->id, 'courseid' => $course1->id)));
+        $this->assertTrue($DB->record_exists('plagiarism_safeassign_instr',
+            array('instructorid' => $manageruser->id, 'courseid' => $course1->id)));
+
+        // Test role assignment for synced roles.
+        $deanuser2 = $this->getDataGenerator()->create_user();
+        // Multirole test.
+        role_assign($dean->id, $deanuser2->id, $systemcontext->id);
+        // New record for the tracked role user.
+        $this->assertCount(5, $DB->get_records('plagiarism_safeassign_instr'));
+        $this->assertTrue($DB->record_exists('plagiarism_safeassign_instr',
+            array('instructorid' => $deanuser2->id, 'courseid' => $course1->id)));
+        // Enrol the same user in the existing course.
+        $this->getDataGenerator()->enrol_user($deanuser2->id, $course1->id, $editingteacherrole->id);
+        // No new record should be added.
+        $this->assertCount(5, $DB->get_records('plagiarism_safeassign_instr'));
+        // The second dean user lost his role at system level.
+        role_unassign($dean->id, $deanuser2->id, $systemcontext->id);
+        // Record should exist since the user still has an active enrolment as editing teacher at course level.
+        $this->assertCount(5, $DB->get_records('plagiarism_safeassign_instr'));
+        $this->assertTrue($DB->record_exists('plagiarism_safeassign_instr',
+            array('instructorid' => $deanuser2->id, 'courseid' => $course1->id)));
+        $course1context = context_course::instance($course1->id);
+        role_unassign($editingteacherrole->id, $deanuser2->id, $course1context->id);
+        $this->assertCount(4, $DB->get_records('plagiarism_safeassign_instr'));
+        $this->assertFalse($DB->record_exists('plagiarism_safeassign_instr',
+            array('instructorid' => $deanuser2->id, 'courseid' => $course1->id)));
+        // Dean role elminated, users with that role should be deleted.
+        set_config('safeassign_additional_roles', $manager->id, 'plagiarism_safeassign');
+        $additionalroles = get_config('plagiarism_safeassign', 'safeassign_additional_roles');
+        $syncedroles = get_config('plagiarism_safeassign', 'safeassign_synced_roles');
+        $safeassign->set_additional_role_users($additionalroles, $syncedroles);
+        $this->assertCount(3, $DB->get_records('plagiarism_safeassign_instr'));
+        $this->assertFalse($DB->record_exists('plagiarism_safeassign_instr',
+            array('instructorid' => $deanuser->id, 'courseid' => $course1->id)));
+
+        // Test role deletion.
+        delete_role($manager->id);
+        // Users with that role should be deleted from the instructors table.
+        $this->assertFalse($DB->record_exists('plagiarism_safeassign_instr', array('instructorid' => $manageruser->id)));
+
+        // Emulate sync task.
+        set_config('safeassign_additional_roles', $dean->id, 'plagiarism_safeassign');
+        $additionalroles = get_config('plagiarism_safeassign', 'safeassign_additional_roles');
+        $syncedroles = get_config('plagiarism_safeassign', 'safeassign_synced_roles');
+        $safeassign->set_additional_role_users($additionalroles, $syncedroles);
+        $DB->set_field('plagiarism_safeassign_instr', 'synced', 1, array('synced' => 0));
+        delete_role($dean->id);
+        // The remaining dean user should be marked as unenrolled.
+        $this->assertTrue($DB->record_exists('plagiarism_safeassign_instr',
+            array('instructorid' => $deanuser->id, 'unenrolled' => 1)));
+    }
+
+    /**
      * Builds a submitted file object.
      * @param int $userid ID of the user.
      * @param int $cmid course module ID.

@@ -303,6 +303,16 @@ function xmldb_plagiarism_safeassign_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2017121503, 'plagiarism', 'safeassign');
     }
 
+    if ($oldversion < 2017121504) {
+
+        // New setting field to store the record id for system roles which will be synced as instructors on each course.
+        set_config('safeassign_additional_roles', '', 'plagiarism_safeassign');
+        set_config('safeassign_synced_roles', '', 'plagiarism_safeassign');
+
+        // Safeassign savepoint reached.
+        upgrade_plugin_savepoint(true, 2017121504, 'plagiarism', 'safeassign');
+    }
+
     return true;
 
 }

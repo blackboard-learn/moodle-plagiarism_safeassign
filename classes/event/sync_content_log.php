@@ -72,11 +72,19 @@ class sync_content_log extends base {
     public function get_description() {
         if ($this->other['resource'] === 'error') {
             $message = $this->other['message'];
-        } else if ($this->other['resource'] === 'delete') {
+        } else if ($this->other['resource'] === 'delete submissions') {
             if (empty($this->other['message'])) {
                 $message = 'Submissions deleted from SafeAssign: ' . $this->other['itemid'];
             } else {
                 $message = 'An error occurred trying to delete the submission with UUID: '. $this->other['itemid'];
+                $message .= '<br>' . $this->other['message'];
+            }
+        } else if ($this->other['resource'] === 'delete instructor') {
+            if (empty($this->other['message'])) {
+                $message = 'SafeAssign sync task ran successfully.<br>';
+                $message .= 'Instructors deleted from SafeAssign: ' . $this->other['itemid'];
+            } else {
+                $message = 'An error occurred trying to delete the instructor with ID: '. $this->other['itemid'];
                 $message .= '<br>' . $this->other['message'];
             }
         } else {

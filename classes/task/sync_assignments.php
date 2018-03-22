@@ -79,7 +79,13 @@ class sync_assignments extends \core\task\scheduled_task {
                     if ($CFG->siteadmins != get_config('plagiarism_safeassign', 'siteadmins')) {
                         $safeassign->set_siteadmins();
                     }
+                    $additionalroles = get_config('plagiarism_safeassign', 'safeassign_additional_roles');
+                    $syncedroles = get_config('plagiarism_safeassign', 'safeassign_synced_roles');
+                    if ($additionalroles != $syncedroles) {
+                        $safeassign->set_additional_role_users($additionalroles, $syncedroles);
+                    }
                     $safeassign->sync_instructors();
+                    $safeassign->delete_instructors();
                 } else {
                     $event = serv_unavailable_log::create();
                     $event->trigger();

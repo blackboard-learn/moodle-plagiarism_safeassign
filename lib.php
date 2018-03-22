@@ -1145,12 +1145,12 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                     $params['Submission UUID'] = $submission->uuid;
                     $params['Url'] = $baseurl . '/api/v1/submissions/' . $submission->uuid;
                 }
-                $event = sync_content_log::create_log_message('delete', $submission->uuid, true, null, $params);
+                $event = sync_content_log::create_log_message('delete submissions', $submission->uuid, true, null, $params);
                 $event->trigger();
             }
         }
         if ($count > 0) {
-            $event = sync_content_log::create_log_message('delete', $count, false);
+            $event = sync_content_log::create_log_message('delete submissions', $count, false);
             $event->trigger();
         }
     }
@@ -1235,12 +1235,15 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         global $DB, $CFG;
 
         $courses = array($courseid);
+        // This should run only for backwards compatibility (old courses).
         if (is_null($courseid)) {
             $select = 'SELECT sa_course.courseid
                          FROM {plagiarism_safeassign_course} sa_course
                          JOIN {course} c ON c.id = sa_course.courseid';
             $courses = $DB->get_fieldset_sql($select);
         }
+
+        // Handle creation for new course.
         if (!empty($courses)) {
             $contexts = array();
             $contextids = array();
@@ -1249,14 +1252,20 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 $contexts[$coursecontext->id] = $course;
                 $contextids[] = $coursecontext->id;
             }
-            $admins = explode(',', get_config('plagiarism_safeassign', 'siteadmins'));
-            if (local::duringbehattesting() or local::duringphptesting()) {
+
+            $admins = get_config('plagiarism_safeassign', 'siteadmins');
+            if ($admins) {
+                $admins = explode(',', $admins);
+            } else {
+                // First time SA is being used.
                 $admins = explode(',', $CFG->siteadmins);
             }
             $select = 'SELECT id
                      FROM {role}
                     WHERE archetype = "editingteacher" OR archetype = "manager"';
             $editingroles = $DB->get_fieldset_sql($select);
+
+            // Get the enrolled users.
             $sql = 'SELECT id, userid AS instructorid, contextid
                   FROM {role_assignments}
                  WHERE contextid ';
@@ -1268,20 +1277,36 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $sql4 = '';
             $adminids = array();
             $users = array();
-            if (count($admins) > 1) {
-                list($sql4, $adminids) = $DB->get_in_or_equal($admins, SQL_PARAMS_QM, 'param', false);
-                $users = $DB->get_records_sql($sql . $sql2 . ' AND roleid ' . $sql3 . ' AND userid ' . $sql4,
-                    array_merge($contextids, $editingroles, $adminids));
-            } else if (count($admins) == 1 && !empty($admins[0])) {
-                $users = $DB->get_records_sql($sql . $sql2 . ' AND roleid ' . $sql3 . ' AND userid <> ?',
-                    array_merge($contextids, $editingroles, $admins));
+            $users = $DB->get_records_sql($sql . $sql2 . ' AND roleid ' . $sql3, array_merge($contextids, $editingroles));
+
+            // Check what additional system roles should be added to each course.
+            $additionalroles = get_config('plagiarism_safeassign', 'safeassign_additional_roles');
+            $plususers = array();
+            if (!empty($additionalroles)) {
+                // Since the id is being introduced by DB, we still need to validate.
+                $select = 'SELECT *
+                             FROM {role}
+                            WHERE id ';
+                $sql5 = '';
+                $params = array();
+                list($sql5, $params) = $DB->get_in_or_equal($additionalroles);
+                $plusroles = $DB->get_records_sql($select . $sql5, $params);
+                $context = context_system::instance();
+                foreach ($plusroles as $plusrole) {
+                    foreach (get_users_from_role_on_context($plusrole, $context) as $user) {
+                        $plususers[] = $user;
+                    }
+                }
             }
             if ($users) {
+                // We handle first enrolled users.
                 foreach ($users as $user) {
                     $user->courseid = $contexts[$user->contextid];
                     unset($user->contextid);
                     unset($user->id);
                 }
+
+                // Now we handle site administrators and additional roles provided in the settings.
                 foreach ($courses as $course) {
                     foreach ($admins as $admin) {
                         $adminuser = new stdClass();
@@ -1289,11 +1314,17 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                         $adminuser->courseid = $course;
                         $users[] = $adminuser;
                     }
+                    foreach ($plususers as $plususer) {
+                        $plususer2 = new stdClass();
+                        $plususer2->instructorid = $plususer->userid;
+                        $plususer2->courseid = $course;
+                        $users[] = $plususer2;
+                    }
                 }
-                // Only 1 record per user is needed, even if the user has multiple roles in a course.
+                // Only 1 record per user is needed, even if the user has multiple roles in a course EG: admin/teacher.
                 $users = array_unique($users, SORT_REGULAR);
                 $DB->insert_records('plagiarism_safeassign_instr', $users);
-                // This should run only when the upgrade is applied.
+                // This should run only when the upgrade is applied or SA is being used for first time.
                 if (!get_config('plagiarism_safeassign', 'synced_admins') && !empty($admins)) {
                     set_config('syncedadmins', $CFG->siteadmins, 'plagiarism_safeassign');
                 }
@@ -1312,23 +1343,106 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                      FROM {role}
                     WHERE archetype = "editingteacher" OR archetype = "manager"';
         $editingroles = $DB->get_fieldset_sql($select);
-        if ($DB->record_exists('plagiarism_safeassign_course', array('courseid' => $data['courseid'])) &&
-            in_array($data['objectid'], $editingroles) && !empty($editingroles)) {
+        $systemcontext = context_system::instance();
+        $additionalroles = explode(',', get_config('plagiarism_safeassign', 'safeassign_additional_roles'));
+        if (($DB->record_exists('plagiarism_safeassign_course', array('courseid' => $data['courseid'])) &&
+            in_array($data['objectid'], $editingroles) && !empty($editingroles)) ||
+            ($data['contextid'] == $systemcontext->id) && in_array($data['objectid'], $additionalroles)) {
+
             if ($eventtype === 'create') {
-                $record = $DB->get_record('plagiarism_safeassign_instr', array('courseid' => $data['courseid'],
-                    'instructorid' => $data['relateduserid']));
-                if ($record === false) {
-                    $user = new stdClass();
-                    $user->instructorid = $data['relateduserid'];
-                    $user->courseid = $data['courseid'];
-                    $DB->insert_record('plagiarism_safeassign_instr', $user);
-                } else if ($record->id) {
-                    $record->synced = 0;
-                    $record->unenrolled = 0;
-                    $DB->update_record('plagiarism_safeassign_instr', $record);
+                if ($systemcontext->id == $data['contextid']) {
+                    // Process system level enrollment.
+                    $role = $DB->get_record('role', array('id' => $data['objectid']));
+                    $sql = 'SELECT courseid
+                              FROM {plagiarism_safeassign_instr}
+                             WHERE courseid NOT IN (SELECT courseid
+                                                      FROM {plagiarism_safeassign_instr}
+                                                     WHERE instructorid = ? GROUP BY courseid)
+                          GROUP BY courseid';
+                    // Get the courses in which the user is not in.
+                    $pendingcourses = $DB->get_records_sql($sql, array($data['relateduserid']));
+                    if ($pendingcourses) {
+                        $users = array();
+                        foreach ($pendingcourses as $pendingcourse) {
+                            $user = new stdClass();
+                            $user->courseid = $pendingcourse->courseid;
+                            $user->instructorid = $data['relateduserid'];
+                            $users[] = $user;
+                        }
+                        $DB->insert_records('plagiarism_safeassign_instr', $users);
+                    }
+                } else {
+                    $record = $DB->get_record('plagiarism_safeassign_instr', array('courseid' => $data['courseid'],
+                        'instructorid' => $data['relateduserid']));
+                    if ($record === false) {
+                        $user = new stdClass();
+                        $user->instructorid = $data['relateduserid'];
+                        $user->courseid = $data['courseid'];
+                        $DB->insert_record('plagiarism_safeassign_instr', $user);
+                    } else if ($record->id) {
+                        $record->synced = 0;
+                        $record->unenrolled = 0;
+                        $DB->update_record('plagiarism_safeassign_instr', $record);
+                    }
                 }
+
             } else if ($eventtype === 'delete') {
-                if ($DB->record_exists('plagiarism_safeassign_course', array('courseid' => $data['courseid'])) &&
+                if ($systemcontext->id == $data['contextid']) {
+                    $users = array();
+                    $sql = 'SELECT id
+                          FROM {role}
+                          WHERE id ';
+                    $sql2 = '';
+                    $params = array();
+                    list($sql2, $params) = $DB->get_in_or_equal($additionalroles);
+                    $roles = $DB->get_records_sql($sql . $sql2, $params);
+                    foreach ($roles as $role) {
+                        $users = array_merge($users, get_users_from_role_on_context($role, $systemcontext));
+                    }
+                    $userids = array_map(create_function('$o', 'return $o->userid;'), $users);
+                    if (!in_array($data['relateduserid'], $userids)) {
+                        // Find user enrollemnts in all SafeAssign courses.
+                        $sql = 'SELECT sa_c.courseid
+                                  FROM {plagiarism_safeassign_course} sa_c
+                                  JOIN {course} c ON c.id = sa_c.courseid';
+                        $courses = $DB->get_fieldset_sql($sql);
+                        $params = array();
+                        $params[] = $data['relateduserid'];
+                        $params[] = CONTEXT_COURSE;
+                        $params[] = $data['relateduserid'];
+                        $sql2 = '';
+                        list($sql2, $editingroles) = $DB->get_in_or_equal($editingroles);
+                        $sql3 = '';
+                        list($sql3, $courses) = $DB->get_in_or_equal($courses);
+                        $sql = 'SELECT *
+                                  FROM {plagiarism_safeassign_instr} sa_instr
+                                 WHERE sa_instr.instructorid = ?
+                                       AND NOT EXISTS (
+                                       SELECT 1
+                                         FROM {plagiarism_safeassign_course} sa_c
+                                         JOIN {context} ctx ON ctx.instanceid = sa_c.courseid
+                                              AND ctx.contextlevel = ?
+                                         JOIN {role_assignments} ra ON ctx.id = ra.contextid
+                                        WHERE ra.userid = ?
+                                              AND ra.roleid '. $sql2 .
+                                            ' AND sa_c.courseid '. $sql3 .
+                                            ' AND sa_instr.courseid = sa_c.courseid)';
+                        $params = array_merge($params, $editingroles, $courses);
+                        $notenrollcourses = $DB->get_records_sql($sql, $params);
+                        if ($notenrollcourses) {
+                            foreach ($notenrollcourses as $notenrollcourse) {
+                                if ($notenrollcourse->synced == 1) {
+                                    $notenrollcourse->unenrolled = 1;
+                                    $DB->update_record('plagiarism_safeassign_instr', $notenrollcourse);
+                                } else {
+                                    $DB->delete_records('plagiarism_safeassign_instr',
+                                        array('id' => $notenrollcourse->id));
+                                }
+                            }
+                        }
+                    }
+
+                } else if ($DB->record_exists('plagiarism_safeassign_course', array('courseid' => $data['courseid'])) &&
                     in_array($data['objectid'], $editingroles)
                 ) {
                     $record = $DB->get_record('plagiarism_safeassign_instr', array('courseid' => $data['courseid'],
@@ -1433,6 +1547,195 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $DB->insert_records('plagiarism_safeassign_instr', $records);
             set_config('siteadmins', $CFG->siteadmins, 'plagiarism_safeassign');
             set_config('syncedadmins', $CFG->siteadmins, 'plagiarism_safeassign');
+        }
+    }
+
+    /**
+     * Checks if there is a new additional role and creates records in plagiarism_safeassign_instr for new users.
+     * @param string $additionalroles - Gotten from the config_plugins table which containes the user roles to sync.
+     * @param string $syncedroles - Value from config_plugins that indicates the additional synced roles.
+     */
+    public function set_additional_role_users($additionalroles, $syncedroles) {
+        global $DB;
+
+        $additionalroles = explode(',', $additionalroles);
+        $syncedroles = explode(',', $syncedroles);
+
+        $newroles = array_diff($additionalroles, $syncedroles);
+        $deletedroles = array_diff($syncedroles, $additionalroles);
+        $systemcontext = context_system::instance();
+        $sql = 'SELECT sa_c.courseid
+                  FROM {plagiarism_safeassign_course} sa_c
+                  JOIN {course} c ON c.id = sa_c.courseid';
+        // Update or create only existing courses.
+        $courses = $DB->get_fieldset_sql($sql);
+        if (!empty($newroles) && !empty($courses)) {
+            $sql = 'SELECT *
+                    FROM {role}
+                    WHERE id ';
+            $sql2 = '';
+            list($sql2, $newroles) = $DB->get_in_or_equal($newroles);
+            $roles = $DB->get_records_sql($sql . $sql2, $newroles);
+            $users = array();
+            foreach ($roles as $role) {
+                $users = array_merge($users, get_users_from_role_on_context($role, $systemcontext));
+            }
+            if (!empty($users)) {
+                // All users from the new roles.
+                $userids = array_map(create_function('$o', 'return $o->userid;'), $users);
+                $userids = array_unique($userids, SORT_REGULAR);
+                $sql = 'SELECT courseid
+                      FROM {plagiarism_safeassign_instr}
+                     WHERE instructorid = ?';
+                $sql2 = '';
+                list($sql2, $courses) = $DB->get_in_or_equal($courses);
+                $sql .= ' AND courseid ' . $sql2;
+                $pending = array();
+                $sqlupdate = 'UPDATE {plagiarism_safeassign_instr}
+                             SET synced = 0, unenrolled = 0, deleted = 0
+                           WHERE instructorid ';
+                $sqlupdatein = '';
+                $params = array();
+                list($sqlupdatein, $params) = $DB->get_in_or_equal($userids);
+                // If there are any records for the given user, sync them again.
+                $DB->execute($sqlupdate . $sqlupdatein, $params);
+                foreach ($userids as $userid) {
+                    $params = array_merge(array($userid), $courses);
+                    $pending[$userid] = array_diff($courses, $DB->get_fieldset_sql($sql, $params));
+
+                }
+                $records = array();
+                foreach ($pending as $userid => $courses) {
+                    foreach ($courses as $course) {
+                        $record = new stdClass();
+                        $record->instructorid = $userid;
+                        $record->courseid = $course;
+                        $records[] = $record;
+                    }
+                }
+                if (!empty($records)) {
+                    $DB->insert_records('plagiarism_safeassign_instr', $records);
+                }
+            }
+        }
+
+        if (!empty($deletedroles)) {
+
+            $sql = 'SELECT *
+                    FROM {role}
+                    WHERE id ';
+            $sql2 = '';
+            list($sql2, $newroles) = $DB->get_in_or_equal($additionalroles);
+            $roles = $DB->get_records_sql($sql . $sql2, $additionalroles);
+            $existingusers = array();
+            // Get users from additional roles, so we don't affect multirole users.
+            foreach ($roles as $role) {
+                $existingusers = array_merge($existingusers, get_users_from_role_on_context($role, $systemcontext));
+            }
+            $existinguserids = array_map(create_function('$o', 'return $o->userid;'), $existingusers);
+            $existinguserids = array_unique($existinguserids, SORT_REGULAR);
+            $sql = 'SELECT *
+                    FROM {role}
+                    WHERE id ';
+            $sql2 = '';
+            list($sql2, $deletedroles) = $DB->get_in_or_equal($deletedroles);
+            $droles = $DB->get_records_sql($sql . $sql2, $deletedroles);
+            $users = array();
+            foreach ($droles as $drole) {
+                $users = array_merge($users, get_users_from_role_on_context($drole, $systemcontext));
+            }
+            $userids = array_map(create_function('$o', 'return $o->userid;'), $users);
+            $userids = array_unique($userids, SORT_REGULAR);
+            $userstodelete = array_diff($userids, $existinguserids);
+            if (!empty($userstodelete)) {
+                $select = 'SELECT id
+                     FROM {role}
+                    WHERE archetype = "editingteacher" OR archetype = "manager"';
+                $editingroles = $DB->get_fieldset_sql($select);
+                $inuserid = '';
+                list($inuserid, $userstodelete) = $DB->get_in_or_equal($userstodelete);
+                $sql2 = '';
+                list($sql2, $editingroles) = $DB->get_in_or_equal($editingroles);
+                // Find if those users have active enrollments (manager or ediingteacher) in SA courses.
+                $sql = 'SELECT sa_c.courseid
+                                  FROM {plagiarism_safeassign_course} sa_c
+                                  JOIN {course} c ON c.id = sa_c.courseid';
+                $courses = $DB->get_fieldset_sql($sql);
+                $sql3 = '';
+                list($sql3, $courses) = $DB->get_in_or_equal($courses);
+                $sql = 'SELECT *
+                          FROM {plagiarism_safeassign_instr} sa_instr
+                         WHERE sa_instr.instructorid ' . $inuserid .
+                             ' AND NOT EXISTS (
+                                SELECT 1
+                                  FROM {plagiarism_safeassign_course} sa_c
+                                  JOIN {context} ctx ON ctx.instanceid = sa_c.courseid
+                                   AND ctx.contextlevel = ?
+                                  JOIN {role_assignments} ra ON ctx.id = ra.contextid
+                                 WHERE ra.userid ' . $inuserid .
+                                 ' AND ra.roleid '. $sql2 .
+                                 ' AND sa_c.courseid '. $sql3 .
+                                 ' AND sa_instr.courseid = sa_c.courseid)';
+                $params = array();
+                $params = array_merge($params, $userstodelete);
+                $params[] = CONTEXT_COURSE;
+                $params = array_merge($params, $userstodelete, $editingroles, $courses);
+                $notenrollcourses = $DB->get_records_sql($sql, $params);
+                if ($notenrollcourses) {
+                    foreach ($notenrollcourses as $notenrollcourse) {
+                        if ($notenrollcourse->synced == 1) {
+                            $notenrollcourse->unenrolled = 1;
+                            $DB->update_record('plagiarism_safeassign_instr', $notenrollcourse);
+                        } else {
+                            $DB->delete_records('plagiarism_safeassign_instr',
+                                array('id' => $notenrollcourse->id));
+                        }
+                    }
+                }
+            }
+        }
+        set_config('safeassign_synced_roles', implode(',', $additionalroles), 'plagiarism_safeassign');
+    }
+
+    /**
+     * Deletes the instructors that have lost a valid enrollment or a instructor role.
+     */
+    public function delete_instructors() {
+        global $DB, $CFG;
+
+        $sql = 'SELECT sa_inst.id, sa_inst.instructorid, sa_c.uuid
+                  FROM {plagiarism_safeassign_instr} sa_inst
+                  JOIN {plagiarism_safeassign_course} sa_c ON sa_c.courseid = sa_inst.courseid
+                 WHERE sa_c.uuid IS NOT NULL
+                       AND sa_inst.synced = 1
+                       AND sa_inst.unenrolled = 1
+                       AND sa_inst.deleted = 0';
+
+        $instructors = $DB->get_records_sql($sql);
+        $count = 0;
+        $baseurl = get_config('plagiarism_safeassign', 'safeassign_api');
+        foreach ($instructors as $instructor) {
+            $response = safeassign_api::delete_instructor_from_course($instructor->instructorid, $instructor->uuid);
+            if ($response === true) {
+                $instructor->deleted = 1;
+                $DB->update_record('plagiarism_safeassign_instr', $instructor);
+                $count++;
+            } else {
+                // Log response.
+                $params = array();
+                if (!empty($CFG->plagiarism_safeassign_debugging)) {
+                    $params['Instructor id'] = $instructor->instructorid;
+                    $params['Course UUID'] = $instructor->uuid;
+                    $params['Url'] = $baseurl . '/api/v1/'. $instructor->uuid .'/members';
+                }
+                $event = sync_content_log::create_log_message('delete instructor', $instructor->instructorid, true, null, $params);
+                $event->trigger();
+
+            }
+        }
+        if ($count > 0) {
+            $event = sync_content_log::create_log_message('delete instructor', $count, false);
+            $event->trigger();
         }
     }
 }

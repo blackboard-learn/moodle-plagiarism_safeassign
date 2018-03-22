@@ -347,6 +347,23 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         $deprecatedsubmission = $DB->get_record('plagiarism_safeassign_subm', array('deprecated' => '1'));
         $this->assertEquals('1', $deprecatedsubmission->deleted);
 
+        // Additional role configuration.
+        $this->getDataGenerator()->create_role(['name' => 'Dean', 'shortname' => 'dean', 'archetype' => 'manager']);
+        $manager = $DB->get_record('role', array('shortname' => 'manager', 'archetype' => 'manager'));
+        $dean = $DB->get_record('role', array('shortname' => 'dean', 'archetype' => 'manager'));
+        $deanuser = $this->getDataGenerator()->create_user();
+        $manageruser = $this->getDataGenerator()->create_user();
+        $systemcontext = context_system::instance();
+        role_assign($dean->id, $deanuser->id, $systemcontext->id);
+        role_assign($manager->id, $manageruser->id, $systemcontext->id);
+        $roles = array($manager->id, $dean->id);
+        $roles = implode(',', $roles);
+        set_config('safeassign_additional_roles', $roles, 'plagiarism_safeassign');
+        $task->execute();
+        $this->assertTrue($DB->record_exists('plagiarism_safeassign_instr', array('courseid' => $this->course->id,
+             'instructorid' => $deanuser->id)));
+        $this->assertTrue($DB->record_exists('plagiarism_safeassign_instr', array('courseid' => $this->course->id,
+             'instructorid' => $manageruser->id)));
     }
 
     /**
