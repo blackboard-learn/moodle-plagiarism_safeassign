@@ -1779,8 +1779,11 @@ function plagiarism_safeassign_pre_course_delete($course) {
                    SET unenrolled = 1
                  WHERE courseid = ?';
         $DB->execute($sql, array($course->id));
-    }
 
+        if ($DB->record_exists('plagiarism_safeassign_course', array('courseid' => $course->id, 'uuid' => null))) {
+            $DB->delete_records('plagiarism_safeassign_course', array('courseid' => $course->id));
+        }
+    }
 }
 
 /**
