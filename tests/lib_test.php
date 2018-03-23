@@ -326,6 +326,33 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         // The remaining dean user should be marked as unenrolled.
         $this->assertTrue($DB->record_exists('plagiarism_safeassign_instr',
             array('instructorid' => $deanuser->id, 'unenrolled' => 1)));
+
+        $course2 = $this->getDataGenerator()->create_course();
+        $this->getDataGenerator()->enrol_user($this->teacher->id, $course2->id, $editingteacherrole->id);
+        $instance2 = $generator->create_instance(array('course' => $course2->id));
+        $cm2 = get_coursemodule_from_instance('assign', $instance2->id);
+        $this->getDataGenerator()->create_role(['name' => 'New Dean', 'shortname' => 'newdean',
+            'archetype' => 'editingteacher']);
+
+        $newdean = $DB->get_record('role', array('shortname' => 'newdean', 'archetype' => 'editingteacher'));
+
+        $data = new stdClass();
+        $data->coursemodule = $cm2->id;
+        $data->safeassign_enabled = 1;
+        $data->course = $course2->id;
+        $data->instance = $instance2->id;
+        $safeassign = new plagiarism_plugin_safeassign();
+        $safeassign->save_form_elements($data);
+        $this->assertCount(5, $DB->get_records('plagiarism_safeassign_instr'));
+        set_config('safeassign_additional_roles', $newdean->id, 'plagiarism_safeassign');
+
+        // Emulate sync task.
+        $DB->set_field('plagiarism_safeassign_instr', 'synced', 1, array('synced' => 0));
+        delete_course($course2->id);
+        role_assign($newdean->id, $manageruser->id, $systemcontext->id);
+
+        // Only 1 record should exist, since we only have 1 existing course.
+        $this->assertCount(1, $DB->get_records('plagiarism_safeassign_instr', array('instructorid' => $manageruser->id)));
     }
 
     /**
