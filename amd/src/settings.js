@@ -174,6 +174,17 @@ define(['jquery', 'core/modal_factory', 'core/templates', 'core/str', 'core/noti
                     testCredentials('#student_result', '#student_credentials', studentUsername, studentPassword,
                         baseUrl, userId);
                 });
+
+                var cleanSelect = $('#id_safeassign_additional_roles');
+                if (cleanSelect.find('option').length > 1) {
+                    cleanSelect.change(function() {
+                        $( "option:selected" ).each(function() {
+                            if ($(this).val() == 0) {
+                                cleanSelect.val(0);
+                            }
+                        });
+                    });
+                }
             }
         };
     }

@@ -1,6 +1,7 @@
 #page-admin-plagiarism-safeassign-settings input[type="text"]:not(#id_safeassign_curlcache_number),
 #page-admin-plagiarism-safeassign-settings #id_safeassign_timezone,
-#page-admin-plagiarism-safeassign-settings #id_safeassign_api {
+#page-admin-plagiarism-safeassign-settings #id_safeassign_api,
+#page-admin-plagiarism-safeassign-settings #id_safeassign_additional_roles {
     width: 21em;
 }
 
