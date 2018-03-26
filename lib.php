@@ -1353,9 +1353,10 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 if ($systemcontext->id == $data['contextid']) {
                     // Process system level enrollment.
                     $role = $DB->get_record('role', array('id' => $data['objectid']));
-                    $sql = 'SELECT courseid
-                              FROM {plagiarism_safeassign_instr}
-                             WHERE courseid NOT IN (SELECT courseid
+                    $sql = 'SELECT sa_ins.courseid
+                              FROM {plagiarism_safeassign_instr} sa_ins
+                              JOIN {course} c ON c.id = sa_ins.courseid
+                             WHERE sa_ins.courseid NOT IN (SELECT courseid
                                                       FROM {plagiarism_safeassign_instr}
                                                      WHERE instructorid = ? GROUP BY courseid)
                           GROUP BY courseid';
