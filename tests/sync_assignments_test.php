@@ -398,6 +398,21 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
     }
 
     /**
+     * Test the deletion of a SafeAssign course that does not have a uuid.
+     */
+    public function test_deletion_course() {
+        global $DB;
+        $this->resetAfterTest(true);
+        $this->set_safeassign_records();
+        $course = $DB->get_record('plagiarism_safeassign_course', array('courseid' => $this->course->id));
+        $this->assertEquals(null, $course->uuid);
+        delete_course($this->course->id, false);
+        phpunit_util::run_all_adhoc_tasks();
+        $course = $DB->get_record('plagiarism_safeassign_course', array('courseid' => $this->course->id));
+        $this->assertFalse($course);
+    }
+
+    /**
      * Insert some SafeAssign records directly on the database.
      */
     public function set_safeassign_records() {
@@ -433,5 +448,6 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         $enablesafeassign->name = 'safeassign_enabled';
         $enablesafeassign->value = 1;
         $DB->insert_record('plagiarism_safeassign_config', $enablesafeassign);
+
     }
 }
