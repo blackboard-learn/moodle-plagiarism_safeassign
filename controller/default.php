@@ -59,7 +59,7 @@ class plagiarism_safeassign_controller_default extends mr_controller {
      * @return string - the html for the view action
      */
     public function view_action() {
-        global $OUTPUT, $USER, $CFG;
+        global $OUTPUT, $USER, $CFG, $DB;
         $courseid = required_param('courseid', PARAM_INT);
         $uuid = required_param('uuid', PARAM_ALPHANUMEXT);
         $fileuuid = optional_param('fileuuid', false, PARAM_ALPHANUMEXT);
@@ -69,7 +69,8 @@ class plagiarism_safeassign_controller_default extends mr_controller {
         }
 
         $isinstructor = false;
-        if (array_key_exists($USER->id, get_admins())) {
+        if (array_key_exists($USER->id, get_admins()) || $DB->record_exists('plagiarism_safeassign_instr',
+                array('instructorid' => $USER->id, 'courseid' => $courseid, 'unenrolled' => 0))) {
             $isinstructor = true;
         } else {
             // Login as teacher or instructor.
