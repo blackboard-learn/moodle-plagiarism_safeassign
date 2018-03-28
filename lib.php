@@ -153,10 +153,17 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      * @return string
      */
     private function get_message_result($file, $cm, array $courseconfiguration, $userid, $isonlinesubmission) {
-        global $USER, $OUTPUT, $COURSE, $PAGE;
+        global $USER, $OUTPUT, $COURSE, $PAGE, $DB;
 
         $onlinetextclass = $isonlinesubmission ? 'online-text-div' : '';
         $message = '<div class="plagiarism-inline ' . $onlinetextclass . '">';
+        if ($DB->record_exists('plagiarism_safeassign_instr', array('courseid' => $COURSE->id,
+                'instructorid' => $userid, 'unenrolled' => 0))) {
+            $message .= get_string('safeassign_submission_not_supported', 'plagiarism_safeassign');
+            $message .= $OUTPUT->help_icon('safeassign_submission_not_supported', 'plagiarism_safeassign');
+            $message .= '</div>';
+            return $message;
+        }
         if ($file['supported']) {
             if ($file['analyzed']) {
                 // We have a valid report for this file.
@@ -369,7 +376,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      * @return string $output - HTMl to be rendered.
      */
     public function print_disclosure($cmid) {
-        global $USER, $PAGE, $DB;
+        global $USER, $PAGE, $DB, $COURSE;
         $checked = false;
         $value = 0;
         $cmenabled = $DB->get_record('plagiarism_safeassign_config', array('cm' => $cmid, 'name' => 'safeassign_enabled'));
@@ -388,19 +395,25 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         if ($cmglobalref->value == 0) {
             $checkbox = html_writer::checkbox('agreement', $value, $checked, get_string('agreement', 'plagiarism_safeassign'));
         }
-        $institutionrelease = get_config('plagiarism_safeassign', 'safeassign_new_student_disclosure');
-        if (empty($institutionrelease)) {
-            $institutionrelease = '';
+        if ($DB->record_exists('plagiarism_safeassign_instr', array('courseid' => $COURSE->id,
+                'instructorid' => $USER->id, 'unenrolled' => 0))) {
+            $form = html_writer::tag('div', get_string('plagiarism_tools', 'plagiarism_safeassign'), array('class' => 'col-md-3'));
+            $form .= get_string('safeassign_submission_not_supported_help', 'plagiarism_safeassign');
         } else {
-            $institutionrelease .= '<br><br>';
+            $institutionrelease = get_config('plagiarism_safeassign', 'safeassign_new_student_disclosure');
+            if (empty($institutionrelease)) {
+                $institutionrelease = '';
+            } else {
+                $institutionrelease .= '<br><br>';
+            }
+            $institutionrelease .= get_string('files_accepted', 'plagiarism_safeassign');
+            $institutionrelease .= '<br><br>'.$checkbox;
+            $col1 = html_writer::tag('div', get_string('plagiarism_tools', 'plagiarism_safeassign'), array('class' => 'col-md-3'));
+            $col2 = html_writer::tag('div', $institutionrelease, array('class' => 'col-md-9'));
+            $output = html_writer::tag('div', $col1.$col2, array('class' => 'row generalbox boxaligncenter intro'));
+            $form = html_writer::tag('form', $output);
+            $PAGE->requires->js_call_amd('plagiarism_safeassign/disclosure', 'init', array($cmid, $USER->id));
         }
-        $institutionrelease .= get_string('files_accepted', 'plagiarism_safeassign');
-        $institutionrelease .= '<br><br>'.$checkbox;
-        $col1 = html_writer::tag('div', get_string('plagiarism_tools', 'plagiarism_safeassign'), array('class' => 'col-md-3'));
-        $col2 = html_writer::tag('div', $institutionrelease, array('class' => 'col-md-9'));
-        $output = html_writer::tag('div', $col1.$col2, array('class' => 'row generalbox boxaligncenter intro'));
-        $form = html_writer::tag('form', $output);
-        $PAGE->requires->js_call_amd('plagiarism_safeassign/disclosure', 'init', array($cmid, $USER->id));
         return $form;
     }
 
@@ -543,6 +556,8 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         if ($eventdata['objecttable'] === 'assignsubmission_onlinetext') {
             $submissionid = $eventdata['other']['submissionid'];
         }
+        $arrayconditions = array('courseid' => $eventdata['courseid'], 'instructorid' => $eventdata['userid'], 'unenrolled' => 0);
+        $isinstructor = $DB->record_exists('plagiarism_safeassign_instr', $arrayconditions);
 
         $submission = new stdClass();
         $submission->submissionid = $submissionid;
@@ -552,7 +567,8 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         $submission->submitted = 0;
         $submission->highscore = 0.0;
         $submission->avgscore = 0.0;
-        $submission->deprecated = 0;
+        // If we mark instructor's submission as deprecated, we avoid that the task tries to sync it continuously.
+        $submission->deprecated = $isinstructor ? 1 : 0;
         $submission->hasfile = (isset($params['hasfile'])) ? $params['hasfile'] : 0;
         $submission->hasonlinetext = (isset($params['hasonlinetext'])) ? $params['hasonlinetext'] : 0;
         $submission->timecreated = $eventdata['timecreated'];

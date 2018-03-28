@@ -121,3 +121,38 @@ Feature: Send an submission to a SafeAssign assignment
     And I follow "Assignment One"
     Then I should see "SafeAssign score"
     Then I log out
+
+    @javascript
+    Scenario: Submissions done by students that have also a role as teacher, whether an admin or not, display a warning.
+      Given the following "users" exist:
+        | username    | firstname  | lastname | email |
+        | multirole1  | Multi      | Role     | multirole@example.com |
+      And the following "course enrolments" exist:
+        | user       | course | role           |
+        | multirole1 | C1     | editingteacher |
+        | multirole1 | C1     | student        |
+        | admin      | C1     | editingteacher |
+        | admin      | C1     | student        |
+      And I log in as "multirole1"
+      And I am on "Course 1" course homepage
+      And I follow "Assignment One"
+      When I press "Add submission"
+      And I upload "lib/tests/fixtures/empty.txt" file to "File submissions" filemanager
+      And I should see "Submissions created by course instructors are not sent to SafeAssign"
+      And I press "Save changes"
+      Then I log out
+      And I log in as "admin"
+      And I am on "Course 1" course homepage
+      And I follow "Assignment One"
+      When I press "Add submission"
+      And I upload "lib/tests/fixtures/empty.txt" file to "File submissions" filemanager
+      And I should see "Submissions created by course instructors are not sent to SafeAssign"
+      And I press "Save changes"
+      Then I log out
+      Then I log in as "teacher1"
+      And I am on "Course 1" course homepage
+      And I follow "Assignment One"
+      And I navigate to "View all submissions" in current page administration
+      And I should see "This submission will not be reviewed by SafeAssign" in the "Multi Role" "table_row"
+      And I should see "This submission will not be reviewed by SafeAssign" in the "Admin User" "table_row"
+      Then I log out
