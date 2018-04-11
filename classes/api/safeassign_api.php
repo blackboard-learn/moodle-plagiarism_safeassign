@@ -511,4 +511,78 @@ abstract class safeassign_api {
         $result = self::generic_deletecall($url->out(false), $userid, true);
         return $result;
     }
+
+    /**
+     * The user accepts latest license or specified if present in request body, for his registration.
+     * @param string $userid
+     * @param string $acceptorfirstname
+     * @param string $acceptorlastname
+     * @param string $acceptoremail
+     * @param string $licenseversion
+     * @return bool | mixed
+     */
+    public static function accept_license($userid, $acceptorfirstname, $acceptorlastname, $acceptoremail, $licenseversion = '') {
+        $baseurl = get_config(self::PLUGIN, 'safeassign_api');
+        $putparams = array(
+            'acceptorFirstName' => $acceptorfirstname,
+            'acceptorLastName' => $acceptorlastname,
+            'acceptorEmail' => $acceptoremail
+        );
+        if (!empty($licenseversion)) {
+            $putparams['licenseVersionAccepted'] = $licenseversion;
+        }
+
+        $putdata = json_encode($putparams);
+        $url = new \moodle_url($baseurl . '/api/v1/licenses');
+        $result = self::generic_putcall($url->out(false), $userid, true, [], $putdata);
+        return $result;
+    }
+
+    /**
+     * The user revokes latest license or specified license if present in query, for his registration.
+     * @param string $userid
+     * @param string $licenseversion
+     * @return bool | mixed
+     */
+    public static function revoke_license($userid, $licenseversion = '') {
+        $baseurl = get_config(self::PLUGIN, 'safeassign_api');
+        if (empty($baseurl)) {
+            return false;
+        }
+        $url = new \moodle_url($baseurl . '/api/v1/licenses?license_version=' . $licenseversion);
+        $result = self::generic_deletecall($url->out(false), $userid, true);
+        return $result;
+    }
+
+    /**
+     * The user retrieves all accepted licenses for his registration.
+     * The licenseAccepted Timestamp precision: seconds.
+     * @param string $userid
+     * @return bool | mixed
+     */
+    public static function get_accepted_licenses($userid) {
+        $baseurl = get_config(self::PLUGIN, 'safeassign_api');
+        if (empty($baseurl)) {
+            return false;
+        }
+        $url = new \moodle_url($baseurl . '/api/v1/licenses/accepted');
+        $result = self::generic_getcall($url->out(false), $userid, true);
+        return $result;
+    }
+
+    /**
+     * The user retrieves all available licenses, consist of already accepted and unaccepted licenses.
+     * The licenseCreated Timestamp precision: seconds.
+     * @param string $userid
+     * @return bool | mixed
+     */
+    public static function get_licenses($userid) {
+        $baseurl = get_config(self::PLUGIN, 'safeassign_api');
+        if (empty($baseurl)) {
+            return false;
+        }
+        $url = new \moodle_url($baseurl . '/api/v1/licenses/all');
+        $result = self::generic_getcall($url->out(false), $userid, true);
+        return $result;
+    }
 }

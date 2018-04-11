@@ -597,4 +597,178 @@ class plagiarism_safeassign_safeassign_api_testcase_with_handling_class extends 
         self::assertFalse($resultc);
         self::assertNull($tokenc);
     }
+
+    /**
+     * Get all licenses test ok.
+     * @return void
+     */
+    public function test_get_licenses_ok() {
+        $this->resetAfterTest(true);
+        $this->config_set_ok();
+
+        $this->attempt_login('user-login-final.json');
+
+        $getlicenseurl = test_safeassign_api_connectors::create_get_licenses_url();
+        testhelper::push_pair($getlicenseurl, 'get-licenses-ok.json');
+        $result = safeassign_api::get_licenses($this->user->id);
+
+        $this->assertTrue(!empty($result));
+        $this->assertEquals(rest_provider::instance()->lasthttpcode(), 200);
+    }
+
+    /**
+     * Get all licenses test fail.
+     * @return void
+     */
+    public function test_get_licenses_fail() {
+        $this->resetAfterTest(true);
+        $this->config_set_ok();
+
+        $this->attempt_login('user-login-final.json');
+
+        $getlicenseurl = test_safeassign_api_connectors::create_get_licenses_url();
+        testhelper::push_pair($getlicenseurl, 'default-fail.json', 400);
+        $result = safeassign_api::get_licenses($this->user->id);
+
+        $this->assertFalse($result);
+        $this->assertTrue(rest_provider::instance()->lasthttpcode() >= 400);
+    }
+
+    /**
+     * Get accepted licenses test ok.
+     * @return void
+     */
+    public function test_get_accepted_licenses_ok() {
+        $this->resetAfterTest(true);
+        $this->config_set_ok();
+
+        $this->attempt_login('user-login-final.json');
+
+        $getlicenseurl = test_safeassign_api_connectors::create_get_accepted_licenses_url();
+        testhelper::push_pair($getlicenseurl, 'get-accepted-licenses-ok.json');
+        $result = safeassign_api::get_accepted_licenses($this->user->id);
+
+        $this->assertTrue(!empty($result));
+        $this->assertEquals(rest_provider::instance()->lasthttpcode(), 200);
+    }
+
+    /**
+     * Get accepted licenses test fail.
+     * @return void
+     */
+    public function test_get_accepted_licenses_fail() {
+        $this->resetAfterTest(true);
+        $this->config_set_ok();
+
+        $this->attempt_login('user-login-final.json');
+
+        $getlicenseurl = test_safeassign_api_connectors::create_get_accepted_licenses_url();
+        testhelper::push_pair($getlicenseurl, 'default-fail.json', 400);
+        $result = safeassign_api::get_accepted_licenses($this->user->id);
+
+        $this->assertFalse($result);
+        $this->assertTrue(rest_provider::instance()->lasthttpcode() >= 400);
+    }
+
+    /**
+     * Accept license test ok.
+     * @return void
+     */
+    public function test_accept_license_ok() {
+        $this->resetAfterTest(true);
+        $this->config_set_ok();
+
+        $this->attempt_login('user-login-final.json');
+
+        $acceptlicenseurl = test_safeassign_api_connectors::create_accept_license_url();
+        testhelper::push_pair($acceptlicenseurl, 'empty-file.json');
+        $result = safeassign_api::accept_license($this->user->id, 'John', 'Doe', 'john.doe@mail.com');
+
+        $this->assertTrue($result);
+        $this->assertEquals(rest_provider::instance()->lasthttpcode(), 200);
+
+        // Test using the license version.
+        $result = safeassign_api::accept_license($this->user->id, 'John', 'Doe', 'john.doe@mail.com', '123456');
+
+        $this->assertTrue($result);
+        $this->assertEquals(rest_provider::instance()->lasthttpcode(), 200);
+    }
+
+    /**
+     * Accept license test fail.
+     * @return void
+     */
+    public function test_accept_license_fail() {
+        $this->resetAfterTest(true);
+        $this->config_set_ok();
+
+        $this->attempt_login('user-login-final.json');
+
+        $acceptlicenseurl = test_safeassign_api_connectors::create_accept_license_url();
+        testhelper::push_pair($acceptlicenseurl, 'default-fail.json', 400);
+        $result = safeassign_api::accept_license($this->user->id, 'John', 'Doe', 'john.doe@mail.com');
+
+        $this->assertFalse($result);
+        $this->assertTrue(rest_provider::instance()->lasthttpcode() >= 400);
+
+        // Test using the license version.
+        $result = safeassign_api::accept_license($this->user->id, 'John', 'Doe', 'john.doe@mail.com', '123456');
+
+        $this->assertFalse($result);
+        $this->assertTrue(rest_provider::instance()->lasthttpcode() >= 400);
+    }
+
+    /**
+     * Revoke license test ok.
+     * @return void
+     */
+    public function test_revoke_license_ok() {
+        $this->resetAfterTest(true);
+        $this->config_set_ok();
+
+        $this->attempt_login('user-login-final.json');
+
+        $revokelicenseurl = test_safeassign_api_connectors::create_revoke_license_url();
+        testhelper::push_pair($revokelicenseurl, 'empty-file.json');
+        $result = safeassign_api::revoke_license($this->user->id);
+
+        $this->assertTrue($result);
+        $this->assertEquals(rest_provider::instance()->lasthttpcode(), 200);
+
+        // Test using license version.
+        $licenseversion = '123456';
+        $revokelicenseurl = test_safeassign_api_connectors::create_revoke_license_url($licenseversion);
+        testhelper::push_pair($revokelicenseurl, 'empty-file.json');
+        $result = safeassign_api::revoke_license($this->user->id, $licenseversion);
+
+        $this->assertTrue($result);
+        $this->assertEquals(rest_provider::instance()->lasthttpcode(), 200);
+    }
+
+    /**
+     * Revoke license test fail.
+     * @return void
+     */
+    public function test_revoke_license_fail() {
+        $this->resetAfterTest(true);
+        $this->config_set_ok();
+
+        $this->attempt_login('user-login-final.json');
+
+        $revokelicenseurl = test_safeassign_api_connectors::create_revoke_license_url();
+        testhelper::push_pair($revokelicenseurl, 'default-fail.json', 400);
+        $result = safeassign_api::revoke_license($this->user->id);
+
+        $this->assertFalse($result);
+        $this->assertTrue(rest_provider::instance()->lasthttpcode() >= 400);
+
+        // Test using license version.
+        $licenseversion = '123456';
+        $revokelicenseurl = test_safeassign_api_connectors::create_revoke_license_url($licenseversion);
+        testhelper::push_pair($revokelicenseurl, 'default-fail.json', 400);
+        $result = safeassign_api::revoke_license($this->user->id, $licenseversion);
+
+        $this->assertFalse($result);
+        $this->assertTrue(rest_provider::instance()->lasthttpcode() >= 400);
+    }
 }

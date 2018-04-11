@@ -247,4 +247,49 @@ abstract class test_safeassign_api_connectors {
         $resubmitfileurl = sprintf($resubmitfileurl, $baseapiurl, $submissionuuid);
         return $resubmitfileurl;
     }
+
+    /**
+     * Creates an url to get all licenses
+     * @return string
+     */
+    public static function create_get_licenses_url() {
+        $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
+        $getlicensesurl = '%s/api/v1/licenses/all';
+        $getlicensesurl = sprintf($getlicensesurl, $baseapiurl);
+        return $getlicensesurl;
+    }
+
+    /**
+     * Creates an url to get accepted licenses
+     * @return string
+     */
+    public static function create_get_accepted_licenses_url() {
+        $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
+        $getlicensesurl = '%s/api/v1/licenses/accepted';
+        $getlicensesurl = sprintf($getlicensesurl, $baseapiurl);
+        return $getlicensesurl;
+    }
+
+    /**
+     * Creates an url to accept license
+     * @return string
+     */
+    public static function create_accept_license_url() {
+        $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
+        $getlicensesurl = '%s/api/v1/licenses';
+        $getlicensesurl = sprintf($getlicensesurl, $baseapiurl);
+        return $getlicensesurl;
+    }
+
+    /**
+     * Creates an url to revoke license
+     * @param string $licenseversion
+     * @return string
+     */
+    public static function create_revoke_license_url($licenseversion = '') {
+        $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
+        $getlicensesurl = '%s/api/v1/licenses?license_version' . (empty($licenseversion) ? '' : ('=' . $licenseversion));
+        $getlicensesurl = sprintf($getlicensesurl, $baseapiurl);
+        return $getlicensesurl;
+    }
 }
