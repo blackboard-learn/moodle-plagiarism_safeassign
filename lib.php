@@ -981,7 +981,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             foreach ($files as $file) {
                 $fs = get_file_storage();
                 $wrapper->files[] = $fs->get_file($context->id, 'assignsubmission_file', 'submission_files',
-                    $data['id'], '/', $file['filename']);
+                    $data['id'], $file['filepath'], $file['filename']);
                 $wrapper->filepaths[] = $file['fileurl'];
                 $wrapper->filenames[] = $file['filename'];
             }

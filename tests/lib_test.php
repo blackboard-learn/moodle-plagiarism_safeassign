@@ -348,7 +348,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
 
         // Emulate sync task.
         $DB->set_field('plagiarism_safeassign_instr', 'synced', 1, array('synced' => 0));
-        delete_course($course2->id);
+        delete_course($course2->id, false);
         role_assign($newdean->id, $manageruser->id, $systemcontext->id);
 
         // Only 1 record should exist, since we only have 1 existing course.

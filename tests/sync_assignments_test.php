@@ -101,12 +101,20 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
             'userid' => $this->student1->id
         );
 
+        // Create directory.
         $fs = get_file_storage();
-        $fs->create_file_from_string($filerecord, 'text contents');
+        $fs->create_directory($usercontext->id, 'user', 'draft', file_get_unused_draft_itemid(), '/test/',
+            $this->student1->id);
 
+        // We should hadle submissions with folders.
+        $fs = get_file_storage();
+        $filerecord['filepath'] = '/test/';
+        $fs->create_file_from_string($filerecord, 'text contents');
         $filerecord['filename'] = 'file2.txt';
 
         $fs = get_file_storage();
+        // Restore path.
+        $filerecord['filepath'] = '/';
         $fs->create_file_from_string($filerecord, 'text contents');
 
         $filerecord['filename'] = 'file3.json';
