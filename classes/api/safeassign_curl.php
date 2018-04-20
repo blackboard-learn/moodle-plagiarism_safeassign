@@ -43,7 +43,6 @@ class safeassign_curl extends \curl {
      * @return bool
      */
     public function put($url, $params = array(), $options = array()) {
-        $options['CURLOPT_PUT'] = 1;
         if (is_array($params)) {
             $params = $this->format_postdata_for_curlcall($params);
         }

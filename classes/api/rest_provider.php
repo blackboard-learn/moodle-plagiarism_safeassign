@@ -115,7 +115,7 @@ class rest_provider {
     /**
      * @var string HEADER_VAL_APP_JSON
      */
-    const HEADER_VAL_APP_JSON = "Application/json";
+    const HEADER_VAL_APP_JSON = "application/json";
 
     /**
      * @var null|rest_provider
@@ -306,12 +306,17 @@ class rest_provider {
         }
 
         // Add Accept or Content-Type if missing.
-        if (!$hasaccept) {
+        if (!$hasctype) {
             $custheaders[] = "Content-Type: {$defaultctype}";
         }
 
-        if (!$hasctype) {
+        if (!$hasaccept) {
             $custheaders[] = "Accept: {$defaultctype}";
+        }
+
+        if (!empty($options['CURLOPT_POSTFIELDS'])) {
+            $custheaders[] = "Content-Length: " . strlen($options['CURLOPT_POSTFIELDS']);
+            $custheaders[] = 'Expect:';
         }
 
         $useopts = array(
@@ -352,7 +357,7 @@ class rest_provider {
                 break;
             case self::HTTP_PUT:
                 $params = !empty($curlopts['CURLOPT_POSTFIELDS']) ? $curlopts['CURLOPT_POSTFIELDS'] : '';
-                $response = $curl->put($url, null, $curlopts);
+                $response = $curl->put($url, $params, $curlopts);
                 break;
             case self::HTTP_DELETE:
                 $response = $curl->delete($url, null, $curlopts);
@@ -704,9 +709,13 @@ class rest_provider {
      * @param int $userid
      * @param array $custheaders
      * @param array $options
+     * @param string $postdata
      * @return mixed
      */
-    public function put_withtoken($url, $userid,  array $custheaders = array(), array $options = array()) {
+    public function put_withtoken($url, $userid,  array $custheaders = array(), array $options = array(), $postdata = "") {
+        if (!empty($postdata)) {
+            $options['CURLOPT_POSTFIELDS'] = $postdata;
+        }
         return $this->request_withtoken($url, $userid, self::HTTP_PUT, $custheaders, $options);
     }
 

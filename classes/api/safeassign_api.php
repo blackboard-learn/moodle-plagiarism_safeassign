@@ -194,10 +194,11 @@ abstract class safeassign_api {
      * @param string $url
      * @param int $userid
      * @param bool $isinstructor
-     * @param array $postdata
+     * @param array $postopts
+     * @param string $postdata
      * @return bool|mixed
      */
-    protected static function generic_putcall($url, $userid, $isinstructor = false, array $postdata = array()) {
+    protected static function generic_putcall($url, $userid, $isinstructor = false, array $postopts = array(), $postdata = "") {
         if (empty($url)) {
             return false;
         }
@@ -206,7 +207,7 @@ abstract class safeassign_api {
                 return false;
             }
         }
-        $result = rest_provider::instance()->put_withtoken($url, $userid, [], $postdata);
+        $result = rest_provider::instance()->put_withtoken($url, $userid, [], $postopts, $postdata);
         if ($result) {
             $data = json_decode(rest_provider::instance()->lastresponse());
             if ($data === false) {
