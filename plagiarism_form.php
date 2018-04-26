@@ -128,9 +128,40 @@ class plagiarism_setup_form extends moodleform {
         $mform->addHelpButton('safeassign_new_student_disclosure', 'studentdisclosure', 'plagiarism_safeassign');
         $mform->setDefault('safeassign_new_student_disclosure', get_string('studentdisclosuredefault', 'plagiarism_safeassign'));
 
-        $mform->addElement('header', 'moodle', get_string('license_header', 'plagiarism_safeassign'));
+        $safeassignenabled = get_config('plagiarism_safeassign', 'safeassign_use');
+        $licensedata = \plagiarism_safeassign\terms::get_current_license_data();
 
-        $mform->addElement('html', \plagiarism_safeassign\terms::get_license_agreement());
+        if ($safeassignenabled) {
+            $mform->addElement('header', 'moodle', get_string('license_header', 'plagiarism_safeassign'));
+            if ($licensedata) {
+                $mform->addElement('text', 'safeassign_license_acceptor_givenname',
+                    get_string('safeassign_license_acceptor_givenname', 'plagiarism_safeassign'));
+                $mform->setType('safeassign_license_acceptor_givenname', PARAM_TEXT);
+                $mform->addElement('text', 'safeassign_license_acceptor_surname',
+                    get_string('safeassign_license_acceptor_surname', 'plagiarism_safeassign'));
+                $mform->setType('safeassign_license_acceptor_surname', PARAM_TEXT);
+                $mform->addElement('text', 'safeassign_license_acceptor_email',
+                    get_string('safeassign_license_acceptor_email', 'plagiarism_safeassign'));
+                $mform->addRule('safeassign_license_acceptor_email', null, 'email', null, 'client');
+                $mform->setType('safeassign_license_acceptor_email', PARAM_TEXT);
+
+                $mform->addElement('hidden', 'safeassign_license_agreement_version', $licensedata->licenseVersion);
+                $mform->setType('safeassign_license_agreement_version', PARAM_TEXT);
+                $mform->addElement('hidden', 'safeassign_license_agreement_timestamp', $licensedata->licenseCreated);
+                $mform->setType('safeassign_license_agreement_timestamp', PARAM_INT);
+
+                $mform->addElement('html', '<div class="form-group  fitem  licensestatement">');
+                $mform->addElement('static', 'license_agreement_longtext',
+                    get_string('safeassign_license_header', 'plagiarism_safeassign'), $licensedata->licenseText);
+                $mform->addElement('html', '</div>');
+
+                $mform->addElement('checkbox', 'safeassign_license_agreement_status',
+                    \plagiarism_safeassign\terms::get_license_agreement());
+            } else {
+                $mform->addElement('html', get_string('safeassign_license_warning', 'plagiarism_safeassign'));
+            }
+        }
+
         $this->add_action_buttons(true, get_string('agree_continue', 'plagiarism_safeassign'));
     }
 }

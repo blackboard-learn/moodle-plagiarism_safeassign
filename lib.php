@@ -1755,6 +1755,37 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $event->trigger();
         }
     }
+
+    /**
+     * Accepts a specific SafeAssign license given the version.
+     *
+     * @param string $licenseversion
+     * @return bool
+     */
+    public function accept_safeassign_license($licenseversion) {
+        global $USER;
+
+        $storedval = get_config('plagiarism_safeassign');
+        $firstname = $storedval->safeassign_license_acceptor_givenname;
+        $surname = $storedval->safeassign_license_acceptor_surname;
+        $mailaddr = $storedval->safeassign_license_acceptor_email;
+
+        $result = safeassign_api::accept_license($USER->id, $firstname, $surname, $mailaddr, $licenseversion);
+        return $result;
+    }
+
+    /**
+     * Revoke a specific SafeAssign license given the version.
+     *
+     * @param string $licenseversion
+     * @return bool
+     */
+    public function revoke_safeassign_license($licenseversion) {
+        global $USER;
+
+        $result = safeassign_api::revoke_license($USER->id, $licenseversion);
+        return $result;
+    }
 }
 
 /**

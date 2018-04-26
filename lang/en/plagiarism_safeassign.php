@@ -52,6 +52,13 @@ $string['safeassign_student_username'] = 'Shared key';
 $string['safeassign_student_username_help'] = "Student's shared key provided by SafeAssign.";
 $string['safeassign_student_password'] = 'Shared secret';
 $string['safeassign_student_password_help'] = "Student's shared secret provided by SafeAssign.";
+$string['safeassign_license_acceptor_givenname'] = 'License Acceptor First Name';
+$string['safeassign_license_acceptor_surname'] = 'License Acceptor Surname';
+$string['safeassign_license_acceptor_email'] = 'License Acceptor Email';
+$string['safeassign_license_header'] = 'SafeAssign&trade; License Terms & Conditions';
+$string['license_not_updated'] = "Your license preferences couldn't be updated. Please try again later.";
+$string['safeassign_license_warning'] = "There is a problem validating the SafeAssign&trade; license data, please
+click the 'Test connection' button. If the test is successful, try again later.";
 $string['safeassign_enableplugin'] = 'Enable SafeAssign for {$a}';
 $string['safeassign_cachedefault'] = '<div class="form-defaultinfo text-muted">&nbsp Default value: 0</div> <br>';
 $string['safeassign_showid'] = 'Show Student ID';
@@ -124,7 +131,7 @@ $string['course_success_sync'] = 'Courses synced successfully';
 $string['license_header'] = 'SafeAssign&trade; License Agreement';
 $string['license_title'] = 'SafeAssign License Agreement';
 $string['not_configured'] = 'SafeAssign&trade; is not configured. Please have your system administrator submit a ticket on Behind the Blackboard for assistance.';
-$string['agree_continue'] = 'Agree and Save';
+$string['agree_continue'] = 'Save form';
 
 $string['safeassign_file_not_supported'] = 'Not supported.';
 $string['safeassign_file_not_supported_help'] = 'The file extension is not supported by SafeAssign or the file size exceeds maximum capacity.';

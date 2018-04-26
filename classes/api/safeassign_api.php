@@ -523,6 +523,9 @@ abstract class safeassign_api {
      * @return bool | mixed
      */
     public static function accept_license($userid, $acceptorfirstname, $acceptorlastname, $acceptoremail, $licenseversion = '') {
+        if (!defined('SAFEASSIGN_OMIT_CACHE')) {
+            define('SAFEASSIGN_OMIT_CACHE', true);
+        }
         $baseurl = get_config(self::PLUGIN, 'safeassign_api');
         $putparams = array(
             'acceptorFirstName' => $acceptorfirstname,
@@ -546,6 +549,9 @@ abstract class safeassign_api {
      * @return bool | mixed
      */
     public static function revoke_license($userid, $licenseversion = '') {
+        if (!defined('SAFEASSIGN_OMIT_CACHE')) {
+            define('SAFEASSIGN_OMIT_CACHE', true);
+        }
         $baseurl = get_config(self::PLUGIN, 'safeassign_api');
         if (empty($baseurl)) {
             return false;

@@ -26,6 +26,8 @@ namespace plagiarism_safeassign;
 
 defined('MOODLE_INTERNAL') || die();
 
+use plagiarism_safeassign\api\safeassign_api;
+
 /**
  * Class terms
  * @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
@@ -38,9 +40,48 @@ abstract class terms {
      * @return string - License Agreement text.
      */
     public static function get_license_agreement() {
-        return '<p> I agree to the <a href="http://www.blackboard.com/safeassign/tos.html" target="_blank">Terms of Service
-            </a> and the <a href="http://blackboard.com/footer/privacy-policy.aspx" target="_blank">Blackboard Privacy
-            Policy</a> and confirm that I have the authority to install SafeAssign on behalf of my institution.</p>';
+        return ' I agree to the Terms of Service and the Blackboard Privacy
+            Policy and confirm that I have the authority to install SafeAssign on behalf of my institution.';
+    }
+
+    /**
+     * Returns the data of a specific license given the version.
+     *
+     * @param string $licenseversion
+     * @return mixed object/none
+     */
+    public static function get_specific_license_data($licenseversion) {
+        global $USER;
+
+        $listoflicenses = safeassign_api::get_licenses($USER->id);
+        if (!empty($listoflicenses)) {
+            foreach ($listoflicenses as $license) {
+                if ($license->licenseVersion == $licenseversion) {
+                    return $license;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns the data of the current license saved in DB.
+     *
+     * @return mixed object/none
+     */
+    public static function get_current_license_data() {
+        global $USER;
+
+        $licenseversion = get_config('plagiarism_safeassign', 'safeassign_latest_license_vers');
+        $listoflicenses = safeassign_api::get_licenses($USER->id);
+        if (!empty($listoflicenses)) {
+            foreach ($listoflicenses as $license) {
+                if ($license->licenseVersion == $licenseversion) {
+                    return $license;
+                }
+            }
+        }
+        return false;
     }
 
 }

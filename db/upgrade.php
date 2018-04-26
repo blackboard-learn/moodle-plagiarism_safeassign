@@ -313,6 +313,16 @@ function xmldb_plagiarism_safeassign_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2017121504, 'plagiarism', 'safeassign');
     }
 
+    if ($oldversion < 2017121508) {
+
+        // New setting field to store the new version and status of SafeAssign license.
+        set_config('safeassign_latest_license_vers', '0.2', 'plagiarism_safeassign');
+        set_config('safeassign_license_agreement_status', 0, 'plagiarism_safeassign');
+
+        // Safeassign savepoint reached.
+        upgrade_plugin_savepoint(true, 2017121508, 'plagiarism', 'safeassign');
+    }
+
     return true;
 
 }

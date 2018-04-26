@@ -58,7 +58,17 @@ if (($data = $mform->get_data()) && confirm_sesskey()) {
     if (!isset($data->safeassign_referencedbactivity)) {
         $data->safeassign_referencedbactivity = 0;
     }
+    if (!isset($data->safeassign_license_agreement_status)) {
+        $data->safeassign_license_agreement_status = 0;
+    }
+    $storedlicensevers = get_config('plagiarism_safeassign', 'safeassign_latest_license_vers');
+    $storedlicensestatus = get_config('plagiarism_safeassign', 'safeassign_license_agreement_status');
+    $acceptedlicensevers = get_config('plagiarism_safeassign', 'safeassign_license_agreement_version');
     foreach ($data as $field => $value) {
+        if ($field == 'safeassign_license_agreement_status') {
+            // This field will be saved later in the logic.
+            continue;
+        }
         if (strpos($field, 'safeassign') === 0) {
             if ($field == 'safeassign_use') {
                 set_config($field, $value, 'plagiarism');
@@ -74,6 +84,27 @@ if (($data = $mform->get_data()) && confirm_sesskey()) {
         if ($field == 'default_safeassign_api') {
             set_config('safeassign_api', $value, 'plagiarism_safeassign');
         }
+    }
+    if (isset($data->safeassign_license_agreement_status) && $data->safeassign_license_agreement_status == 1) {
+        $result = $plagiarismplugin->accept_safeassign_license($storedlicensevers);
+        if ($result) {
+            set_config('safeassign_license_agreement_status', 1, 'plagiarism_safeassign');
+        } else {
+            echo $OUTPUT->notification(get_string('license_not_updated', 'plagiarism_safeassign'),
+                \core\output\notification::NOTIFY_ERROR);
+        }
+    } else if ($storedlicensestatus == 1) {
+        // It means that we need to revoke the license.
+        $result = $plagiarismplugin->revoke_safeassign_license($storedlicensevers);
+        if ($result) {
+            set_config('safeassign_license_agreement_status', 0, 'plagiarism_safeassign');
+        } else {
+            echo $OUTPUT->notification(get_string('license_not_updated', 'plagiarism_safeassign'),
+                \core\output\notification::NOTIFY_ERROR);
+        }
+    } else {
+        echo $OUTPUT->notification(get_string('license_not_updated', 'plagiarism_safeassign'),
+            \core\output\notification::NOTIFY_ERROR);
     }
     echo $OUTPUT->notification(get_string('savedconfigsuccess', 'plagiarism_safeassign'),
         \core\output\notification::NOTIFY_SUCCESS);
