@@ -40,15 +40,14 @@ abstract class terms {
      * @return string - License Agreement text.
      */
     public static function get_license_agreement() {
-        return ' I agree to the Terms of Service and the Blackboard Privacy
-            Policy and confirm that I have the authority to install SafeAssign on behalf of my institution.';
+        return 'I accept the license agreement.';
     }
 
     /**
      * Returns the data of a specific license given the version.
      *
      * @param string $licenseversion
-     * @return mixed object/none
+     * @return mixed object/false
      */
     public static function get_specific_license_data($licenseversion) {
         global $USER;
@@ -67,7 +66,7 @@ abstract class terms {
     /**
      * Returns the data of the current license saved in DB.
      *
-     * @return mixed object/none
+     * @return mixed object/false
      */
     public static function get_current_license_data() {
         global $USER;

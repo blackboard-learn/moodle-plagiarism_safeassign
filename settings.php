@@ -85,26 +85,30 @@ if (($data = $mform->get_data()) && confirm_sesskey()) {
             set_config('safeassign_api', $value, 'plagiarism_safeassign');
         }
     }
-    if (isset($data->safeassign_license_agreement_status) && $data->safeassign_license_agreement_status == 1) {
-        $result = $plagiarismplugin->accept_safeassign_license($storedlicensevers);
-        if ($result) {
-            set_config('safeassign_license_agreement_status', 1, 'plagiarism_safeassign');
+    if ($storedlicensestatus <> $data->safeassign_license_agreement_status) {
+        if ($data->safeassign_license_agreement_status == 1) {
+            $result = $plagiarismplugin->accept_safeassign_license($storedlicensevers);
+            if ($result) {
+                set_config('safeassign_license_agreement_status', 1, 'plagiarism_safeassign');
+            } else {
+                echo $OUTPUT->notification(get_string('license_not_updated', 'plagiarism_safeassign'),
+                    \core\output\notification::NOTIFY_ERROR);
+            }
+        } else if ($storedlicensestatus == 1) {
+            // It means that we need to revoke the license.
+            $result = $plagiarismplugin->revoke_safeassign_license($storedlicensevers);
+            if ($result) {
+                set_config('safeassign_license_agreement_status', 0, 'plagiarism_safeassign');
+                set_config('safeassign_license_agreement_version', '', 'plagiarism_safeassign');
+                set_config('safeassign_license_agreement_timestamp', '', 'plagiarism_safeassign');
+            } else {
+                echo $OUTPUT->notification(get_string('license_not_updated', 'plagiarism_safeassign'),
+                    \core\output\notification::NOTIFY_ERROR);
+            }
         } else {
             echo $OUTPUT->notification(get_string('license_not_updated', 'plagiarism_safeassign'),
                 \core\output\notification::NOTIFY_ERROR);
         }
-    } else if ($storedlicensestatus == 1) {
-        // It means that we need to revoke the license.
-        $result = $plagiarismplugin->revoke_safeassign_license($storedlicensevers);
-        if ($result) {
-            set_config('safeassign_license_agreement_status', 0, 'plagiarism_safeassign');
-        } else {
-            echo $OUTPUT->notification(get_string('license_not_updated', 'plagiarism_safeassign'),
-                \core\output\notification::NOTIFY_ERROR);
-        }
-    } else {
-        echo $OUTPUT->notification(get_string('license_not_updated', 'plagiarism_safeassign'),
-            \core\output\notification::NOTIFY_ERROR);
     }
     echo $OUTPUT->notification(get_string('savedconfigsuccess', 'plagiarism_safeassign'),
         \core\output\notification::NOTIFY_SUCCESS);
