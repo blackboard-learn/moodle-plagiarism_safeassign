@@ -56,7 +56,9 @@ $string['safeassign_license_acceptor_givenname'] = 'License Acceptor First Name'
 $string['safeassign_license_acceptor_surname'] = 'License Acceptor Surname';
 $string['safeassign_license_acceptor_email'] = 'License Acceptor Email';
 $string['safeassign_license_header'] = 'SafeAssign&trade; License Terms & Conditions';
-$string['license_not_updated'] = "Your license preferences couldn't be updated. Please try again later.";
+$string['license_already_accepted'] = "The current license terms were already accepted by your administrator.";
+$string['acceptlicense'] = 'Accept SafeAssign license';
+$string['acceptlicenselog'] = 'SafeAssign license task log';
 $string['safeassign_license_warning'] = "There is a problem validating the SafeAssign&trade; license data, please
 click the 'Test connection' button. If the test is successful, try again later.";
 $string['safeassign_enableplugin'] = 'Enable SafeAssign for {$a}';

@@ -35,6 +35,7 @@ use plagiarism_safeassign\api\rest_provider;
 use plagiarism_safeassign\event\sync_content_log;
 use plagiarism_safeassign\event\score_sync_log;
 use plagiarism_safeassign\event\score_sync_fail;
+use plagiarism_safeassign\event\license_log;
 use plagiarism_safeassign\local;
 
 /**
@@ -1757,34 +1758,41 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     }
 
     /**
-     * Accepts a specific SafeAssign license given the version.
-     *
-     * @param string $licenseversion
-     * @return bool
+     * Accepts the specific SafeAssign license version stored in DB.
      */
-    public function accept_safeassign_license($licenseversion) {
-        global $USER;
+    public function accept_safeassign_license() {
 
         $storedval = get_config('plagiarism_safeassign');
-        $firstname = $storedval->safeassign_license_acceptor_givenname;
-        $surname = $storedval->safeassign_license_acceptor_surname;
-        $mailaddr = $storedval->safeassign_license_acceptor_email;
+        $adminaccepted = $storedval->safeassign_license_agreement_readbyadmin;
+        $currentlicensestatus = $storedval->safeassign_license_agreement_status;
+        if ($adminaccepted && !$currentlicensestatus) {
+            $firstname = $storedval->safeassign_license_acceptor_givenname;
+            $surname = $storedval->safeassign_license_acceptor_surname;
+            $mailaddr = $storedval->safeassign_license_acceptor_email;
+            $adminid = $storedval->safeassign_license_agreement_adminid;
+            $licenseversion = $storedval->safeassign_latest_license_vers;
 
-        $result = safeassign_api::accept_license($USER->id, $firstname, $surname, $mailaddr, $licenseversion);
-        return $result;
+            $result = safeassign_api::accept_license($adminid, $firstname, $surname, $mailaddr, $licenseversion);
+            if ($result) {
+                $event = license_log::create_log_message('license', false);
+                $event->trigger();
+                set_config('safeassign_license_agreement_status', 1, 'plagiarism_safeassign');
+            } else {
+                $event = license_log::create_log_message('license', true);
+                $event->trigger();
+            }
+        }
     }
 
     /**
-     * Revoke a specific SafeAssign license given the version.
-     *
-     * @param string $licenseversion
-     * @return bool
+     * Cleans the data of an out of date license version.
+     * This function should be called during the upgrades where a new license is inserted.
      */
-    public function revoke_safeassign_license($licenseversion) {
-        global $USER;
-
-        $result = safeassign_api::revoke_license($USER->id, $licenseversion);
-        return $result;
+    public function clean_safeassign_license_data() {
+        set_config('safeassign_license_agreement_status', 0, 'plagiarism_safeassign');
+        set_config('safeassign_license_agreement_readbyadmin', 0, 'plagiarism_safeassign');
+        set_config('safeassign_license_agreement_readbyadmin_timestamp', '', 'plagiarism_safeassign');
+        set_config('safeassign_license_agreement_adminid', '', 'plagiarism_safeassign');
     }
 }
 

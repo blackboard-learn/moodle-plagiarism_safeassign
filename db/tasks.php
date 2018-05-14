@@ -42,5 +42,14 @@ $tasks = array(
         'day' => '*',
         'dayofweek' => '*',
         'month' => '*'
+    ),
+    array(
+        'classname' => 'plagiarism_safeassign\task\accept_license',
+        'blocking' => 0,
+        'minute' => 'R',
+        'hour' => 'R',
+        'day' => '*/5',
+        'dayofweek' => '*',
+        'month' => '*'
     )
 );
