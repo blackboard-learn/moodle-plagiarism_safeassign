@@ -23,8 +23,17 @@
 
 defined('MOODLE_INTERNAL') || die();
 $messageproviders = array (
+
     // Notify teacher that a submission has been graded in SafeAssign.
     'safeassign_graded' => array (
         'capability' => 'plagiarism/safeassign:get_messages'
+    ),
+
+    // Notify Admins that a new SafeAssign License is available.
+    'safeassign_notification' => array (
+        'capability' => 'plagiarism/safeassign:get_notifications',
+        'defaults' => array(
+            'popup' => MESSAGE_FORCED
+        )
     )
 );

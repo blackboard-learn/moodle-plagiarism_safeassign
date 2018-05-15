@@ -158,3 +158,10 @@ $string['safeassign_notification_grading_link'] = 'Grading page';
 $string['safeassign_notification_message_hdr'] = 'Plagiarism SafeAssign scores have been processed';
 $string['safeassign_notification_subm_singular'] = 'submission';
 $string['safeassign_notification_subm_plural'] = 'submissions';
+// New license agreement notification.
+$string['messageprovider:safeassign_notification'] = 'SafeAssign sends notifications to Site Administrators when a new License Terms & Conditions is available';
+$string['safeassign:get_notifications'] = 'Allow notifications from SafeAssign';
+$string['license_agreement_notification_subject'] = 'New SafeAssign License Terms & Conditions available';
+$string['license_agreement_notification_message'] = 'You can accept the new License Terms & Conditions here: {$a}';
+$string['settings_page'] = 'SafeAssign Settings Page';
+$string['send_notifications'] = 'Send SafeAssign new License Terms & Conditions notifications.';

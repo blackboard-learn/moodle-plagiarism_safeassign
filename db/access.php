@@ -45,6 +45,7 @@ $capabilities = array(
             'student' => CAP_ALLOW,
         )
     ),
+
     'plagiarism/safeassign:get_messages' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_COURSE,
@@ -52,5 +53,14 @@ $capabilities = array(
             'editingteacher' => CAP_ALLOW,
             'teacher' => CAP_ALLOW
         )
-    )
+    ),
+
+    'plagiarism/safeassign:get_notifications' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW
+        )
+    ),
+
 );

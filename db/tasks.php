@@ -51,5 +51,14 @@ $tasks = array(
         'day' => '*/5',
         'dayofweek' => '*',
         'month' => '*'
+    ),
+    array(
+        'classname' => 'plagiarism_safeassign\task\send_notifications',
+        'blocking' => 0,
+        'minute' => 'R',
+        'hour' => 'R',
+        'day' => '*/3',
+        'dayofweek' => '*',
+        'month' => '*'
     )
 );

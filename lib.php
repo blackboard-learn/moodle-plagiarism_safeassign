@@ -1243,6 +1243,37 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         \message_send($event);
     }
 
+    /**
+     * Sends a notification to the Admins when a new SafeAssign license is available.
+     */
+    public function new_safeassign_license_notification() {
+        global $DB, $CFG;
+        $adminids = get_config(null, 'siteadmins');
+        $adminids = explode(',', $adminids);
+
+        foreach ($adminids as $adminid) {
+            $user = $DB->get_record('user', array('id' => $adminid, 'deleted' => 0 ), '*');
+            $settingslink = '<a href="'.$CFG->wwwroot.'/plagiarism/safeassign/settings.php'.'">';
+            $settingslink .= get_string('settings_page', 'plagiarism_safeassign').'</a>';
+            $subject = get_string('license_agreement_notification_subject', 'plagiarism_safeassign');
+            $message = get_string('license_agreement_notification_message', 'plagiarism_safeassign', $settingslink);
+            $fromuser = \core_user::get_noreply_user();
+
+            $event = new \core\message\message();
+            $event->component = 'plagiarism_safeassign';
+            $event->name = 'safeassign_notification';
+            $event->userfrom = $fromuser;
+            $event->userto = $user;
+            $event->subject = $subject;
+            $event->fullmessage = '';
+            $event->fullmessageformat = FORMAT_PLAIN;
+            $event->fullmessagehtml = $message;
+            $event->smallmessage = '';
+            $event->notification = 1;
+            $event->courseid = SITEID;
+            \message_send($event);
+        }
+    }
 
     /**
      * Gets all editing teachers from a course and puts them in to the safeassign_instructor table.

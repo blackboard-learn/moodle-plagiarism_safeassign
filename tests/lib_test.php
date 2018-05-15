@@ -537,4 +537,25 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $result = $lib->get_submission_results(11111);
         $this->assertEquals($result->reportgenerated, 0);
     }
+
+    /**
+     * Tests if the notifications are sent to the Admins.
+     */
+    public function test_new_safeassign_license_notification() {
+        global $DB;
+        $this->resetAfterTest(true);
+
+        $lib = new plagiarism_plugin_safeassign();
+        $lib->new_safeassign_license_notification();
+
+        $adminids = get_config(null, 'siteadmins');
+        $adminids = explode(',', $adminids);
+
+        foreach ($adminids as $id) {
+            $mail = $DB->get_record('message', array('useridto' => $id));
+            $this->assertEquals($mail->subject, 'New SafeAssign License Terms & Conditions available');
+            $this->assertEquals($mail->component, 'plagiarism_safeassign');
+            $this->assertEquals($mail->eventtype, 'safeassign_notification');
+        }
+    }
 }
