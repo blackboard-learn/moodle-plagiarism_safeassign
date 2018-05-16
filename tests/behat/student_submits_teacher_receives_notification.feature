@@ -64,19 +64,19 @@ Feature: Sending a submission to a SafeAssign assignment and receiving notificat
     And I am on "Course 1" course homepage
     And I follow "Assignment One"
     When I press "Add submission"
-    And I upload "lib/tests/fixtures/empty.txt" file to "File submissions" filemanager
+    And I upload "plagiarism/safeassign/tests/fixtures/dummy-files/test1.txt" file to "File submissions" filemanager
     And I press "Save changes"
     Then I log out
     Given set test helper teacher "teacher1"
     And set test helper student "student1"
     And set test helper course with shortname "C1"
     And set test helper assignment with name "Assignment One"
-    And I send a submission with file "lib/tests/fixtures/empty.txt"
+    And I send a submission with file "plagiarism/safeassign/tests/fixtures/dummy-files/test2.txt"
     Given I log in as "student2"
     And I am on "Course 1" course homepage
     And I follow "Assignment One"
     When I press "Add submission"
-    And I upload "lib/tests/fixtures/empty.txt" file to "File submissions" filemanager
+    And I upload "plagiarism/safeassign/tests/fixtures/dummy-files/test3.txt" file to "File submissions" filemanager
     And I press "Save changes"
     Then I log out
 
@@ -95,6 +95,7 @@ Feature: Sending a submission to a SafeAssign assignment and receiving notificat
       And I open the notification popover
       And I click on "#nav-notification-popover-container .see-all-link" "css_element"
       And I click on ".notification-message" "css_element"
+      And I wait "3" seconds
       Then I should see "Plagiarism scores have been processed for 1 submission in Assignment One"
 
     @javascript
@@ -102,18 +103,20 @@ Feature: Sending a submission to a SafeAssign assignment and receiving notificat
       Given I change notifications setup for user "teacher1" with "popup"
       And I change notifications setup for user "teacher2" with "popup"
       And set test helper student "student2"
-      And I send a submission with file "lib/tests/fixtures/empty.txt"
+      And I send a submission with file "plagiarism/safeassign/tests/fixtures/dummy-files/test4.txt"
       Then I sync submissions
       Then I log in as "teacher1"
       And I open the notification popover
       And I click on "#nav-notification-popover-container .see-all-link" "css_element"
       And I click on ".notification-message" "css_element"
+      And I wait "3" seconds
       Then I should see "Plagiarism scores have been processed for 2 submissions in Assignment One"
       Then I log out
       Given I log in as "teacher2"
       And I open the notification popover
       And I click on "#nav-notification-popover-container .see-all-link" "css_element"
       And I click on ".notification-message" "css_element"
+      And I wait "3" seconds
       Then I should see "Plagiarism scores have been processed for 2 submissions in Assignment One"
       Then I log out
 
