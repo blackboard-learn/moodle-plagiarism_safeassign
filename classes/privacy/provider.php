@@ -36,7 +36,6 @@ use core_privacy\local\request\contextlist;
 use core_privacy\local\request\writer;
 use core_privacy\local\request\transform;
 
-
 class provider implements
     // This plugin does export personal user data.
     \core_privacy\local\metadata\provider,
@@ -94,18 +93,18 @@ class provider implements
         ], 'privacy:metadata:plagiarism_safeassign_instr');
 
         // Moodle core components.
-        $collection->link_subsystem('core_plagiarism', [], 'privacy:metadata:core_plagiarism');
+        $collection->add_subsystem_link('core_plagiarism', [], 'privacy:metadata:core_plagiarism');
         $collection->add_subsystem_link('core_files', [], 'privacy:metadata:core_files');
 
         // External Services.
-        $collection->add_external_localtion_link('safeassign_service', [
+        $collection->add_external_location_link('safeassign_service', [
             'userid' => 'privacy:metadata:safeassign_service:userid',
             'username' => 'privacy:metadata:safeassign_service:fullname',
             'submissionuuid' => 'privacy:metadata:safeassign_service:submissionuuid',
             'fileuuid' => 'privacy:metadata:safeassign_service:fileuuid',
             'filename' => 'privacy:metadata:safeassign_service:filename',
             'filecontent' => 'privacy:metadata:safeassign_service:filecontent',
-            'adminemail' => 'privacy:metadata:safeassign_service:filecontent'
+            'adminemail' => 'privacy:metadata:safeassign_service:adminemail'
         ], 'privacy:metadata:safeassign_service');
 
         return $collection;
@@ -122,13 +121,13 @@ class provider implements
     public static function _export_plagiarism_user_data($userid, \context $context, array $subcontext, array $linkarray) {
         global $DB;
 
-        $cmid = $context->instanceid;
-        list($module, $cm) = get_module_from_cmid($cmid);
+        $moduledata = get_context_info_array($context->id);
+        $module = $moduledata[2];
 
         $validmodnames = ['assign'];
 
         // Check if we are in a valid module.
-        if (in_array($cm->modname, $validmodnames)){
+        if (in_array($module->modname, $validmodnames)) {
 
             // Get the submissionid for the submission of this user.
             $sql = "SELECT asubm.id
@@ -137,35 +136,35 @@ class provider implements
                      WHERE asubm.userid = :userid
                        AND assign.id = :assignid";
 
-            $submission = $DB->get_record_sql($sql, ['userid' => $userid, 'assignid' => $module->id]);
+            $submissions = $DB->get_records_sql($sql, ['userid' => $userid, 'assignid' => $module->instance]);
+
+            list($insql, $inparams) = $DB->get_in_or_equal(array_keys($submissions), SQL_PARAMS_NAMED);
+            $submissionin = "submissionid $insql AND userid = :userid";
 
             // Check if we are speaking about an online text submission or a file submission.
-            $condition = !empty($linkarray['file']) ? 'hasfile = 1' : 'hasonlinetext = 1' ;
+            $condition = !empty($linkarray['file']) ? 'hasfile = 1' : 'hasonlinetext = 1';
 
             // Get all submissions in safeassign tables for this user.
             $sql = "SELECT id, highscore, avgscore, submitted,
                            submissionid, deprecated, timecreated
                       FROM {plagiarism_safeassign_subm} subm
-                     WHERE subm.assignmentid = :assignment
-                       AND subm.submissionid = :submissionid
+                     WHERE subm.submissionid $insql
                        AND $condition";
-            $allsubmissions = $DB->get_records_sql($sql, ['assignment' => $module->id,
-                'submissionid' => $submission->id]);
+            $allsubmissions = $DB->get_records_sql($sql, $inparams);
 
             // We need to get back the files or online-text files depending the kind of plugin that calls function.
 
-            $component = !empty($linkarray['file']) ? 'assignsubmission_file' : 'assignsubmission_text_as_file' ;
+            $component = !empty($linkarray['file']) ? 'assignsubmission_file' : 'assignsubmission_text_as_file';
 
             // We need to retrieve the files for this submission.
-            $sql = "SELECT sfile.id, sfile.userid, file.filename, sfile.supported, sfile.reporturl, 
-                           sfile.similarityscore, sfile.timesubmitted, file.component
+            $sql = "SELECT sfile.id, sfile.userid, file.filename, sfile.supported, sfile.reporturl,
+                           sfile.similarityscore, sfile.timesubmitted, file.component, sfile.cm, sfile.fileid
                       FROM {plagiarism_safeassign_files} sfile
                       JOIN {files} file ON file.id = sfile.fileid
-                     WHERE sfile.submissionid = :submissionid
+                     WHERE sfile.submissionid $insql
                        AND file.component = :component";
 
-            $files = $DB->get_records_sql($sql, ['submissionid' => $submission->id,
-                'component' => $component]);
+            $files = $DB->get_records_sql($sql, $inparams + ['component' => $component]);
 
             // Export submission and files.
             writer::with_context($context)->export_related_data($subcontext, 'safeassign-submissions',
@@ -186,13 +185,13 @@ class provider implements
     public static function _delete_plagiarism_for_context(\context $context) {
         global $DB;
 
-        $cmid = $context->instanceid;
-        list($module, $cm) = get_module_from_cmid($cmid);
-
         $validmodnames = ['assign'];
 
+        $moduledata = get_context_info_array($context->id);
+        $module = $moduledata[2];
+
         // Check if we are in a valid module.
-        if (in_array($cm->modname, $validmodnames)){
+        if (in_array($module->modname, $validmodnames)) {
 
             // Get all submissions.
             $sql = "SELECT DISTINCT asubm.id
@@ -200,9 +199,9 @@ class provider implements
                       JOIN {assign} assign ON assign.id = asubm.assignment
                      WHERE assign.id = :assignid";
 
-            $submissionsids = $DB->get_record_sql($sql, ['assignid' => $module->id]);
+            $submissionsids = $DB->get_records_sql($sql, ['assignid' => $module->instance]);
 
-            list($insql, $inparams) = $DB->get_in_or_equal($submissionsids);
+            list($insql, $inparams) = $DB->get_in_or_equal(array_keys($submissionsids));
             $sql = "submissionid $insql";
 
             $DB->delete_records_select('plagiarism_safeassign_files', $sql, $inparams);
@@ -218,13 +217,13 @@ class provider implements
     public static function _delete_plagiarism_for_user($userid, \context $context) {
         global $DB;
 
-        $cmid = $context->instanceid;
-        list($module, $cm) = get_module_from_cmid($cmid);
-
         $validmodnames = ['assign'];
 
+        $moduledata = get_context_info_array($context->id);
+        $module = $moduledata[2];
+
         // Check if we are in a valid module.
-        if (in_array($cm->modname, $validmodnames)){
+        if (in_array($module->modname, $validmodnames)) {
 
             // Get the submissionid for the submission of this user.
             $sql = "SELECT asubm.id
@@ -232,11 +231,12 @@ class provider implements
                       JOIN {assign} assign ON assign.id = asubm.assignment
                      WHERE asubm.userid = :userid
                        AND assign.id = :assignid";
+            $submissions = $DB->get_records_sql($sql, ['userid' => $userid, 'assignid' => $module->instance]);
 
-            $submission = $DB->get_record_sql($sql, ['userid' => $userid, 'assignid' => $module->id]);
+            list($insql, $inparams) = $DB->get_in_or_equal(array_keys($submissions), SQL_PARAMS_NAMED);
+            $condition = "submissionid $insql AND userid = :userid";
 
-            $DB->delete_records('plagiarism_safeassign_files', ['userid' => $userid,
-                'submissionid' => $submission->id]);
+            $DB->delete_records_select('plagiarism_safeassign_files', $condition , $inparams + ['userid' => $userid]);
         }
     }
 
@@ -299,7 +299,7 @@ class provider implements
 
         $courses = [];
 
-        foreach ( $data as $courseid => $record) {
+        foreach ($data as $courseid => $record) {
             $courses[] = (object) [
                 'instructorid' => transform::user($record->instructorid),
                 'course' => get_course($record->courseid)->fullname,
@@ -335,7 +335,7 @@ class provider implements
         $instructors = $DB->get_records('plagiarism_safeassign_instr', ['courseid' => $courseid]);
         // Tag instructors in this context to be deleted in next cron execution.
         foreach ($instructors as $instructor) {
-            $instructor->deleted = 1;
+            $instructor->unenrolled = 1;
             $DB->update_record('plagiarism_safeassign_instr', $instructor);
         }
 
@@ -369,10 +369,10 @@ class provider implements
         $params = array_merge($inparams, ['userid' => $userid]);
 
         // Get all records for that user where he is an instructor.
-        $records = array_keys($DB->get_records_select('plagiarism_safeassign_instr', $sql, $params));
+        $records = $DB->get_records_select('plagiarism_safeassign_instr', $sql, $params);
 
         foreach ($records as $record) {
-            $record->deleted = 1;
+            $record->unenrolled = 1;
             $DB->update_record('plagiarism_safeassign_instr', $record);
         }
     }
