@@ -149,3 +149,44 @@ $string['safeassign_notification_grading_link'] = 'Grading page';
 $string['safeassign_notification_message_hdr'] = 'Plagiarism SafeAssign scores have been processed';
 $string['safeassign_notification_subm_singular'] = 'submission';
 $string['safeassign_notification_subm_plural'] = 'submissions';
+
+// SafeAssign core submodules.
+$string['privacy:metadata:core_files'] = 'Files attached to submissions or created from online text submissions.';
+$string['privacy:metadata:core_plagiarism'] = '';
+
+// SafeAssign server metadata.
+$string['privacy:metadata:safeassign_service:userid'] = 'The userid id sent from Moodle to allow you to use SafeAssign services.';
+$string['privacy:metadata:safeassign_service:username'] = 'The user name is sent to SafeAssign to allow get the authentication token.';
+$string['privacy:metadata:safeassign_service:submissionuuid'] = 'This submission uuid is required to retrieve the originality report.';
+$string['privacy:metadata:safeassign_service:fileuuid'] = 'File uuid allows to relate Moodle files in SafeAssign server.';
+$string['privacy:metadata:safeassign_service:filename'] = 'The file name is required for SafeAssign service.';
+$string['privacy:metadata:safeassign_service:filecontent'] = 'We need to sent the files to SafeAssign in order to generate the originality report.';
+$string['privacy:metadata:safeassign_service:adminemail'] = 'Admin should sent its email in order to accept the service license.';
+
+// SafeAssign files table metadata.
+$string['privacy:metadata:plagiarism_safeassign_files:userid'] = 'The ID of the student that made this submission.';
+$string['privacy:metadata:plagiarism_safeassign_files:uuid'] = 'File unique identifier in SafeAssign service.';
+$string['privacy:metadata:plagiarism_safeassign_files:reporturl'] = 'URL to the originality report.';
+$string['privacy:metadata:plagiarism_safeassign_files:similarityscore'] = 'Similarity score for the submitted file.';
+$string['privacy:metadata:plagiarism_safeassign_files:timesubmitted'] = 'Time when the file was submitted.';
+$string['privacy:metadata:plagiarism_safeassign_files:submissionid'] = 'Submission unique identifier in SafeAssign service';
+$string['privacy:metadata:plagiarism_safeassign_files:fileid'] = 'The ID of the file that was submitted.';
+
+// SafeAssign course table metadata.
+$string['privacy:metadata:plagiarism_safeassign_course:uuid'] = 'Course unique identifier in SafeAssign service.';
+$string['privacy:metadata:plagiarism_safeassign_course:courseid'] = 'The course that has an activity with SafeAssign enable on it.';
+$string['privacy:metadata:plagiarism_safeassign_course:instructorid'] = 'The ID of the user that is a teacher in this course..';
+
+// SafeAssign submission table metadata.
+$string['privacy:metadata:plagiarism_safeassign_subm:uuid'] = 'Submission unique identifier in SafeAssign service.';
+$string['privacy:metadata:plagiarism_safeassign_subm:highscore'] = 'The highest similarity score for one submitted file.';
+$string['privacy:metadata:plagiarism_safeassign_subm:avgscore'] = 'The average similarity score for all submitted files.';
+$string['privacy:metadata:plagiarism_safeassign_subm:submissionid'] = 'The submission id of an activity with SafeAssign enabled on it..';
+$string['privacy:metadata:plagiarism_safeassign_subm:hasfile'] = 'Flag to determinate if the submission has a file on it.';
+$string['privacy:metadata:plagiarism_safeassign_subm:hasonlinetext'] = 'Flag to determinate if the submission has an online text on it.';
+$string['privacy:metadata:plagiarism_safeassign_subm:timecreated'] = 'Time when the submission was created.';
+$string['privacy:metadata:plagiarism_safeassign_subm:assignmentid'] = 'The assignment id ofr this submission.';
+
+// SafeAssign instructors table metadata.
+$string['privacy:metadata:plagiarism_safeassign_instr:instructorid'] = 'The ID of one user that is a teacher in one course.';
+$string['privacy:metadata:plagiarism_safeassign_instr:courseid'] = 'The ID of the course in which the user is a teacher.';
