@@ -1786,6 +1786,15 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $event = sync_content_log::create_log_message('delete instructor', $count, false);
             $event->trigger();
         }
+        $this->delete_instructors_records();
+    }
+
+    /**
+     * Deletes the instructors records that have lost a valid enrollment or a instructor role.
+     */
+    public function delete_instructors_records() {
+        global $DB;
+        $DB->delete_records('plagiarism_safeassign_instr', ['deleted' => 1]);
     }
 
     /**
