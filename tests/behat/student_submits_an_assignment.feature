@@ -40,6 +40,7 @@ Feature: Send an submission to a SafeAssign assignment
       | user     | course | role    |
       | teacher1 | C1     | editingteacher |
       | student1 | C1     | student |
+      | admin    | C1     | teacher |
     And the following config values are set as admin:
       | safeassign_use   | 1 | plagiarism |
     Then I log in as "teacher1"
@@ -66,7 +67,9 @@ Feature: Send an submission to a SafeAssign assignment
 
   @javascript
   Scenario: Global reference database checkbox should appear
-    Given I log in as "teacher1"
+    Given I log in as "admin"
+    Then the following config values are set as admin:
+      | safeassign_referencedbactivity | 1 | plagiarism_safeassign |
     And I am on "Course 1" course homepage
     Then I follow "Assignment One"
     And I navigate to "Edit settings" in current page administration

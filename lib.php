@@ -379,10 +379,12 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     public function print_disclosure($cmid) {
         global $USER, $PAGE, $DB, $COURSE;
         $checked = false;
+        $form = '';
         $value = 0;
         $cmenabled = $DB->get_record('plagiarism_safeassign_config', array('cm' => $cmid, 'name' => 'safeassign_enabled'));
         $cmglobalref = $DB->get_record('plagiarism_safeassign_config',
             array('cm' => $cmid, 'name' => 'safeassign_global_reference'));
+        $siteglobalref = get_config('plagiarism_safeassign', 'safeassign_referencedbactivity');
 
         if ( !is_object($cmenabled) || $cmenabled->value == 0) {
             return '';
@@ -401,19 +403,22 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $form = html_writer::tag('div', get_string('plagiarism_tools', 'plagiarism_safeassign'), array('class' => 'col-md-3'));
             $form .= get_string('safeassign_submission_not_supported_help', 'plagiarism_safeassign');
         } else {
-            $institutionrelease = get_config('plagiarism_safeassign', 'safeassign_new_student_disclosure');
-            if (empty($institutionrelease)) {
-                $institutionrelease = '';
-            } else {
-                $institutionrelease .= '<br><br>';
+            if ($siteglobalref == 1) {
+                $institutionrelease = get_config('plagiarism_safeassign', 'safeassign_new_student_disclosure');
+                if (empty($institutionrelease)) {
+                    $institutionrelease = '';
+                } else {
+                    $institutionrelease .= '<br><br>';
+                }
+                $institutionrelease .= get_string('files_accepted', 'plagiarism_safeassign');
+                $institutionrelease .= '<br><br>'.$checkbox;
+                $col1 = html_writer::tag('div', get_string('plagiarism_tools', 'plagiarism_safeassign'),
+                    array('class' => 'col-md-3'));
+                $col2 = html_writer::tag('div', $institutionrelease, array('class' => 'col-md-9'));
+                $output = html_writer::tag('div', $col1.$col2, array('class' => 'row generalbox boxaligncenter intro'));
+                $form = html_writer::tag('form', $output);
+                $PAGE->requires->js_call_amd('plagiarism_safeassign/disclosure', 'init', array($cmid, $USER->id));
             }
-            $institutionrelease .= get_string('files_accepted', 'plagiarism_safeassign');
-            $institutionrelease .= '<br><br>'.$checkbox;
-            $col1 = html_writer::tag('div', get_string('plagiarism_tools', 'plagiarism_safeassign'), array('class' => 'col-md-3'));
-            $col2 = html_writer::tag('div', $institutionrelease, array('class' => 'col-md-9'));
-            $output = html_writer::tag('div', $col1.$col2, array('class' => 'row generalbox boxaligncenter intro'));
-            $form = html_writer::tag('form', $output);
-            $PAGE->requires->js_call_amd('plagiarism_safeassign/disclosure', 'init', array($cmid, $USER->id));
         }
         return $form;
     }

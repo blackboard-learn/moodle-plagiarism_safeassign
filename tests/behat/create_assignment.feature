@@ -71,7 +71,8 @@ Feature: Enable SafeAssign in an assignment
   Scenario: Disclosure agreement checkbox should appear and maintain value
     Given I log in as "admin"
      Then the following config values are set as admin:
-        | safeassign_use   | 1 | plagiarism |
+        | safeassign_use                | 1 | plagiarism            |
+        |safeassign_referencedbactivity | 1 | plagiarism_safeassign |
       And I am on the course with shortname "C1"
      Then I turn editing mode on
       And I add a "Assignment" to section "1"
@@ -103,10 +104,11 @@ Feature: Enable SafeAssign in an assignment
       And the field "agreement" matches value "0"
 
   @javascript
-  Scenario: Disclosure agreement checkbox should not appear
+  Scenario: Disclosure agreement checkbox should not appear if SafeAssign is not enabled in the Assignment
     Given I log in as "admin"
      Then the following config values are set as admin:
-        | safeassign_use   | 1 | plagiarism |
+        | safeassign_use                | 1 | plagiarism            |
+        |safeassign_referencedbactivity | 1 | plagiarism_safeassign |
       And I am on the course with shortname "C1"
      Then I turn editing mode on
       And I add a "Assignment" to section "1"
@@ -126,6 +128,32 @@ Feature: Enable SafeAssign in an assignment
       And I press "Add submission"
       And I should not see "Plagiarism Tools"
       And I should not see "I agree to submit my paper(s) to the Global Reference Database."
+
+  @javascript
+  Scenario: Disclosure agreement checkbox should not appear if The Global Reference Database setting is unchecked
+    Given I log in as "admin"
+    Then the following config values are set as admin:
+      | safeassign_use                | 1 | plagiarism            |
+      |safeassign_referencedbactivity | 0 | plagiarism_safeassign |
+    And I am on the course with shortname "C1"
+    Then I turn editing mode on
+    And I add a "Assignment" to section "1"
+    And I should see "SafeAssign Plagiarism plugin"
+    Then I set the field "Assignment name" to "Assignment One"
+    And I set the field "Description" to "Assignmnet One"
+    And I press "Expand all"
+    And I set the field "safeassign_enabled" to "1"
+    And I set the field "safeassign_originality_report" to "1"
+    And I set the field "safeassign_global_reference" to "0"
+    And I press "Save and return to course"
+    Then I follow "Assignment One"
+    And I log out
+    And I log in as "student1"
+    And I am on the course with shortname "C1"
+    Then I follow "Assignment One"
+    And I press "Add submission"
+    And I should not see "Plagiarism Tools"
+    And I should not see "I agree to submit my paper(s) to the Global Reference Database."
 
   @javascript
   Scenario: SafeAssign settings should only appear in assignments
