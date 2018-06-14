@@ -109,6 +109,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         }
 
         // Check that the activity has SafeAssign enabled.
+        static $courseconfiguration;
         $courseconfiguration = $DB->get_records_menu('plagiarism_safeassign_config', array('cm' => $cmid), '', 'name, value');
 
         if (!empty($courseconfiguration['safeassign_enabled'])) {
