@@ -407,7 +407,8 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             if ($siteglobalref == 1) {
                 $institutionrelease = get_config('plagiarism_safeassign', 'safeassign_new_student_disclosure');
                 if (empty($institutionrelease)) {
-                    $institutionrelease = '';
+                    $institutionrelease = get_string('studentdisclosuredefault', 'plagiarism_safeassign');
+                    $institutionrelease .= '<br><br>';
                 } else {
                     $institutionrelease .= '<br><br>';
                 }

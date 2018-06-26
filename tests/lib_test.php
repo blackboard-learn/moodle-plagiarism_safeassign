@@ -558,4 +558,48 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
             $this->assertEquals($mail->eventtype, 'safeassign_notification');
         }
     }
+
+    /**
+     * Tests if a variable contains a specific string.
+     */
+    public function test_institutional_release_statement_value() {
+        global $DB;
+        $this->resetAfterTest(true);
+
+        set_config('safeassign_new_student_disclosure', 'disclosure example for testing.', 'plagiarism_safeassign');
+        set_config('safeassign_use', 1, 'plagiarism');
+        set_config('safeassign_referencedbactivity', 1, 'plagiarism_safeassign');
+        $course1 = $this->getDataGenerator()->create_course();
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_assign');
+        $teacher = self::getDataGenerator()->create_user([
+            'firstname' => 'Teacher',
+            'lastname' => 'WhoTeaches']);
+        $editingteacherrole = $DB->get_record('role', array('shortname' => 'editingteacher'));
+        $this->getDataGenerator()->enrol_user($teacher->id, $course1->id, $editingteacherrole->id);
+        $instance = $generator->create_instance(array('course' => $course1->id));
+        $cm = get_coursemodule_from_instance('assign', $instance->id);
+        // Enable SafeAssign for this particular activity.
+        $this->setAdminUser();
+        $assignconf = new stdClass();
+        $assignconf->cm = $cm->id;
+        $assignconf->name = 'safeassign_enabled';
+        $assignconf->value = 1;
+        $DB->insert_record('plagiarism_safeassign_config', $assignconf);
+        $assignconf->name = 'safeassign_global_reference';
+        $assignconf->value = 0;
+        $DB->insert_record('plagiarism_safeassign_config', $assignconf);
+
+        $lib = new plagiarism_plugin_safeassign();
+        $result = $lib->print_disclosure($cm->id);
+        $findneedle = strpos($result, 'disclosure example for testing.');
+        $this->assertNotFalse($findneedle);
+
+        // Save the config value for institutional release statement as empty. Localized string should appear.
+        set_config('safeassign_new_student_disclosure', '', 'plagiarism_safeassign');
+        $result2 = $lib->print_disclosure($cm->id);
+        $findneedle = strpos($result2, 'disclosure example for testing.');
+        $this->assertFalse($findneedle);
+        $findneedle2 = strpos($result2, get_string('studentdisclosuredefault', 'plagiarism_safeassign'));
+        $this->assertNotFalse($findneedle2);
+    }
 }

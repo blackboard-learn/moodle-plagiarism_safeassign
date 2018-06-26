@@ -30,7 +30,8 @@ $string['getscoreslog_desc'] = 'SafeAssign score task ran successfully.';
 $string['servicedown'] = 'SafeAssign service is unavailable.';
 $string['studentdisclosuredefault'] = 'All files uploaded will be submitted to a plagiarism detection service';
 $string['studentdisclosure'] = 'Institution Release Statement';
-$string['studentdisclosure_help'] = 'This text will be displayed to all students on the file upload page.';
+$string['studentdisclosure_help'] = 'This text will be displayed to all students on the file upload page. If this
+field is left empty, the default localized string (studentdisclosuredefault) will be used instead.';
 $string['safeassignexplain'] = 'For more information on this plugin see: ';
 $string['safeassign'] = 'SafeAssign';
 $string['safeassign:enable'] = 'Allow the teacher to enable/disable SafeAssign inside an activity';
