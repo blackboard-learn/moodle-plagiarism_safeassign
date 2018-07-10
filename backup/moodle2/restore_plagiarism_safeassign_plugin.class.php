@@ -78,7 +78,7 @@ class restore_plagiarism_safeassign_plugin extends restore_plagiarism_plugin {
      * @throws moodle_exception
      */
     public function after_restore_module() {
-        global $DB;
+        global $DB, $USER;
 
         $supportedmodules = ['assign'];
         $modulename = $this->task->get_modulename();
@@ -90,6 +90,20 @@ class restore_plagiarism_safeassign_plugin extends restore_plagiarism_plugin {
             $data->assignmentid = $cm->instance;
             $data->courseid = $course->id;
             $DB->insert_record('plagiarism_safeassign_assign', $data);
+
+            $params = array(
+                'courseid'     => $course->id,
+                'instructorid' => $USER->id
+            );
+
+            if (!$DB->record_exists('plagiarism_safeassign_course', $params)) {
+                // Create the data for the course being restored on SafeAssign table.
+                $data = new stdClass();
+                $data->courseid = $course->id;
+                $data->instructorid = $USER->id;
+
+                $DB->insert_record('plagiarism_safeassign_course', $data);
+            }
         }
     }
 
