@@ -191,7 +191,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 $PAGE->requires->js_call_amd('plagiarism_safeassign/score', 'init',
                     array(intval($file['avgscore'] * 100), $userid));
             } else {
-                if ($file['proceed']) {
+                if ($file['proceed'] && $file['status'] === ASSIGN_SUBMISSION_STATUS_SUBMITTED) {
                     $message .= get_string('safeassign_file_in_review', 'plagiarism_safeassign');
                 }
             }
@@ -227,6 +227,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         $avgscore = -1;
         $proceed = 0;
         $fileuuid = '';
+        $status = '';
         $filequery = '
             SELECT fil.id,
                    sub.id as sasubid,
@@ -237,11 +238,14 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                    sfil.supported,
                    sub.uuid,
                    sub.avgscore,
+                   submission.status,
                    sfil.uuid as fileuuid
               FROM {files} fil
          LEFT JOIN {plagiarism_safeassign_subm} sub
                 ON fil.itemid = sub.submissionid
                AND sub.deprecated = 0
+         LEFT JOIN {assign_submission} submission
+                ON sub.submissionid = submission.id
          LEFT JOIN {plagiarism_safeassign_files} sfil
                 ON fil.id = sfil.fileid
                AND sfil.cm = :cmid
@@ -258,6 +262,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         $fileinfo = end($files);
         if (!empty($fileinfo)) {
             $proceed = !empty($fileinfo->sasubid) ? 1 : 0;
+            $status = $fileinfo->status;
             if (!empty($fileinfo->safilid)) {
                 $analyzed = $fileinfo->reportgenerated;
                 $score = $fileinfo->similarityscore;
@@ -270,7 +275,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         }
 
         return array('analyzed' => $analyzed, 'score' => $score, 'reporturl' => $reporturl, 'supported' => $supported,
-            'subuuid' => $subuuid, 'avgscore' => $avgscore, 'proceed' => $proceed, 'fileuuid' => $fileuuid);
+            'subuuid' => $subuuid, 'avgscore' => $avgscore, 'proceed' => $proceed, 'fileuuid' => $fileuuid, 'status' => $status);
     }
 
     /**
