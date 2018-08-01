@@ -332,7 +332,6 @@ class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase 
         provider::_export_plagiarism_user_data($student->id, $assignment1->get_context(), ['test'], array());
         $submissions = $writer->get_related_data(['test'], 'safeassign-submissions')->submissions;
         $submission = reset($submissions);
-        $this->assertEquals($submission1->timecreated, $submission->timecreated);
         $this->assertEquals($submission1->id, $submission->submissionid);
         $files = $writer->get_related_data(['test'], 'safeassign-files')->files;
         $this->validate_file($file1, reset($files));
@@ -341,7 +340,6 @@ class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase 
         provider::_export_plagiarism_user_data($student->id, $assignment2->get_context(), ['test'], array('file' => 'file'));
         $submissions = $writer->get_related_data(['test'], 'safeassign-submissions')->submissions;
         $submission = reset($submissions);
-        $this->assertEquals($submission2->timecreated, $submission->timecreated);
         $this->assertEquals($submission2->id, $submission->submissionid);
         $files = $writer->get_related_data(['test'], 'safeassign-files')->files;
         $this->validate_file($file2, reset($files));
