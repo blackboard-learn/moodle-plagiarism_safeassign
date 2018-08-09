@@ -275,7 +275,7 @@ class behat_plagiarism_safeassign extends behat_base {
     }
 
     /**
-     * Updates some SafeAssign links.
+     * Reviews if SafeAssign file links have been updated.
      * @Given /^I should see the SafeAssign links updated$/
      */
     public function safeassign_links_updated() {
@@ -306,6 +306,20 @@ class behat_plagiarism_safeassign extends behat_base {
         $files = $fs->get_area_files($context->id, 'assignsubmission_file', 'submission_files', $submission->id);
         foreach ($files as $file) {
             $DB->set_field('files', 'filesize', 10000111, ['id' => $file->get_id()]);
+        }
+    }
+
+    /**
+     * Reviews if SafeAssign old report link has been updated.
+     * @Given /^I should see the SafeAssign old report link updated$/
+     */
+    public function safeassign_old_report_link_updated() {
+        global $CFG;
+        $wwwroot = $CFG->wwwroot;
+        $evaljs = 'return document.querySelector("a.report-button[href*=' .
+            "'" . $wwwroot . "']" . '") != null;';
+        if (!$this->getSession()->evaluateScript($evaljs)) {
+            throw new Exception("SafeAssign old report link not found or not updated.");
         }
     }
 }

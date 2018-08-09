@@ -365,11 +365,12 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             '', 'name, id');
 
         $plagiarismelements = $this->get_configs();
+        $saenabled = isset($data->safeassign_enabled) && $data->safeassign_enabled;
         foreach ($plagiarismelements as $element) {
             $newelement = new stdClass();
             $newelement->cm = $data->coursemodule;
             $newelement->name = $element;
-            $newelement->value = isset($data->$element) && $data->safeassign_enabled ? $data->$element : 0;
+            $newelement->value = isset($data->$element) && $saenabled ? $data->$element : 0;
             if (isset($existingelements[$element])) {
                 $newelement->id = $existingelements[$element];
                 $DB->update_record('plagiarism_safeassign_config', $newelement);
@@ -377,7 +378,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 $DB->insert_record('plagiarism_safeassign_config', $newelement);
             }
         }
-        if (isset($data->safeassign_enabled) && $data->safeassign_enabled) {
+        if ($saenabled) {
             $eventdata = new stdClass();
             $eventdata->courseid = $data->course;
             $eventdata->assignmentid = $data->instance;

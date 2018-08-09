@@ -39,14 +39,16 @@ abstract class fixture_helper {
      * @param object $user
      * @param string $uuid
      * @param string $fileuuid
+     * @param bool $force
      */
-    public static function push_login_and_report($user, $uuid, $fileuuid) {
+    public static function push_login_and_report($user, $uuid, $fileuuid, $force = false) {
         test_safeassign_api_connectors::config_set_ok();
         $teacherloginurl = test_safeassign_api_connectors::create_login_url($user);
         testhelper::push_pair($teacherloginurl, 'user-login-final.json');
         // Get the originality report from SafeAssign.
-        $getreporthtmlurl = test_safeassign_api_connectors::create_get_originality_report_with_file_url($uuid, $fileuuid);
-        testhelper::push_pair($getreporthtmlurl, 'sample-originality-report.html');
+        $getreporthtmlurl = test_safeassign_api_connectors::create_get_originality_report_with_file_url($uuid, $fileuuid, $force);
+        $version = 'v' . ($force ? 1 : 2);
+        testhelper::push_pair($getreporthtmlurl, 'sample-originality-report-' . $version . '.html');
     }
 
 }

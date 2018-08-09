@@ -437,14 +437,14 @@ abstract class safeassign_api {
      * @param string $submissionuuid
      * @param bool $isinstructor
      * @param bool|string $fileuuid File uuid
+     * @param bool $force For getting the old version of the report
      * @param bool $print For getting a print version of the report
      * @param bool|string $cssurl to add some custom report styling
      * @param bool|string $logourl to use custom logo
      * @return bool|mixed
      */
     public static function get_originality_report($userid, $submissionuuid, $isinstructor = false, $fileuuid = false,
-                                                  $print = false, $cssurl = false, $logourl = false) {
-        global $CFG;
+                                                  $force = false, $print = false, $cssurl = false, $logourl = false) {
         $baseurl = get_config(self::PLUGIN, 'safeassign_api');
         if (empty($baseurl)) {
             return false;
@@ -454,19 +454,17 @@ abstract class safeassign_api {
         if (!empty($fileuuid)) {
             $params['file_uuid'] = $fileuuid;
         }
+        if ($force) {
+            $params['force'] = 'true';
+        }
         if ($print) {
-            $params['print'] = true;
+            $params['print'] = 'true';
         }
         if (!empty($cssurl)) {
             $params['css_url'] = $cssurl;
         }
         if (!empty($logourl)) {
             $params['logo_url'] = $logourl;
-        }
-
-        // Temporary bug fix that forces usage of old originality report, new one does not allow resubmission listening.
-        if (!local::duringtesting() && empty($CFG->plagiarism_safeassign_use_new_report)) {
-            $params['force'] = 'true';
         }
 
         $url = new \moodle_url($baseurl . '/api/v1/submissions/' . $submissionuuid . '/report', $params);

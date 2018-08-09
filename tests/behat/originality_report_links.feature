@@ -22,7 +22,7 @@
 @plugin @plagiarism_safeassign @plagiarism_safeassign_originality_report_links
 Feature: Navigate a wrapped version of the originality report and review the wrapped links
   As a Teacher
-  I should be able to navigate through the originality report links and stay within moodle
+  I should be able to navigate through the originality report links and stay within Moodle
 
   Background:
     Given the following config values are set as admin:
@@ -80,6 +80,9 @@ Feature: Navigate a wrapped version of the originality report and review the wra
     And I click on ".plagiarism-inline a" "css_element"
     And I switch to "_sa_originality_report" window
     And I wait until the page is ready
-    And I should see the SafeAssign links updated
+    Then I should see the SafeAssign old report link updated
+    And I follow "Old originality report"
+    And I wait until the page is ready
+    Then I should see the SafeAssign links updated
     And I switch to the main window
     And I log out

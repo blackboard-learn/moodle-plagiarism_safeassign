@@ -64,6 +64,7 @@ class plagiarism_safeassign_controller_default extends mr_controller {
         $courseid = required_param('courseid', PARAM_INT);
         $uuid = required_param('uuid', PARAM_ALPHANUMEXT);
         $fileuuid = optional_param('fileuuid', false, PARAM_ALPHANUMEXT);
+        $force = optional_param('force', false, PARAM_BOOL);
 
         if (!local::duringtesting() || !defined('SAFEASSIGN_OMIT_CACHE')) {
             define('SAFEASSIGN_OMIT_CACHE', true);
@@ -87,18 +88,24 @@ class plagiarism_safeassign_controller_default extends mr_controller {
             }
         }
 
+        // Review if the submission has the report generated.
+        $submission = $DB->get_record('plagiarism_safeassign_subm', ['uuid' => $uuid]);
+        if (empty($submission->reportgenerated)) {
+            $safeassign = new plagiarism_plugin_safeassign();
+            $cmid = $safeassign->get_cmid($submission->assignmentid);
+            $params = ['id' => $cmid->id];
+            if ($isinstructor) {
+                $params['action'] = 'grading';
+            }
+            $assignurl = new \moodle_url('/mod/assign/view.php', $params);
+            redirect($assignurl, get_string('safeassign_file_in_review', 'plagiarism_safeassign'));
+        }
+
         // This saves the correct token for the report display (student or instructor).
         if (local::duringtesting()) {
-            fixture_helper::push_login_and_report($USER, $uuid, $fileuuid);
+            fixture_helper::push_login_and_report($USER, $uuid, $fileuuid, $force);
         }
-        $out = safeassign_api::get_originality_report($USER->id, $uuid, $isinstructor, $fileuuid);
-
-        if (local::duringtesting()) {
-            require_once($CFG->dirroot.'/lib/jquery/plugins.php');
-
-            $jqueryfile = $plugins['jquery']['files'][0];
-            $out .= '<script src="'.$CFG->wwwroot.'/lib/jquery/'.$jqueryfile.'"></script>';
-        }
+        $out = safeassign_api::get_originality_report($USER->id, $uuid, $isinstructor, $fileuuid, $force);
 
         if (empty($out)) {
             $errortext = '<p>';
@@ -114,7 +121,7 @@ class plagiarism_safeassign_controller_default extends mr_controller {
             $event = sync_content_log::create_log_message('error', null, true, $errortext);
             $event->trigger();
 
-            $out = $OUTPUT->notification($errortext, 'notifyerror');
+            $out = $OUTPUT->notification($errortext, 'error');
             return $out;
         }
 
@@ -124,7 +131,6 @@ class plagiarism_safeassign_controller_default extends mr_controller {
                 'uuid' => $uuid,
                 'courseid' => $courseid,
                 'wwwroot' => $CFG->wwwroot,
-                'sesskey' => sesskey()
             ]);
 
         return;

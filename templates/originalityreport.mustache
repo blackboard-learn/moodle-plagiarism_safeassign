@@ -38,47 +38,41 @@
         "content": "... Originality report html ...",
         "uuid": "abcdefghijklmnopqrstyvwxyz",
         "courseid": 100,
-        "wwwroot": "http://mymoodle.com",
-        "sesskey": "abcdefghijklmnopqrstyvwxyz"
+        "wwwroot": "http://mymoodle.com"
     }
 }}
 
 {{{content}}}
 
 <script type="text/javascript">
-    // Had to manually add this because moodle libraries are unavailable.
+    // Had to manually add this because Moodle libraries are unavailable.
     // SafeAssign's originality report is an external page.
     // This will be executed after the page is loaded.
-    $(function() {
+    var decorateOriginalityReport = function() {
         var self = this;
 
         var uuid = '{{{uuid}}}',
-            courseID = {{{courseid}}},
-            wwwroot = '{{{wwwroot}}}',
-            sesskey = '{{{sesskey}}}';
+            courseID = '{{{courseid}}}',
+            wwwroot = '{{{wwwroot}}}';
 
         /**
          * Replaces the file links with the moodle wrapped version.
+         * This works in the old report only.
          */
         self.replaceLinks = function() {
-            $('.attachments-list a').each(function(){
-                var url = $(this).attr('href');
-                var fileuuid = self.getFileUUID(url);
-                $(this).attr('href', wwwroot + '/plagiarism/safeassign/view.php?' +
+            var fileLinks = document.querySelectorAll('.attachments-list a');
+
+            fileLinks.forEach(function(fileLink) {
+                var url = fileLink.getAttribute('href');
+                var query = self.getQuery(url);
+                var fileuuid = query.file_uuid;
+                var force = query.force;
+                fileLink.setAttribute('href', wwwroot + '/plagiarism/safeassign/view.php?' +
                         'courseid=' + courseID +
                         '&uuid=' + uuid +
-                        '&fileuuid=' + fileuuid);
+                        '&fileuuid=' + fileuuid +
+                        '&force=' + force);
             });
-        };
-
-        /**
-         * Gets the file UUID from a URL.
-         * @param url
-         * @returns {string} The file uuid
-         */
-        self.getFileUUID = function(url) {
-            var query = self.getQuery(url);
-            return query.file_uuid;
         };
 
         /**
@@ -97,35 +91,86 @@
         };
 
         /**
-         * Add click event to the resubmit button if it's there.
-         * This will let moodle know about the resubmission so it processes the scores again.
+         * Add event listeners to the resubmit events.
+         * This will let Moodle know about the resubmission so it processes the scores again.
          */
         self.addEventToResubmit = function() {
-            $('#resubmitBtn').on('click', function(e) {
-                e.preventDefault();
-                $.ajax({
-                    url: wwwroot + '/plagiarism/safeassign/view.php?controller=resubmit_ack&action=ack&uuid=' + uuid,
-                    dataType: "json",
-                    success: function (data, status, xhr) {
-                        $('[name="citationsForm"]').submit();
-                    },
-                    error: function (xhr, status, err) {
-                        $('[name="citationsForm"]').submit();
-                    }
+            // Old report version has a form.
+            var resubmitForm = document.querySelector('[name="citationsForm"]');
+
+            // Build request to send ack.
+            var request = self.buildAckRequest();
+
+            if (resubmitForm) {
+                // Old version, listen to submit.
+                resubmitForm.addEventListener('submit', function() {
+                    // Submit ack without waiting for response.
+                    request.send();
                 });
-            });
+            } else {
+                // New version needs us to review any click because the submit button may not exist yet.
+                var reprocessListener = function() {
+                    // Submit button is part of a confirm dialog.
+                    // Let's see if it exists now.
+                    var resubmitBtn = document.querySelector(
+                            '.resubmit-frame .resubmit-popup .resubmit-buttons > *:last-child');
+
+                    if (resubmitBtn) {
+                        resubmitBtn.addEventListener('click', function() {
+                            // Submit ack without waiting for response.
+                            request.send();
+                        });
+                    }
+                };
+                document.addEventListener('click', reprocessListener);
+            }
+        };
+
+        /**
+         * Replaces the link that points towards the old originality report, if found.
+         */
+        self.replaceOldOriginalityLink = function() {
+            var oldReportLink = document.querySelector('a.report-button');
+
+            if (oldReportLink) {
+                var url = oldReportLink.getAttribute('href');
+                var query = self.getQuery(url);
+                var fileuuid = query.file_uuid;
+                oldReportLink.setAttribute('href', wwwroot + '/plagiarism/safeassign/view.php?' +
+                        'courseid=' + courseID +
+                        '&uuid=' + uuid +
+                        '&fileuuid=' + fileuuid +
+                        '&force=true');
+            }
+        };
+
+        /**
+         * Builds a request that allows Moodle to acknowledge that a resubmit has been requested.
+         * It does now wait for a response since this is a "silent" listener that does not interfere with the report.
+         * Best case scenario, if this request is not processed, the report should be rebuilt fast enough.
+         * @return XMLHttpRequest
+         */
+        self.buildAckRequest = function() {
+            var request = new XMLHttpRequest();
+            request.open('GET', wwwroot + '/plagiarism/safeassign/view.php?controller=resubmit_ack&action=ack&uuid=' + uuid);
+            request.setRequestHeader('Content-Type', 'application/json');
+            return request;
         };
 
         /**
          * Init function.
          */
         self.init = function() {
+            self.replaceOldOriginalityLink();
             self.replaceLinks();
             self.addEventToResubmit();
         };
 
+        // This kick-starts the whole process.
         self.init();
-    });
+    };
+
+    document.addEventListener("DOMContentLoaded", decorateOriginalityReport);
 </script>
 
 
