@@ -24,6 +24,8 @@
 
 namespace plagiarism_safeassign\api;
 
+use plagiarism_safeassign\local;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -442,6 +444,7 @@ abstract class safeassign_api {
      */
     public static function get_originality_report($userid, $submissionuuid, $isinstructor = false, $fileuuid = false,
                                                   $print = false, $cssurl = false, $logourl = false) {
+        global $CFG;
         $baseurl = get_config(self::PLUGIN, 'safeassign_api');
         if (empty($baseurl)) {
             return false;
@@ -459,6 +462,11 @@ abstract class safeassign_api {
         }
         if (!empty($logourl)) {
             $params['logo_url'] = $logourl;
+        }
+
+        // Temporary bug fix that forces usage of old originality report, new one does not allow resubmission listening.
+        if (!local::duringtesting() && empty($CFG->plagiarism_safeassign_use_new_report)) {
+            $params['force'] = 'true';
         }
 
         $url = new \moodle_url($baseurl . '/api/v1/submissions/' . $submissionuuid . '/report', $params);
