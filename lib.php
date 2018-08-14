@@ -1460,7 +1460,9 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                     foreach ($roles as $role) {
                         $users = array_merge($users, get_users_from_role_on_context($role, $systemcontext));
                     }
-                    $userids = array_map(create_function('$o', 'return $o->userid;'), $users);
+                    $userids = array_map(function($o) {
+                        return $o->userid;
+                    }, $users);
                     if (!in_array($data['relateduserid'], $userids)) {
                         // Find user enrollemnts in all SafeAssign courses.
                         $sql = 'SELECT sa_c.courseid
@@ -1643,7 +1645,9 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             }
             if (!empty($users)) {
                 // All users from the new roles.
-                $userids = array_map(create_function('$o', 'return $o->userid;'), $users);
+                $userids = array_map(function($o) {
+                    return $o->userid;
+                }, $users);
                 $userids = array_unique($userids, SORT_REGULAR);
                 $sql = 'SELECT courseid
                       FROM {plagiarism_safeassign_instr}
@@ -1693,7 +1697,9 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             foreach ($roles as $role) {
                 $existingusers = array_merge($existingusers, get_users_from_role_on_context($role, $systemcontext));
             }
-            $existinguserids = array_map(create_function('$o', 'return $o->userid;'), $existingusers);
+            $existinguserids = array_map(function($o) {
+                return $o->userid;
+            }, $existingusers);
             $existinguserids = array_unique($existinguserids, SORT_REGULAR);
             $sql = 'SELECT *
                     FROM {role}
@@ -1705,7 +1711,9 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             foreach ($droles as $drole) {
                 $users = array_merge($users, get_users_from_role_on_context($drole, $systemcontext));
             }
-            $userids = array_map(create_function('$o', 'return $o->userid;'), $users);
+            $userids = array_map(function($o) {
+                return $o->userid;
+            }, $users);
             $userids = array_unique($userids, SORT_REGULAR);
             $userstodelete = array_diff($userids, $existinguserids);
             if (!empty($userstodelete)) {
