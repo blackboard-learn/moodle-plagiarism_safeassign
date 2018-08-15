@@ -16,7 +16,7 @@
 # Tests for students sending assignment using SafeAssign plagiarism plugin
 #
 # @package    plagiarism_safeassign
-# @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
+# @copyright  Copyright (c) 2017 Moodlerooms Inc. (http://www.blackboard.com)
 # @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 
 @plugin @plagiarism_safeassign
@@ -170,7 +170,7 @@ Feature: See plagiarism overall score for a submission in an assignment with Saf
     Given I log in as "teacher1"
       And I am on "Course 1" course homepage
       And I click on ".context-header-settings-menu [role=button]" "css_element"
-      And I choose "Moodlerooms Grader" in the open action menu
+      And I choose "Open Grader" in the open action menu
      Then I wait until the page is ready
       And I select "Student 1" from the "guser" singleselect
       And I wait until "SafeAssign overall score" "text" exists

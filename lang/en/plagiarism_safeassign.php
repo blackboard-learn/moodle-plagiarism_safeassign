@@ -77,7 +77,7 @@ $string['shareinfo'] = 'Share info with SafeAssign';
 $string['disclaimer'] = '<br>Submitting to the SafeAssign <a href="https://help.blackboard.com/Learn/Instructor/Assignments/SafeAssign#global_reference" target="_blank">Global Reference Database</a> allows papers from other institutions <br>
                         to be checked against your students paper to protect the origin of their work.';
 $string['settings'] = 'SafeAssign Settings';
-$string['timezone_help'] = 'The timezone set in your Moodlerooms environment.';
+$string['timezone_help'] = 'The timezone set in your Blackboard Open LMS environment.';
 $string['timezone'] = 'Timezone';
 $string['safeassign_status'] = 'SafeAssign status';
 $string['status:pending'] = 'Pending';

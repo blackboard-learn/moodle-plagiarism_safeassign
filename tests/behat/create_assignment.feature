@@ -16,7 +16,7 @@
 # Tests for visibility of admin block by user type and page.
 #
 # @package    plagiarism_safeassign
-# @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
+# @copyright  Copyright (c) 2017 Moodlerooms Inc. (http://www.blackboard.com)
 # @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 
 @plugin @plagiarism_safeassign
@@ -169,7 +169,7 @@ Feature: Enable SafeAssign in an assignment
     And I should see "Allow students to view originality report"
     And I should see "Exclude submissions from institutional and Global Reference Database"
     And I am on the course with shortname "C1"
-    And I add a "Moodlerooms Forum" to section "1"
+    And I add a "Open Forum" to section "1"
     And I should not see "SafeAssign Plagiarism plugin"
     And I press "Expand all"
     And I should not see "Check submissions with SafeAssign"
