@@ -287,4 +287,25 @@ class behat_plagiarism_safeassign extends behat_base {
             throw new Exception("No SafeAssign file links were updated.");
         }
     }
+
+    /**
+     * Changes the submission file size
+     * @Given /^The submission for assignment exceeds the file size limit$/
+     *
+     */
+    public function submission_size_exceeded() {
+        global $DB;
+
+        $module = $DB->get_record('modules', ['name' => 'assign']);
+        $cm = $DB->get_record('course_modules', ['course' => self::$course->id, 'instance' => self::$assignment->id,
+            'module' => $module->id]);
+        $submission = $DB->get_record('assign_submission', ['assignment' => self::$assignment->id,
+            'userid' => self::$student->id]);
+        $context = context_module::instance($cm->id);
+        $fs = get_file_storage();
+        $files = $fs->get_area_files($context->id, 'assignsubmission_file', 'submission_files', $submission->id);
+        foreach ($files as $file) {
+            $DB->set_field('files', 'filesize', 10000111, ['id' => $file->get_id()]);
+        }
+    }
 }

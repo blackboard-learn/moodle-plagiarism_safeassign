@@ -159,3 +159,20 @@ Feature: Send an submission to a SafeAssign assignment
       And I should see "This submission will not be reviewed by SafeAssign" in the "Multi Role" "table_row"
       And I should see "This submission will not be reviewed by SafeAssign" in the "Admin User" "table_row"
       Then I log out
+
+  @javascript
+  Scenario: Submission exceeds the size limit
+    Given I log in as "student1"
+    Given set test helper teacher "teacher1"
+    And set test helper student "student1"
+    And set test helper course with shortname "C1"
+    And set test helper assignment with name "Assignment One"
+    And I am on "Course 1" course homepage
+    And I follow "Assignment One"
+    When I press "Add submission"
+    And I upload "lib/tests/fixtures/empty.txt" file to "File submissions" filemanager
+    And I press "Save changes"
+    And The submission for assignment exceeds the file size limit
+    And I reload the page
+    And I should see "This submission exceeds the combined size limit of 10 MB and won't be processed by SafeAssign"
+    And I log out

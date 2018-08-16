@@ -26,6 +26,7 @@ if (!defined('MOODLE_INTERNAL')) {
     die('Direct access to this script is forbidden.'); // It must be included from a Moodle page.
 }
 
+define('SAFEASSIGN_SUBMISSION_MAX_SIZE', 10000000);
 // Get global class.
 global $CFG;
 require_once($CFG->dirroot.'/plagiarism/lib.php');
@@ -118,9 +119,11 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $file = null;
             $userid = $linkarray['userid'];
             $isonlinesubmission = false;
+            $submissionsize = 0;
             if (isset($linkarray['file'])) {
                 // This submission has a file associated with it.
                 $file = $this->get_file_results($cmid, $userid, $linkarray['file']->get_id());
+                $submissionsize = $this->get_total_file_size($linkarray['file']->get_contextid(), $linkarray['file']->get_itemid());
             } else {
                 if (!empty($linkarray['content'])) {
                     // This submission has an online text associated with it.
@@ -130,12 +133,15 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                     $filerecord = $DB->get_record('files', array('filename' => $namefile));
                     if (is_object($filerecord)) {
                         $file = $this->get_file_results($cmid, $userid, $filerecord->id);
+                        $modcontext = context_module::instance($linkarray['cmid']);
                         $isonlinesubmission = true;
+                        $submissionsize = $this->get_total_file_size($modcontext->id, $submission->id);
                     }
                 }
             }
             if ($file != null) {
-                $message = $this->get_message_result($file, $cm, $courseconfiguration, $userid, $isonlinesubmission);
+                $message = $this->get_message_result($file, $cm, $courseconfiguration, $userid, $isonlinesubmission,
+                    $submissionsize);
             }
             return $message;
         } else {
@@ -152,9 +158,11 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      * @param array $courseconfiguration
      * @param int $userid
      * @param boolean $isonlinesubmission
+     * @param int $submissionsize
      * @return string
      */
-    private function get_message_result($file, $cm, array $courseconfiguration, $userid, $isonlinesubmission) {
+    private function get_message_result($file, $cm, array $courseconfiguration, $userid, $isonlinesubmission,
+                                        $submissionsize) {
         global $USER, $OUTPUT, $COURSE, $PAGE, $DB;
 
         $onlinetextclass = $isonlinesubmission ? 'online-text-div' : '';
@@ -191,7 +199,9 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 $PAGE->requires->js_call_amd('plagiarism_safeassign/score', 'init',
                     array(intval($file['avgscore'] * 100), $userid));
             } else {
-                if ($file['proceed'] && $file['status'] === ASSIGN_SUBMISSION_STATUS_SUBMITTED) {
+                if ($submissionsize > SAFEASSIGN_SUBMISSION_MAX_SIZE) {
+                    $message .= get_string('safeassign_file_limit_exceeded', 'plagiarism_safeassign');
+                } else if ($file['proceed'] && $file['status'] === ASSIGN_SUBMISSION_STATUS_SUBMITTED) {
                     $message .= get_string('safeassign_file_in_review', 'plagiarism_safeassign');
                 }
             }
@@ -565,6 +575,8 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      */
     private function create_submission_record($eventdata, $params) {
         global $DB;
+
+        $submissionsize = $this->get_total_file_size($eventdata['contextid'], $eventdata['objectid']);
         $submissionid = $eventdata['objectid'];
         if ($eventdata['objecttable'] === 'assignsubmission_onlinetext') {
             $submissionid = $eventdata['other']['submissionid'];
@@ -581,12 +593,35 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         $submission->highscore = 0.0;
         $submission->avgscore = 0.0;
         // If we mark instructor's submission as deprecated, we avoid that the task tries to sync it continuously.
-        $submission->deprecated = $isinstructor ? 1 : 0;
+        $submission->deprecated = $isinstructor || ($submissionsize > SAFEASSIGN_SUBMISSION_MAX_SIZE) ? 1 : 0;
+
         $submission->hasfile = (isset($params['hasfile'])) ? $params['hasfile'] : 0;
         $submission->hasonlinetext = (isset($params['hasonlinetext'])) ? $params['hasonlinetext'] : 0;
         $submission->timecreated = $eventdata['timecreated'];
         $submission->assignmentid = $DB->get_field('assign_submission', 'assignment', array('id' => $eventdata['objectid']));
         $DB->insert_record('plagiarism_safeassign_subm', $submission);
+    }
+
+    /**
+     * Returns the total filesize for a given submission
+     * @param $contextid Context module ID
+     * @param $submissionid
+     */
+    public function get_total_file_size($contextid, $submissionid) {
+        global $USER;
+        $usercontext = context_user::instance($USER->id);
+        $total = 0;
+        $fs = get_file_storage();
+        $files = $fs->get_area_files($contextid, 'assignsubmission_file', 'submission_files', $submissionid);
+        foreach ($files as $file) {
+            $total += $file->get_filesize();
+        }
+        $onlinetext = $fs->get_file($usercontext->id, 'assignsubmission_text_as_file', 'submission_text_files', $submissionid,
+            '/', 'userid_' . $USER->id . '_text_submissionid_' . $submissionid . '.txt');
+        if ($onlinetext) {
+            $total += $onlinetext->get_filesize();
+        }
+        return $total;
     }
 
     /**
@@ -624,6 +659,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         if (empty($record)) {
             $this->create_submission_record($eventdata, $params);
         } else {
+            $totalsize = $this->get_total_file_size($eventdata['contextid'], $submissionid);
             $originalhasfile = $record->hasfile;
             $originalhasonlinesubmission = $record->hasonlinetext;
             if (isset($params['hasfile'])) {
@@ -632,7 +668,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             if (isset($params['hasonlinetext'])) {
                 $record->hasonlinetext = $params['hasonlinetext'];
             }
-            if ($record->hasfile == 0 && $record->hasonlinetext == 0) {
+            if (($record->hasfile == 0 && $record->hasonlinetext == 0) || $totalsize > SAFEASSIGN_SUBMISSION_MAX_SIZE) {
                 $record->deprecated = 1;
             }
             if ($originalhasfile != $record->hasfile || $originalhasonlinesubmission != $record->hasonlinetext
@@ -1106,7 +1142,8 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     public function make_file_from_text_submission($eventdata) {
         global $DB;
 
-        if (get_config('plagiarism', 'safeassign_use')) {
+        $config = $this->check_assignment_config($eventdata);
+        if (get_config('plagiarism', 'safeassign_use') & !empty($config) && $config['safeassign_enabled']) {
             $fs = get_file_storage();
             $usercontext = context_user::instance($eventdata['userid']);
             $oldfile = $fs->get_file($usercontext->id, 'assignsubmission_text_as_file', 'submission_text_files',
