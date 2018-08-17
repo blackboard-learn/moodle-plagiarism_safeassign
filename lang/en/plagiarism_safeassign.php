@@ -113,7 +113,7 @@ $string['submissions_global_reference'] = 'Exclude submissions from institutiona
 $string['submissions_global_reference_help'] = 'Submissions will still be processed by SafeAssign but won’t be registered in databases. This avoids files being marked as plagiarized when teachers allow re-submissions in a specific assignment.';
 // Disclosure agreement.
 $string['plagiarism_tools'] = 'Plagiarism Tools';
-$string['files_accepted'] = 'SafeAssign accepts files in .doc, .docx, .docm, .ppt, .pptx, .odt, .txt, .rtf, .pdf and .html file formats only. Files of any other format will not be checked through SafeAssign.
+$string['files_accepted'] = 'SafeAssign accepts files in .doc, .docx, .docm, .ppt, .pptx, .odt, .txt, .rtf, .pdf and .html file formats only. Files of any other format, including .zip and other compressed file formats, will not be checked through SafeAssign.
 <br><br>By submitting this paper, you agree:
  (1) that you are submitting your paper to be used and stored as part of the SafeAssign&trade; services in accordance with the Blackboard <a href="http://www.blackboard.com/safeassign/tos.htm" target="_blank">Terms and Service</a> and <a href="http://blackboard.com/footer/privacy-policy.aspx" target="_blank">Blackboard Privacy Policy</a>;
  (2) that your institution may use your paper in accordance with your institution\'s policies; and
