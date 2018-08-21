@@ -143,6 +143,7 @@ $string['safeassign_submission_not_supported_help'] = 'Submissions created by co
 $string['safeassign_file_in_review'] = 'SafeAssign Originality Report in progress...';
 $string['safeassign_file_similarity_score'] = 'SafeAssign score: {$a}%<br>';
 $string['safeassign_link_originality_report'] = 'View originality report';
+$string['safeassign_file_limit_exceeded'] = "This submission exceeds the combined size limit of 10 MB and won't be processed by SafeAssign";
 
 // Originality report.
 $string['originality_report'] = 'SafeAssign Originality Report';

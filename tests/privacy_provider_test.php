@@ -142,7 +142,7 @@ class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase 
         $plugin->save($submission, $data);
         $events = $sink->get_events();
         $event = reset($events);
-
+        $this->setUser($student->id);
         // Submission is processed by the event observer class.
         plagiarism_safeassign_observer::assignsubmission_file_uploaded($event);
 

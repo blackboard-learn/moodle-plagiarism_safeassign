@@ -64,8 +64,8 @@ class plagiarism_safeassign_observer {
         \assignsubmission_onlinetext\event\submission_created $event) {
         $eventdata = $event->get_data();
         $safeassign = new plagiarism_plugin_safeassign();
-        $safeassign->create_submission($eventdata);
         $safeassign->make_file_from_text_submission($eventdata);
+        $safeassign->create_submission($eventdata);
 
     }
 
@@ -89,8 +89,8 @@ class plagiarism_safeassign_observer {
         \assignsubmission_onlinetext\event\submission_updated $event ) {
         $eventdata = $event->get_data();
         $safeassign = new plagiarism_plugin_safeassign();
-        $safeassign->create_submission($eventdata);
         $safeassign->make_file_from_text_submission($eventdata);
+        $safeassign->create_submission($eventdata);
     }
 
     /**
