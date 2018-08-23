@@ -28,6 +28,7 @@ use plagiarism_safeassign\api\safeassign_api;
 use plagiarism_safeassign\api\rest_provider;
 use plagiarism_safeassign\api\fixture_helper;
 use plagiarism_safeassign\local;
+use plagiarism_safeassign\event\sync_content_log;
 
 /**
  * SafeAssign default controller.
@@ -109,6 +110,9 @@ class plagiarism_safeassign_controller_default extends mr_controller {
             }
             $errortext .= '</p>';
             $errortext .= \plagiarism_safeassign\api\error_handler::process_last_api_error(false, true, true);
+
+            $event = sync_content_log::create_log_message('error', null, true, $errortext);
+            $event->trigger();
 
             $out = $OUTPUT->notification($errortext, 'notifyerror');
             return $out;
