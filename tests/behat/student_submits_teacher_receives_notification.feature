@@ -16,7 +16,7 @@
 # Tests for students sending assignment using SafeAssign plagiarism plugin
 #
 # @package    plagiarism_safeassign
-# @copyright  Copyright (c) 2017 Moodlerooms Inc.
+# @copyright  Copyright (c) 2017 Blackboard Inc.
 # @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 
 @plugin @plagiarism_safeassign
