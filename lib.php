@@ -1023,7 +1023,8 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         $wrapper->userid = (int) $data['userid'];
         $wrapper->courseuuid = $credentials[$submission['assignmentid']]->courseuuid;
         $wrapper->assignuuid = $credentials[$submission['assignmentid']]->assignuuid;
-        $wrapper->filepaths = array();
+        $wrapper->filepaths = [];
+        $wrapper->files = [];
 
         if ($unsynced->hasfile) {
             $files = $data['plugins'][0]['fileareas'][0]['files'];
@@ -1048,6 +1049,11 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 $wrapper->filenames[] = $textfile->get_filename();
             }
         }
+        // If there are no files, this should be skipped.
+        if (empty($wrapper->files)) {
+            return false;
+        }
+
         $wrapper->globalcheck = ($unsynced->globalcheck) ? true : false;;
         $wrapper->grouppermission = true;
         $result = safeassign_api::create_submission($wrapper->userid, $wrapper->courseuuid,
