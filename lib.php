@@ -29,7 +29,6 @@ if (!defined('MOODLE_INTERNAL')) {
 // Get global class.
 global $CFG;
 require_once($CFG->dirroot.'/plagiarism/lib.php');
-require_once($CFG->dirroot.'/mod/assign/externallib.php');
 use plagiarism_safeassign\api\safeassign_api;
 use plagiarism_safeassign\api\rest_provider;
 use plagiarism_safeassign\event\sync_content_log;
@@ -914,12 +913,17 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     public function get_unsynced_submissions() {
         global $DB;
 
-        $sql = "SELECT s.submissionid, s.hasfile, s.hasonlinetext, s.groupsubmission, s.globalcheck
+        $sql = 'SELECT s.submissionid, s.hasfile, s.hasonlinetext, s.groupsubmission, s.globalcheck,
+                       a.uuid as assignuuid, a.assignmentid, c.uuid as courseuuid, c.courseid, asubm.userid
                   FROM {plagiarism_safeassign_subm} s
+                  JOIN {plagiarism_safeassign_assign} a ON a.assignmentid = s.assignmentid
+                  JOIN {plagiarism_safeassign_course} c ON a.courseid = c.courseid
+                  JOIN {assign_submission} asubm ON asubm.id = s.submissionid
                  WHERE s.deprecated = 0
                    AND s.uuid IS NULL
                    AND s.submitted = 0
-                   AND (s.hasonlinetext = 1 OR s.hasfile = 1)";
+                   AND (s.hasonlinetext = 1 OR s.hasfile = 1)
+                   AND asubm.status = "submitted"';
         return $DB->get_records_sql($sql, array());
     }
 
@@ -939,96 +943,128 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         $credentials = $this->get_course_credentials($ids);
         // Can't sync anything without credentials for courses and assignments.
         if (!empty($credentials)) {
-            $submissions = mod_assign_external::get_submissions($ids, 'submitted');
             $unsynced = $this->get_unsynced_submissions();
             if (empty($unsynced)) {
                 return false;
             }
-            if (isset($submissions['assignments'])) {
-                // Go on each assign submissions.
-                $count = 0;
-                foreach ($submissions['assignments'] as $submission) {
-                    if (isset($submission['submissions'][0]) && (count($submission['submissions'][0]) > 0 )) {
-                        $arraydata = $submission['submissions'];
-                        // Go on each submission.
-                        foreach ($arraydata as $data) {
-                            if (isset($unsynced[$data['id']])) {
-                                $cm = $this->get_cmid($submission['assignmentid']);
-                                $assignmentcontext = context_module::instance($cm->id);
-                                if ($this->sync_submission($data, $credentials, $submission, $unsynced[$data['id']],
-                                    $assignmentcontext)) {
-                                    $count++;
-                                }
-                            }
-                        }
-                    }
+            // Check each submission.
+            $count = 0;
+            foreach ($unsynced as $unsyncsubmission) {
+                $cm = $this->get_cmid($unsyncsubmission->assignmentid);
+                $assignmentcontext = context_module::instance($cm->id);
+
+                $unsyncsubmission->contextid = $assignmentcontext->id;
+                if ($this->sync_submission($unsyncsubmission)) {
+                    $count++;
                 }
-                if ($count > 0) {
-                    $event = sync_content_log::create_log_message('Submissions', $count, false);
-                    $event->trigger();
-                }
+            }
+
+            if ($count > 0) {
+                $event = sync_content_log::create_log_message('Submissions', $count, false);
+                $event->trigger();
             }
         }
     }
 
     /**
+     * Get all the files that belong to the unsynced submission.
+     *
+     * @param int $submissionid Id of the submission
+     * @param int $context Context
+     * @return array Array with the files belonging to this submission
+     */
+    private function get_unsynced_files($submissionid, $contextid) {
+        global $DB;
+        $files = array();
+        $filenames = array();
+        $filepaths = array();
+
+        $sql = "SELECT id, filearea, filepath, filename
+                  FROM {files} mrfile
+                 WHERE itemid = :submissionid
+                   AND component = 'assignsubmission_file'
+                   AND contextid = :contextid
+                   AND filesize > 0";
+
+        $params = array("submissionid" => $submissionid, "contextid" => $contextid);
+        $records = $DB->get_records_sql($sql, $params);
+
+        foreach ($records as $file) {
+            $fs = get_file_storage();
+            $fileobj = $fs->get_file($contextid, 'assignsubmission_file', 'submission_files',
+                $submissionid, $file->filepath, $file->filename);
+
+            // If file object does not exist, log an error and skip.
+            if (!$fileobj) {
+                $errortext = 'File with submission ID: ' . $submissionid .
+                    ' and context ID: ' . $contextid . ' could not be found on database';
+                $event = sync_content_log::create_log_message('error', null, true, $errortext);
+                $event->trigger();
+                continue;
+            }
+            $files[] = $fileobj;
+            $filenames[] = $file->filename;
+        }
+
+        return array("files" => $files, "filenames" => $filenames);
+    }
+
+    /**
      * Sends the submission info for the given assignment to the SafeAssign service.
-     * @param stdClass[] $data
-     * @param stdClass[] $credentials
-     * @param object $submission
-     * @param stdClass $unsynced
-     * @param context $context
+     * @param stdClass $data
      * @return bool
      */
-    public function sync_submission(array $data, array $credentials, $submission, stdClass $unsynced, context $context) {
+    public function sync_submission(stdClass $data) {
         global $DB, $CFG;
+
+        $userid         = $data->userid;
+        $submissionid   = $data->submissionid;
+        $courseuuid     = $data->courseuuid;
+        $assignuuid     = $data->assignuuid;
+        $courseid       = $data->courseid;
+        $hasfile        = $data->hasfile;
+        $hasonlinetext  = $data->hasonlinetext;
+        $globalcheck    = $data->globalcheck;
+        $contextid      = $data->contextid;
+
         // Build the object to pass in to service.
         $wrapper = new stdClass();
-        $wrapper->userid = (int) $data['userid'];
-        $wrapper->courseuuid = $credentials[$submission['assignmentid']]->courseuuid;
-        $wrapper->assignuuid = $credentials[$submission['assignmentid']]->assignuuid;
-        $wrapper->filepaths = [];
-        $wrapper->files = [];
+        $wrapper->userid = $userid;
+        $wrapper->courseuuid = $courseuuid;
+        $wrapper->assignuuid = $assignuuid;
 
-        if ($unsynced->hasfile) {
-            $files = $data['plugins'][0]['fileareas'][0]['files'];
-            foreach ($files as $file) {
-                $fs = get_file_storage();
-                $wrapper->files[] = $fs->get_file($context->id, 'assignsubmission_file', 'submission_files',
-                    $data['id'], $file['filepath'], $file['filename']);
-                $wrapper->filepaths[] = $file['fileurl'];
-                $wrapper->filenames[] = $file['filename'];
+        if ($hasfile) {
+            $unsyncedfiles = self::get_unsynced_files($submissionid, $contextid);
+            // If there are no unsynced files, skip. Errors were thrown on function.
+            if (empty($unsyncedfiles)) {
+                return false;
             }
+
+            $wrapper->files = $unsyncedfiles['files'];
+            $wrapper->filenames = $unsyncedfiles['filenames'];
         }
-        if ($unsynced->hasonlinetext) {
+        if ($hasonlinetext) {
             $fs = get_file_storage();
             $usercontext = context_user::instance($wrapper->userid );
-            $textfile = $fs->get_file($usercontext->id, 'assignsubmission_text_as_file', 'submission_text_files', $data['id'],
-                '/', 'userid_' . $data['userid'] . '_text_submissionid_' . $data['id'] . '.txt');
+            $textfile = $fs->get_file($usercontext->id, 'assignsubmission_text_as_file', 'submission_text_files', $submissionid,
+                '/', 'userid_' . $userid . '_text_submissionid_' . $submissionid . '.txt');
             if ($textfile) {
                 $wrapper->files[] = $textfile;
-                $wrapper->filepaths[] = moodle_url::make_webservice_pluginfile_url($usercontext->id,
-                    'assignsubmission_text_as_file', 'submission_text_files', $data['id'], $textfile->get_filepath(),
-                    $textfile->get_filename())->out(false);
                 $wrapper->filenames[] = $textfile->get_filename();
             }
         }
-        // If there are no files, this should be skipped.
-        if (empty($wrapper->files)) {
-            return false;
-        }
-
-        $wrapper->globalcheck = ($unsynced->globalcheck) ? true : false;;
+        $wrapper->globalcheck = ($globalcheck) ? true : false;
         $wrapper->grouppermission = true;
+
         $result = safeassign_api::create_submission($wrapper->userid, $wrapper->courseuuid,
             $wrapper->assignuuid, $wrapper->files, $wrapper->globalcheck, $wrapper->grouppermission);
         $responsedata = json_decode(rest_provider::instance()->lastresponse());
         if ($result === true) {
-            $record = $DB->get_record('plagiarism_safeassign_subm', array('submissionid' => $data['id'],
+            $record = $DB->get_record('plagiarism_safeassign_subm', array('submissionid' => $submissionid,
                 'uuid' => null, 'submitted' => 0, 'deprecated' => 0));
             $record->submitted = 1;
-            $this->sync_submission_files($data['id'], $responsedata, $wrapper->filenames,
-                $wrapper->userid, $credentials[$submission['assignmentid']]->courseid);
+            $this->sync_submission_files($submissionid, $responsedata, $wrapper->filenames,
+                $wrapper->userid, $courseid);
             if (!empty($responsedata->submissions[0])) {
                 $record->uuid = $responsedata->submissions[0]->submission_uuid;
             }
@@ -1046,7 +1082,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 $params['Url'] = $baseurl . '/api/v1/courses/' . $wrapper->courseuuid . '/assignments/'
                     . $wrapper->assignuuid . '/submissions';
             }
-            $event = sync_content_log::create_log_message('submission', $data['id'], true, null, $params);
+            $event = sync_content_log::create_log_message('submission', $submissionid, true, null, $params);
             $event->trigger();
             return false;
         }
