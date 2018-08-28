@@ -771,4 +771,52 @@ class plagiarism_safeassign_safeassign_api_testcase_with_handling_class extends 
         $this->assertFalse($result);
         $this->assertTrue(rest_provider::instance()->lasthttpcode() >= 400);
     }
+
+    /**
+     * Process last API error for originality report.
+     * @return void
+     */
+    public function test_process_last_api_originality_error_process() {
+        $this->resetAfterTest(true);
+        $this->config_set_ok();
+        $courseuuid = $this->create_course_uuid();
+        $assignmentuuid = $this->create_assignment_uuid($courseuuid);
+        $submissionuuid = $this->create_submission_uuid($courseuuid, $assignmentuuid);
+
+        // Get originality report.
+        // Push fixtures as cached responses.
+        $getreporturl = test_safeassign_api_connectors::create_get_originality_report_url($submissionuuid);
+        testhelper::push_pair($getreporturl, 'forbidden_error.json', 403);
+        $result = safeassign_api::get_originality_report($this->user->id, $submissionuuid);
+        $this->assertFalse($result);
+
+        $expected = get_string('error_api_forbidden', 'plagiarism_safeassign').PHP_EOL;
+        $expected .= 'ERROR_ID: b53ad9d2-6e83-4592-8c04-18dada86b14b'.PHP_EOL;
+        $expected .= 'ERROR_CODE: FORBIDDEN'.PHP_EOL;
+        $this->assertEquals($expected, error_handler::process_last_api_error(false, true));
+
+        // Get originality report.
+        // Push fixtures as cached responses.
+        $getreporturl = test_safeassign_api_connectors::create_get_originality_report_url($submissionuuid);
+        testhelper::push_pair($getreporturl, 'not_found_error.json', 404);
+        $result = safeassign_api::get_originality_report($this->user->id, $submissionuuid);
+        $this->assertFalse($result);
+
+        $expected = get_string('error_api_not_found', 'plagiarism_safeassign').PHP_EOL;
+        $expected .= 'ERROR_ID: b53ad9d2-6e83-4592-8c04-18dada86b14b'.PHP_EOL;
+        $expected .= 'ERROR_CODE: NOT_FOUND'.PHP_EOL;
+        $this->assertEquals($expected, error_handler::process_last_api_error(false, true));
+
+        // Get originality report.
+        // Push fixtures as cached responses.
+        $getreporturl = test_safeassign_api_connectors::create_get_originality_report_url($submissionuuid);
+        testhelper::push_pair($getreporturl, 'unauthorized_error.json', 401);
+        $result = safeassign_api::get_originality_report($this->user->id, $submissionuuid);
+        $this->assertFalse($result);
+
+        $expected = get_string('error_api_unauthorized', 'plagiarism_safeassign').PHP_EOL;
+        $expected .= 'ERROR_ID: b53ad9d2-6e83-4592-8c04-18dada86b14b'.PHP_EOL;
+        $expected .= 'ERROR_CODE: UNAUTHORIZED'.PHP_EOL;
+        $this->assertEquals($expected, error_handler::process_last_api_error(false, true));
+    }
 }
