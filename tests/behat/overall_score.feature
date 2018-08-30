@@ -101,7 +101,6 @@ Feature: See plagiarism overall score for a submission in an assignment with Saf
     And set test helper course with shortname "C1"
     And set test helper assignment with name "Assignment Two"
     And I send a submission with file "lib/tests/fixtures/empty.txt"
-    And I send a submission with file "plagiarism/safeassign/tests/fixtures/test.txt"
     And I sync submissions
    Then I log in as "student3"
     And I am on "Course 1" course homepage
