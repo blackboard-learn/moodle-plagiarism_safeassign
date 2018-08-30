@@ -95,35 +95,13 @@
          * This will let Moodle know about the resubmission so it processes the scores again.
          */
         self.addEventToResubmit = function() {
-            // Old report version has a form.
-            var resubmitForm = document.querySelector('[name="citationsForm"]');
-
             // Build request to send ack.
             var request = self.buildAckRequest();
-
-            if (resubmitForm) {
-                // Old version, listen to submit.
-                resubmitForm.addEventListener('submit', function() {
-                    // Submit ack without waiting for response.
-                    request.send();
-                });
-            } else {
-                // New version needs us to review any click because the submit button may not exist yet.
-                var reprocessListener = function() {
-                    // Submit button is part of a confirm dialog.
-                    // Let's see if it exists now.
-                    var resubmitBtn = document.querySelector(
-                            '.resubmit-frame .resubmit-popup .resubmit-buttons > *:last-child');
-
-                    if (resubmitBtn) {
-                        resubmitBtn.addEventListener('click', function() {
-                            // Submit ack without waiting for response.
-                            request.send();
-                        });
-                    }
-                };
-                document.addEventListener('click', reprocessListener);
-            }
+            // Add callback to resubmit event.
+            document.safeassign.onResubmit(function() {
+                // Submit ack without waiting for response.
+                request.send();
+            });
         };
 
         /**
@@ -154,6 +132,9 @@
             var request = new XMLHttpRequest();
             request.open('GET', wwwroot + '/plagiarism/safeassign/view.php?controller=resubmit_ack&action=ack&uuid=' + uuid);
             request.setRequestHeader('Content-Type', 'application/json');
+            request.onload = function () {
+                window.close();
+            };
             return request;
         };
 
