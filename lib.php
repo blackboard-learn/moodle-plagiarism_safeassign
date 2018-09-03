@@ -1479,9 +1479,9 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      */
     public function process_role_assignments($data, $eventtype) {
         global $DB, $CFG;
-        $select = 'SELECT id
+        $select = "SELECT id
                      FROM {role}
-                    WHERE archetype = "editingteacher" OR archetype = "manager"';
+                    WHERE archetype = 'editingteacher' OR archetype = 'manager'";
         $editingroles = $DB->get_fieldset_sql($select);
         $systemcontext = context_system::instance();
         $additionalroles = explode(',', get_config('plagiarism_safeassign', 'safeassign_additional_roles'));
