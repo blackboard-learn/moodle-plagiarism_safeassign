@@ -8,7 +8,7 @@ assignments against a set of sources to identify areas of overlap between the su
 
 You can download the plagiarism plugin from:
 
-https://github.com/moodlerooms/moodle-plagiarism_safeassign
+https://github.com/blackboard-open-source/moodle-plagiarism_safeassign
 
 This plugin should be located and named as:
  [yourmoodledir]/plagiarism/safeassign
