@@ -950,6 +950,23 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     public function get_unsynced_submissions() {
         global $DB;
 
+        // Check if there are submission without valid assignment ids and update them.
+        // A submission can be invalid if its submission id is 0 or it does not correspond to submission tables.
+        $sql = 'UPDATE {plagiarism_safeassign_subm} sasub
+                   SET assignmentid = (
+                SELECT msub.assignment
+                  FROM {assign_submission} msub
+                 WHERE sasub.submissionid = msub.id)
+          WHERE EXISTS (
+                SELECT *
+                  FROM {assign_submission} msub
+                 WHERE sasub.submissionid = msub.id
+                   AND sasub.deprecated = 0
+                   AND sasub.uuid IS NULL
+                   AND sasub.assignmentid <> msub.assignment)';
+
+        $DB->execute($sql);
+
         $sql = 'SELECT s.submissionid, s.hasfile, s.hasonlinetext, s.groupsubmission, s.globalcheck,
                        a.uuid as assignuuid, a.assignmentid, c.uuid as courseuuid, c.courseid, asubm.userid
                   FROM {plagiarism_safeassign_subm} s

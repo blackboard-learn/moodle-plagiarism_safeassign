@@ -24,7 +24,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__.'/base.php');
-
+global $CFG;
+require_once($CFG->dirroot.'/plagiarism/safeassign/lib.php');
 use plagiarism_safeassign\api\safeassign_api;
 use plagiarism_safeassign\api\testhelper;
 use plagiarism_safeassign\api\rest_provider;
@@ -818,5 +819,57 @@ class plagiarism_safeassign_safeassign_api_testcase_with_handling_class extends 
         $expected .= 'ERROR_ID: b53ad9d2-6e83-4592-8c04-18dada86b14b'.PHP_EOL;
         $expected .= 'ERROR_CODE: UNAUTHORIZED'.PHP_EOL;
         $this->assertEquals($expected, error_handler::process_last_api_error(false, true));
+    }
+
+    /**
+     * If there are non valid submissions, fix them with info from mr tables.
+     * @return void
+     */
+    public function test_get_unsynced_submissions() {
+        global $DB;
+        $this->resetAfterTest(true);
+
+        // Simulating submissions on mr tables.
+        $countersubm = 10;
+        $assignsubmissions = [];
+        for ($i = 0; $i < $countersubm; $i++) {
+            $assignid = 100 + $i;
+            $submid = $DB->insert_record("assign_submission", (object) array(
+                "assignment" => $assignid,
+                "userid" => 1234
+            ), true);
+
+            $assignsubmissions[] = array("assign" => $assignid, "subm" => $submid);
+        }
+
+        // Simulating non valid records on SafeAssign tables.
+        // Non valid could be assignment id 0 or different from submission Tables.
+        foreach ($assignsubmissions as $submission) {
+            $DB->insert_record("plagiarism_safeassign_subm", (object)array(
+                "submissionid" => $submission['subm'],
+                "assignmentid" => rand(0, 1) == 1 ? 0 : 1234567890,
+                "deprecated" => 0
+            ));
+        }
+
+        // Count non valid records.
+        $nonvalid = 0;
+        foreach ($assignsubmissions as $submission) {
+            $record = $DB->get_record("plagiarism_safeassign_subm", array(
+                "submissionid" => $submission['subm']), "assignmentid");
+            $nonvalid += $submission["assign"] != $record->assignmentid;
+        }
+        $this->assertEquals($countersubm, $nonvalid);
+
+        // Getting unsynced submissions.
+        $plagiarismplugin = new plagiarism_plugin_safeassign();
+        $plagiarismplugin->get_unsynced_submissions();
+
+        // Check that all submissions have valid assignment id.
+        foreach ($assignsubmissions as $submission) {
+            $record = $DB->get_record("plagiarism_safeassign_subm", array(
+                "submissionid" => $submission['subm']), "assignmentid");
+            $this->assertEquals($submission["assign"], $record->assignmentid);
+        }
     }
 }
