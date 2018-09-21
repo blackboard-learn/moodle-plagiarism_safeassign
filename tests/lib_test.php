@@ -552,7 +552,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $adminids = explode(',', $adminids);
 
         foreach ($adminids as $id) {
-            $mail = $DB->get_record('message', array('useridto' => $id));
+            $mail = $DB->get_record('notifications', array('useridto' => $id));
             $this->assertEquals($mail->subject, 'New SafeAssign License Terms & Conditions available');
             $this->assertEquals($mail->component, 'plagiarism_safeassign');
             $this->assertEquals($mail->eventtype, 'safeassign_notification');
