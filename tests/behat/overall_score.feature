@@ -168,7 +168,7 @@ Feature: See plagiarism overall score for a submission in an assignment with Saf
   Scenario: See plagiarism overall score in MR grader view
     Given I log in as "teacher1"
       And I am on "Course 1" course homepage
-      And I click on ".context-header-settings-menu [role=button]" "css_element"
+      And I click on ".context-header-settings-menu" "css_element"
       And I choose "Open Grader" in the open action menu
      Then I wait until the page is ready
       And I select "Student 1" from the "guser" singleselect
