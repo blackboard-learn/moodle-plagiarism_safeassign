@@ -65,4 +65,13 @@ class local {
         return $runningbehattest;
     }
 
+    /**
+     * Is this script running during a specific test?
+     * @param $specifictest
+     * @return bool
+     */
+    public static function duringspecifictest($specifictest) {
+        return defined($specifictest);
+    }
+
 }
