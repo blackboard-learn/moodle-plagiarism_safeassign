@@ -475,9 +475,30 @@ abstract class safeassign_api {
         ];
 
         $result = self::generic_getcall_raw($url->out(false), $userid, $isinstructor, $headers);
+        if (local::duringspecifictest("TEST_RETRY_ORIGINALITY")) {
+            $result = false;
+        }
+
+        // If it couldn't get an originality report, try one more time for it could be an old token.
+        if (!$result) {
+            $result = self::retry_get_originality_report($url, $userid, $isinstructor, $headers);
+        }
+
         return $result;
     }
 
+    /**
+     * If there were no originality report retrieved, try again resetting tokens.
+     * @param \moodle_url $url URL to get originality report
+     * @param string $userid User ID retrieving the originality report
+     * @param bool $isinstructor If the user is an instructor
+     * @param array $headers special headers for the call
+     * @return bool|mixed
+     */
+    private static function retry_get_originality_report($url, $userid, $isinstructor, $headers) {
+        rest_provider::instance()->cleartoken();
+        return self::generic_getcall_raw($url->out(false), $userid, $isinstructor, $headers);
+    }
 
     /**
      * Resubmit files from a submission.

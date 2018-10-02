@@ -872,4 +872,29 @@ class plagiarism_safeassign_safeassign_api_testcase_with_handling_class extends 
             $this->assertEquals($submission["assign"], $record->assignmentid);
         }
     }
+
+    /**
+     * Retry getting originality report if the first time fails.
+     * @return void
+     */
+    public function test_retry_get_originality_report() {
+        $this->resetAfterTest(true);
+        $this->config_set_ok();
+        $courseuuid = $this->create_course_uuid();
+        $assignmentuuid = $this->create_assignment_uuid($courseuuid);
+        $submissionuuid = $this->create_submission_uuid($courseuuid, $assignmentuuid);
+
+        // Get originality report.
+        // Push fixtures as cached responses.
+        $getreporturl = test_safeassign_api_connectors::create_get_originality_report_url($submissionuuid);
+        testhelper::push_pair($getreporturl, 'get-originality-report-ok.html');
+
+        define("TEST_RETRY_ORIGINALITY", 1);
+
+        $result = safeassign_api::get_originality_report($this->user->id, $submissionuuid);
+        $this->assertEquals(rest_provider::instance()->lasthttpcode(), 200);
+
+        // Result should have html tags.
+        $this->assertNotEquals(strip_tags($result), $result);
+    }
 }
