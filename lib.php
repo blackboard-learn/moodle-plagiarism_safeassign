@@ -121,6 +121,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $submissionsize = 0;
             if (isset($linkarray['file'])) {
                 // This submission has a file associated with it.
+
                 $file = $this->get_file_results($cmid, $userid, $linkarray['file']->get_id());
                 $submissionsize = $this->get_total_file_size($linkarray['file']->get_contextid(), $linkarray['file']->get_itemid());
             } else {
@@ -695,9 +696,37 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         global $DB, $CFG;
         $updatedsubmissions = array();
         $gradedsubmissions = array();
-        $submissions = $DB->get_records_sql("SELECT plg.*, asg.userid
-        FROM {plagiarism_safeassign_subm} plg, {assign_submission} asg
-        WHERE plg.deprecated = 0 AND plg.reportgenerated = 0 AND plg.submitted = 1 AND plg.submissionid = asg.id;");
+
+        $sql = 'SELECT DISTINCT(plg.id),
+                       plg.uuid,
+                       plg.globalcheck,
+                       plg.groupsubmission,
+                       plg.highscore,
+                       plg.avgscore,
+                       plg.submitted,
+                       plg.reportgenerated,
+                       plg.submissionid,
+                       plg.deprecated,
+                       plg.hasfile,
+                       plg.hasonlinetext,
+                       plg.timecreated,
+                       plg.assignmentid,
+                       plg.deleted,
+		     CASE WHEN asg.userid = 0 AND f.userid <> 0
+                  THEN f.userid
+                  ELSE asg.userid END as userid,
+		               f.userid as fileuserid
+                  FROM {plagiarism_safeassign_subm} plg
+                  JOIN {assign_submission} asg
+             LEFT JOIN {files} f ON plg.submissionid = f.itemid AND mimetype IS NULL
+                 WHERE plg.deprecated = 0
+                   AND (f.filepath = "/" AND f.filename = "." AND f.userid IS NOT NULL)
+                   AND plg.reportgenerated = 0
+                   AND plg.submitted = 1
+                   AND plg.submissionid = asg.id';
+
+        $submissions = $DB->get_records_sql($sql);
+
         $count = 0;
         $baseurl = get_config('plagiarism_safeassign', 'safeassign_api');
         foreach ($submissions as $submission) {
@@ -949,7 +978,6 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      */
     public function get_unsynced_submissions() {
         global $DB;
-
         // Check if there are submission without valid assignment ids and update them.
         // A submission can be invalid if its submission id is 0 or it does not correspond to submission tables.
         $sql = 'UPDATE {plagiarism_safeassign_subm} sasub
@@ -967,18 +995,36 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
 
         $DB->execute($sql);
 
-        $sql = 'SELECT s.submissionid, s.hasfile, s.hasonlinetext, s.groupsubmission, s.globalcheck,
-                       a.uuid as assignuuid, a.assignmentid, c.uuid as courseuuid, c.courseid, asubm.userid
+        // Get records for when users are in groups, and leave out the ones that are on default group.
+        $sql = 'SELECT DISTINCT(s.submissionid),
+                       s.hasfile,
+                       s.hasonlinetext,
+                       s.groupsubmission,
+                       s.globalcheck,
+                       a.uuid as assignuuid,
+                       a.assignmentid,
+                       c.uuid as courseuuid,
+                       c.courseid,
+             CASE WHEN asubm.userid = 0 AND f.userid <> 0
+                  THEN f.userid
+                  ELSE asubm.userid END as userid,
+                       f.userid as fileuserid
                   FROM {plagiarism_safeassign_subm} s
                   JOIN {plagiarism_safeassign_assign} a ON a.assignmentid = s.assignmentid
                   JOIN {plagiarism_safeassign_course} c ON a.courseid = c.courseid
                   JOIN {assign_submission} asubm ON asubm.id = s.submissionid
+             LEFT JOIN {files} f ON s.submissionid = f.itemid AND mimetype IS NULL
                  WHERE s.deprecated = 0
+                   AND (f.filepath = "/" AND f.filename = "." AND f.userid IS NOT NULL)
                    AND s.uuid IS NULL
                    AND s.submitted = 0
                    AND (s.hasonlinetext = 1 OR s.hasfile = 1)
-                   AND asubm.status = "submitted"';
-        return $DB->get_records_sql($sql, array());
+                   AND asubm.status = "submitted"
+                   AND NOT(asubm.userid = 0 AND asubm.groupid = 0)';
+
+        $records = $DB->get_records_sql($sql, array());
+
+        return $records;
     }
 
     /**
