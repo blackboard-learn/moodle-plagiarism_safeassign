@@ -530,6 +530,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                         $params['hasonlinetext'] = 1;
                     }
                 }
+
                 $params['globalcheck'] = $config['safeassign_global_reference'];
                 $this->validate_submission($eventdata, $params);
             }
@@ -599,7 +600,13 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         $submission->hasfile = (isset($params['hasfile'])) ? $params['hasfile'] : 0;
         $submission->hasonlinetext = (isset($params['hasonlinetext'])) ? $params['hasonlinetext'] : 0;
         $submission->timecreated = $eventdata['timecreated'];
-        $submission->assignmentid = $DB->get_field('assign_submission', 'assignment', array('id' => $eventdata['objectid']));
+
+        $submissionid = $eventdata['objectid'];
+        if ($eventdata["objecttable"] == "assignsubmission_onlinetext") {
+            $submissionid = $eventdata["other"]["submissionid"];
+        }
+        $submission->assignmentid = $DB->get_field('assign_submission', 'assignment', array('id' => $submissionid), MUST_EXIST);
+
         $DB->insert_record('plagiarism_safeassign_subm', $submission);
     }
 
@@ -973,6 +980,37 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     }
 
     /**
+     * Helper function to check if records on SafeAssign tables are correct.
+     * plagiarism_safeassign_subm table should not have any record with both hasfile and hasonlinetext in 0
+     */
+    private function db_sanitycheck() {
+        global $DB;
+        if ($DB->count_records("plagiarism_safeassign_subm", array("hasfile" => 0, "hasonlinetext" => 0, "deprecated" => 0)) > 0) {
+            $sql = 'UPDATE {plagiarism_safeassign_subm} t
+                      JOIN
+                           (SELECT s.id as id,
+                                   af.id IS NOT NULL as hasfile,
+                                   ao.id IS NOT NULL as hasonlinetext
+                              FROM {plagiarism_safeassign_subm} s
+                         LEFT JOIN {assignsubmission_file} af
+                                ON af.submission = s.submissionid
+                               AND af.assignment = s.assignmentid
+                         LEFT JOIN {assignsubmission_onlinetext} ao
+                                ON ao.submission = s.submissionid
+                               AND ao.assignment = s.assignmentid
+                             WHERE s.hasonlinetext = 0
+                               AND s.hasfile = 0
+                               AND s.deprecated = 0
+                          ) as t1
+                       ON t1.id = t.id
+                      SET t.hasfile = t1.hasfile, t.hasonlinetext = t1.hasonlinetext';
+
+            $DB->execute($sql);
+        }
+    }
+
+
+    /**
      * Returns the submissions that needs to be synced.
      * @return array object
      */
@@ -994,6 +1032,9 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                    AND sasub.assignmentid <> msub.assignment)';
 
         $DB->execute($sql);
+
+        // Check validity of submissions. Should have at least hasfile or hasonlinetext.
+        $this->db_sanitycheck();
 
         // Get records for when users are in groups, and leave out the ones that are on default group.
         $sql = 'SELECT DISTINCT(s.submissionid),
