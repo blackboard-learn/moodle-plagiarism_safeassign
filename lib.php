@@ -1409,6 +1409,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     public static function send_notification_to_teacher($teacherid, $courseid, $cmid, $counter, $assignmentname = "") {
         global $DB;
         $fromuser = \core_user::get_noreply_user();
+        $context = \context_module::instance($cmid);
         $user = $DB->get_record('user', array('id' => $teacherid, 'deleted' => 0 ), '*');
         $htmllink = new moodle_url('/mod/assign/view.php', ['id' => $cmid, 'action' => 'grading']);
         $plural = get_string('safeassign_notification_subm_plural', 'plagiarism_safeassign');
@@ -1419,7 +1420,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 [
                     'counter' => $counter,
                     'plural' => $plural,
-                    'assignmentname' => format_string($assignmentname)
+                    'assignmentname' => format_string($assignmentname, true, ['context' => $context]),
                 ]);
         $htmlmessage .= '</p><br><a href="' . $htmllink->out(false) . '">' .
             get_string('safeassign_notification_grading_link', 'plagiarism_safeassign').'</a>';
