@@ -814,7 +814,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     public function get_valid_courses() {
         global $DB;
 
-        $sql = 'SELECT courseid, instructorid
+        $sql = 'SELECT DISTINCT courseid, instructorid
                   FROM {plagiarism_safeassign_course}
                  WHERE uuid IS NOT NULL';
 
@@ -968,7 +968,11 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     public function get_course_credentials($assignments) {
         global $DB;
 
-        $sql = "SELECT sa_assign.assignmentid, sa_course.uuid AS courseuuid, sa_assign.uuid AS assignuuid, sa_course.courseid
+        $sql = "
+       SELECT DISTINCT sa_assign.assignmentid,
+                       sa_course.uuid AS courseuuid,
+                       sa_assign.uuid AS assignuuid,
+                       sa_course.courseid
                   FROM {plagiarism_safeassign_assign} sa_assign
                   JOIN {assign} a ON a.id = sa_assign.assignmentid
                   JOIN {plagiarism_safeassign_course} sa_course ON sa_course.courseid = a.course
@@ -1407,7 +1411,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      * @throws coding_exception
      */
     public static function send_notification_to_teacher($teacherid, $courseid, $cmid, $counter, $assignmentname = "") {
-        global $DB;
+        global $DB, $PAGE;
         $fromuser = \core_user::get_noreply_user();
         $context = \context_module::instance($cmid);
         $user = $DB->get_record('user', array('id' => $teacherid, 'deleted' => 0 ), '*');
@@ -1436,6 +1440,11 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         $event->smallmessage = '';
         $event->notification = 1;
         $event->courseid = $courseid;
+
+        // Setting the context for being able to format strings in sent message.
+        if (empty($PAGE->context)) {
+            $PAGE->set_context(\context_course::instance($courseid));
+        }
         \message_send($event);
     }
 
