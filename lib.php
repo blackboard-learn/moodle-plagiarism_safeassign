@@ -814,9 +814,11 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     public function get_valid_courses() {
         global $DB;
 
-        $sql = 'SELECT DISTINCT courseid, instructorid
+        $sql = '
+       SELECT DISTINCT courseid, MAX(instructorid) as instructorid
                   FROM {plagiarism_safeassign_course}
-                 WHERE uuid IS NOT NULL';
+                 WHERE uuid IS NOT NULL
+              GROUP BY courseid';
 
         return $DB->get_records_sql($sql, array());
     }
@@ -1735,16 +1737,17 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         foreach ($courses as $course) {
             $courseids[] = $course->courseid;
         }
-        $params = array();
-        $sql = 'SELECT sa_tchr.id, sa_tchr.instructorid, sa_tchr.courseid, sa_course.uuid
+        list($sqlin, $params) = $DB->get_in_or_equal($courseids);
+        $sql = "
+       SELECT DISTINCT sa_tchr.id, sa_tchr.instructorid, sa_tchr.courseid, sa_course.uuid
                   FROM {plagiarism_safeassign_instr} sa_tchr
                   JOIN {plagiarism_safeassign_course} sa_course ON sa_course.courseid = sa_tchr.courseid
                  WHERE sa_tchr.synced = 0
-                       AND sa_tchr.unenrolled = 0
-                       AND sa_tchr.deleted = 0
-                       AND sa_tchr.courseid ';
-        list($sqlin, $params) = $DB->get_in_or_equal($courseids);
-        $instructors = $DB->get_records_sql($sql . $sqlin, $params);
+                   AND sa_tchr.unenrolled = 0
+                   AND sa_tchr.deleted = 0
+                   AND sa_tchr.courseid {$sqlin}";
+
+        $instructors = $DB->get_records_sql($sql, $params);
         $count = 0;
         $baseurl = get_config('plagiarism_safeassign', 'safeassign_api');
         foreach ($instructors as $instructor) {
