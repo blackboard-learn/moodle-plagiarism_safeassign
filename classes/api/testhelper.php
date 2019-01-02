@@ -84,6 +84,8 @@ abstract class testhelper {
         if (!empty($filename)) {
             if ($filename === 'create-online-submission-ok.json') {
                 $result = self::load_data($CFG->dataroot . '/safeassign/', $filename);
+            } else if ($filename === 'create-submission-file-ok.json') {
+                $result = self::load_data($CFG->dataroot . '/safeassign/', $filename);
             } else {
                 $result = self::load_data($CFG->dirroot . '/plagiarism/safeassign/tests/fixtures/', $filename);
             }

@@ -118,10 +118,11 @@ abstract class test_safeassign_api_connectors {
      * @param string $title
      * @return stdClass
      */
-    public static function create_assignment($id, $title) {
+    public static function create_assignment($id, $title, $cmid) {
         $assignment = new stdClass();
         $assignment->id = $id;
         $assignment->title = $title;
+        $assignment->cmid = $cmid;
         return $assignment;
     }
 
@@ -176,13 +177,14 @@ abstract class test_safeassign_api_connectors {
     /**
      * Creates an url to check an assignment in a SafeAssign course.
      * @param string $courseuuid
-     * @param string $assignmentid
+     * @param int $moduleid
+     * @param int $instanceid
      * @return string
      */
-    public static function create_check_assignment_url($courseuuid, $assignmentid) {
+    public static function create_check_assignment_url($courseuuid, $moduleid, $assignmentid) {
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
-        $checkassignmenturl = '%s/api/v1/courses/%s/assignments?id=%s';
-        $checkassignmenturl = sprintf($checkassignmenturl, $baseapiurl, $courseuuid, $assignmentid);
+        $checkassignmenturl = '%s/api/v1/courses/%s/assignments?id=%s-%s';
+        $checkassignmenturl = sprintf($checkassignmenturl, $baseapiurl, $courseuuid, $moduleid, $assignmentid);
         return $checkassignmenturl;
     }
 

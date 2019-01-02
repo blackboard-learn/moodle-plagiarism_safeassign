@@ -141,31 +141,35 @@ class provider implements
             list($insql, $inparams) = $DB->get_in_or_equal(array_keys($submissions), SQL_PARAMS_NAMED);
             $submissionin = "submissionid $insql AND userid = :userid";
 
-            // Check if we are speaking about an online text submission or a file submission.
-            $condition = !empty($linkarray['file']) ? 'hasfile = 1' : 'hasonlinetext = 1';
-
             // Get all submissions in safeassign tables for this user.
             $sql = "SELECT id, highscore, avgscore, submitted,
-                           submissionid, deprecated, timecreated
+                           submissionid
                       FROM {plagiarism_safeassign_subm} subm
-                     WHERE subm.submissionid $insql
-                       AND $condition";
+                     WHERE subm.submissionid $insql";
             $allsubmissions = $DB->get_records_sql($sql, $inparams);
 
             // We need to get back the files or online-text files depending the kind of plugin that calls function.
 
             $component = !empty($linkarray['file']) ? 'assignsubmission_file' : 'assignsubmission_text_as_file';
 
-            // We need to retrieve the files for this submission.
-            $sql = "SELECT sfile.id, sfile.userid, file.filename, sfile.supported, sfile.reporturl,
-                           sfile.similarityscore, sfile.timesubmitted, file.component, sfile.cm, sfile.fileid
+            $sql = "SELECT sfile.id,
+                           file.userid,
+                           file.filename,
+                           sfile.supported,
+                           sfile.reporturl,
+                           sfile.similarityscore,
+                           sfile.timesubmitted,
+                           file.component,
+                           subm.cmid as cm,
+                           sfile.fileid
                       FROM {plagiarism_safeassign_files} sfile
+                 LEFT JOIN {plagiarism_safeassign_subm} subm ON subm.submissionid = sfile.submissionid
                       JOIN {files} file ON file.id = sfile.fileid
                      WHERE sfile.submissionid $insql
-                       AND file.component = :component";
+                       AND file.component = :component
+                       AND subm.status = :submstatus";
 
-            $files = $DB->get_records_sql($sql, $inparams + ['component' => $component]);
-
+            $files = $DB->get_records_sql($sql, $inparams + ['component' => $component, 'submstatus' => 'submitted']);
             // Export submission and files.
             writer::with_context($context)->export_related_data($subcontext, 'safeassign-submissions',
                 (object)[
@@ -234,9 +238,9 @@ class provider implements
             $submissions = $DB->get_records_sql($sql, ['userid' => $userid, 'assignid' => $module->instance]);
 
             list($insql, $inparams) = $DB->get_in_or_equal(array_keys($submissions), SQL_PARAMS_NAMED);
-            $condition = "submissionid $insql AND userid = :userid";
+            $condition = "submissionid $insql ";
 
-            $DB->delete_records_select('plagiarism_safeassign_files', $condition , $inparams + ['userid' => $userid]);
+            $DB->delete_records_select('plagiarism_safeassign_files', $condition , $inparams);
         }
     }
 

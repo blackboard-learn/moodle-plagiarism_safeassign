@@ -74,7 +74,7 @@ class restore_plagiarism_safeassign_plugin extends restore_plagiarism_plugin {
 
     /**
      * {@inheritdoc}
-     * Restore the SafeAssignment assignment record on table plagiarism_safeassign_assign after being restored
+     * Restore the SafeAssign assignment record on table plagiarism_safeassign_assign after being restored
      * @throws moodle_exception
      */
     public function after_restore_module() {
@@ -87,20 +87,23 @@ class restore_plagiarism_safeassign_plugin extends restore_plagiarism_plugin {
             list($course, $cm) = get_course_and_cm_from_cmid($cmid, $modulename);
             // Create the data being restored from the course and cm from SafeAssign assign.
             $data = new stdClass();
-            $data->assignmentid = $cm->instance;
+            $data->moduleid = $cm->module;
             $data->courseid = $course->id;
-            $DB->insert_record('plagiarism_safeassign_assign', $data);
+            $data->instanceid = $cm->instance;
+            $data->cmid = $cm->id;
+
+            $DB->insert_record('plagiarism_safeassign_mod', $data);
 
             $params = array(
                 'courseid'     => $course->id,
-                'instructorid' => $USER->id
+                'creatorid' => $USER->id
             );
 
             if (!$DB->record_exists('plagiarism_safeassign_course', $params)) {
                 // Create the data for the course being restored on SafeAssign table.
                 $data = new stdClass();
                 $data->courseid = $course->id;
-                $data->instructorid = $USER->id;
+                $data->creatorid = $USER->id;
 
                 $DB->insert_record('plagiarism_safeassign_course', $data);
             }

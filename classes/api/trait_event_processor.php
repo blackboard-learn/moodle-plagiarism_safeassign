@@ -15,20 +15,29 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * SafeAssign version definition.
+ * Submission event processor
+ *
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
+ * @copyright Copyright (c) 2019 Blackboard Inc. (http://www.blackboard.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace plagiarism_safeassign\api;
+
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2019013100;
-$plugin->release = '3.5.2';
-$plugin->requires = 2018051700;
-$plugin->component = 'plagiarism_safeassign';
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->cron      = 0;
-$plugin->dependencies = [
-    'local_mr'       => ANY_VERSION,
-];
+/**
+ * Class trait_event_processor
+ *
+ * Functions that need to be implemented by processors
+ * @package plagiarism_safeassign\api
+ */
+trait trait_event_processor {
+    /**
+     * Updates all file records for the submission.
+     * @param array $listoffiles
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
+    protected abstract function update_file_records($listoffiles = null);
+}

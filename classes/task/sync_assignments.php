@@ -70,12 +70,15 @@ class sync_assignments extends \core\task\scheduled_task {
                 $serviceavail = $safeassign->test_credentials_before_tasks();
                 if ($serviceavail === true) {
                     $safeassign->delete_submissions();
+                    // Sync courses.
                     $unsynccourses = $DB->get_records('plagiarism_safeassign_course', array('uuid' => null));
                     if (!empty($unsynccourses)) {
                         $safeassign->sync_courses($unsynccourses);
                     }
-                    $safeassign->sync_course_assignments();
-                    $safeassign->sync_assign_submissions();
+                    // Sync modules. Course modules need to be synced.
+                    $safeassign->sync_course_modules();
+                    // Sync submissions. Modules need to be synced.
+                    $safeassign->sync_module_submissions();
                     if ($CFG->siteadmins != get_config('plagiarism_safeassign', 'siteadmins')) {
                         $safeassign->set_siteadmins();
                     }

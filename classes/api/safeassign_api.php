@@ -351,18 +351,19 @@ abstract class safeassign_api {
      * Creates an assignment inside SafeAssign.
      * @param int $userid
      * @param string $courseuuid
-     * @param int $assignmentid
+     * @param int $moduleid
+     * @param int $instanceid
      * @param string $assignmenttitle
      * @return bool|mixed
      */
-    public static function create_assignment($userid, $courseuuid, $assignmentid, $assignmenttitle) {
+    public static function create_assignment($userid, $courseuuid, $moduleid, $instanceid, $assignmenttitle) {
         $baseurl = get_config(self::PLUGIN, 'safeassign_api');
         if (empty($baseurl)) {
             return false;
         }
         $url = new \moodle_url($baseurl . '/api/v1/courses/' . $courseuuid . '/assignments');
         $postparams = array(
-            'id' => $assignmentid,
+            'id' => $moduleid . "-" . $instanceid,
             'title' => $assignmenttitle
         );
         $postdata = json_encode($postparams);
@@ -373,15 +374,17 @@ abstract class safeassign_api {
      * Check if the assignment exists inside SafeAssign.
      * @param int $userid
      * @param string $courseuuid
-     * @param string $assignmentid
+     * @param int $moduleid
+     * @param int $instanceid
      * @return bool|mixed
      */
-    public static function check_assignment($userid, $courseuuid, $assignmentid) {
+    public static function check_assignment($userid, $courseuuid, $moduleid, $instanceid) {
         $baseurl = get_config(self::PLUGIN, 'safeassign_api');
         if (empty($baseurl)) {
             return false;
         }
-        $url = new \moodle_url($baseurl . '/api/v1/courses/' . $courseuuid . '/assignments', array('id' => $assignmentid));
+        $url = new \moodle_url($baseurl . '/api/v1/courses/' . $courseuuid . '/assignments',
+            array('id' => $moduleid . "-" . $instanceid));
         $result = self::generic_getcall($url->out(false), $userid, true);
         return $result;
     }

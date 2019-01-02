@@ -27,23 +27,23 @@ defined('MOODLE_INTERNAL') || die();
 $observers = array (
     array(
         'eventname' => '\assignsubmission_file\event\assessable_uploaded',
-        'callback' => 'plagiarism_safeassign_observer::assignsubmission_file_uploaded'
+        'callback' => 'plagiarism_safeassign_observer::event_triggered'
     ),
     array(
-        'eventname' => '\mod_workshop\event\assessable_uploaded',
-        'callback' => 'plagiarism_safeassign_observer::workshop_file_uploaded'
+        'eventname' => '\assignsubmission_file\event\submission_created',
+        'callback' => 'plagiarism_safeassign_observer::event_triggered'
     ),
     array(
-        'eventname' => '\mod_forum\event\assessable_uploaded',
-        'callback' => 'plagiarism_safeassign_observer::forum_file_uploaded'
+        'eventname' => '\assignsubmission_file\event\submission_updated',
+        'callback' => 'plagiarism_safeassign_observer::event_triggered'
     ),
     array(
         'eventname' => '\assignsubmission_onlinetext\event\submission_created',
-        'callback' => 'plagiarism_safeassign_observer::assignsubmission_onlinetext_created'
+        'callback' => 'plagiarism_safeassign_observer::event_triggered'
     ),
     array(
         'eventname' => '\assignsubmission_onlinetext\event\submission_updated',
-        'callback' => 'plagiarism_safeassign_observer::assignsubmission_onlinetext_updated'
+        'callback' => 'plagiarism_safeassign_observer::event_triggered'
     ),
     array(
         'eventname' => '\core\event\role_assigned',
@@ -52,5 +52,9 @@ $observers = array (
     array(
         'eventname' => '\core\event\role_unassigned',
         'callback' => 'plagiarism_safeassign_observer::role_unassigned'
+    ),
+    array(
+        'eventname' => '\mod_assign\event\assessable_submitted',
+        'callback' => 'plagiarism_safeassign_observer::event_triggered'
     )
 );

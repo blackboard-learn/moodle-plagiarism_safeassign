@@ -26,6 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once(__DIR__.'/base.php');
+require_once($CFG->dirroot . '/mod/assign/externallib.php');
 require_once($CFG->dirroot . '/mod/assign/tests/base_test.php');
 require_once($CFG->dirroot . '/plagiarism/safeassign/tests/base.php');
 require_once($CFG->dirroot . '/plagiarism/safeassign/tests/safeassign_api_test.php');
@@ -65,6 +66,7 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         $params['assignsubmission_file_maxsizebytes'] = 1024 * 1024;
         $instance = $generator->create_instance($params);
         $this->assigninstance = $instance;
+
         $this->cm = get_coursemodule_from_instance('assign', $instance->id);
         $context = context_module::instance($this->cm->id);
 
@@ -198,7 +200,8 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         $task->execute();
         $course = $DB->get_record('plagiarism_safeassign_course', array('courseid' => $this->course->id));
         $this->assertNull($course->uuid);
-        $assignment = $DB->get_record('plagiarism_safeassign_assign', array('assignmentid' => $this->assigninstance->id));
+        $assignment = $DB->get_record('plagiarism_safeassign_mod', ['instanceid' => $this->assigninstance->id,
+                'moduleid' => $this->cm->module]);
         $this->assertNull($assignment->uuid);
         $submission = $DB->get_record('assign_submission', array('userid' => $this->student1->id,
             'assignment' => $this->assigninstance->id));
@@ -235,7 +238,8 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
 
         $course = $DB->get_record('plagiarism_safeassign_course', array('courseid' => $this->course->id));
         $this->assertNotNull($course->uuid);
-        $assignment = $DB->get_record('plagiarism_safeassign_assign', array('assignmentid' => $this->assigninstance->id));
+        $assignment = $DB->get_record('plagiarism_safeassign_mod', ['instanceid' => $this->assigninstance->id,
+            'moduleid' => $this->cm->module]);
         $this->assertNull($assignment->uuid);
         $submission = $DB->get_record('assign_submission', array('userid' => $this->student1->id,
             'assignment' => $this->assigninstance->id));
@@ -267,8 +271,9 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         $assignmenturl = $testhelper->create_assignment_url('123e4567-e89b-12d3-a456-426655440000');
         testhelper::push_pair($assignmenturl, 'create-assignment-ok.json');
         // Make avaliable the check assignment url.
-        $assignurl = $testhelper->create_assignment_url('123e4567-e89b-12d3-a456-426655440000', $this->assigninstance->id);
-        testhelper::push_pair($assignurl . '?id=' . $this->assigninstance->id, "create-assignment-ok.json");
+        $assignurl = $testhelper->create_assignment_url('123e4567-e89b-12d3-a456-426655440000');
+        testhelper::push_pair($assignurl . '?id=' . $this->cm->module . "-" . $this->assigninstance->id,
+            "create-assignment-ok.json");
         // Make the submission url avaliable.
         $submissionurl = $testhelper->create_submission_url('123e4567-e89b-12d3-a456-426655440000',
             'c93e61c6-be1f-6c49-5c86-76d8f04f3f2f');
@@ -277,7 +282,8 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
 
         $course = $DB->get_record('plagiarism_safeassign_course', array('courseid' => $this->course->id));
         $this->assertNotNull($course->uuid);
-        $assignment = $DB->get_record('plagiarism_safeassign_assign', array('assignmentid' => $this->assigninstance->id));
+        $assignment = $DB->get_record('plagiarism_safeassign_mod', ['instanceid' => $this->assigninstance->id,
+            'moduleid' => $this->cm->module]);
         $this->assertNotNull($assignment->uuid);
         $submission = $DB->get_record('assign_submission', array('userid' => $this->student1->id,
             'assignment' => $this->assigninstance->id));
@@ -310,7 +316,8 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         testhelper::push_pair($assignmenturl, 'create-assignment-ok.json');
         // Make avaliable the check assignment url.
         $assignurl = $testhelper->create_assignment_url('123e4567-e89b-12d3-a456-426655440000', $this->assigninstance->id);
-        testhelper::push_pair($assignurl . '?id=' . $this->assigninstance->id, "create-assignment-ok.json");
+        testhelper::push_pair($assignurl . '?id=' . $this->cm->module . "-" . $this->assigninstance->id,
+            "create-assignment-ok.json");
         // Make the submission url avaliable.
         $submissionurl = $testhelper->create_submission_url('123e4567-e89b-12d3-a456-426655440000',
             'c93e61c6-be1f-6c49-5c86-76d8f04f3f2f');
@@ -324,7 +331,8 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
             'synced' => 1, 'instructorid' => $this->teacher->id)));
         $course = $DB->get_record('plagiarism_safeassign_course', array('courseid' => $this->course->id));
         $this->assertNotNull($course->uuid);
-        $assignment = $DB->get_record('plagiarism_safeassign_assign', array('assignmentid' => $this->assigninstance->id));
+        $assignment = $DB->get_record('plagiarism_safeassign_mod', ['instanceid' => $this->assigninstance->id,
+            'moduleid' => $this->cm->module]);
         $this->assertNotNull($assignment->uuid);
         $submission = $DB->get_record('assign_submission', array('userid' => $this->student1->id,
             'assignment' => $this->assigninstance->id));
@@ -335,31 +343,32 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         $this->assertCount(2, $supportedfiles);
         $this->assertCount(4, $unsupportedfiles);
 
-        // Now we want to extend this test and delete the previous submission since it will be deprecated.
-        $DB->set_field('plagiarism_safeassign_subm', 'deprecated', 1, array('submissionid' => $this->student1submission->id));
+        // Now we want to extend this test and delete the previous submission since it was deleted.
         // New submission.
         $record = new stdClass();
-        $record->uuid = null;
+        $record->uuid = uniqid();
         $record->globalcheck = 1;
         $record->groupsubmission = 1;
         $record->submitted = 0;
         $record->submissionid = $this->student1submission->id;
-        $record->deprecated = 0;
-        $record->hasfile = 1;
-        $record->hasonlinetext = 1;
+        $record->status = \plagiarism_safeassign\api\safeassign_submission::STATUS_SUBMISSION_DELETED;
         $record->timecreated = time();
+        $record->cmid = $this->cm->id;
         $DB->insert_record('plagiarism_safeassign_subm', $record);
-        $deletesubmissionurl = $testhelper->create_delete_submission_url('5140a223-8cbc-7a85-3cb4-f52d959ee067');
-        // First test is expected to fail, so the deleted field should stay as '0'.
+
+        $deletesubmissionurl = $testhelper->create_delete_submission_url($record->uuid);
+        // First test is expected to fail, so the deleted record should remain.
         testhelper::push_pair($deletesubmissionurl, 'delete-submission-fail.json', 400);
         $task->execute();
-        $deprecatedsubmission = $DB->get_record('plagiarism_safeassign_subm', array('deprecated' => '1'));
-        $this->assertEquals('0', $deprecatedsubmission->deleted);
+        $deletedsubmission = $DB->count_records('plagiarism_safeassign_subm',
+            array('status' => \plagiarism_safeassign\api\safeassign_submission::STATUS_SUBMISSION_DELETED));
+        $this->assertEquals(1, $deletedsubmission);
         // Second test should be success, so now the deleted files should be marked as '1'.
         testhelper::push_pair($deletesubmissionurl, 'delete-submission-ok.json', 200);
         $task->execute();
-        $deprecatedsubmission = $DB->get_record('plagiarism_safeassign_subm', array('deprecated' => '1'));
-        $this->assertEquals('1', $deprecatedsubmission->deleted);
+        $deletedsubmission = $DB->count_records('plagiarism_safeassign_subm',
+            array('status' => \plagiarism_safeassign\api\safeassign_submission::STATUS_SUBMISSION_DELETED));
+        $this->assertEquals(0, $deletedsubmission);
 
         // Additional role configuration.
         $this->getDataGenerator()->create_role(['name' => 'Dean', 'shortname' => 'dean', 'archetype' => 'manager']);
@@ -387,11 +396,22 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         global $DB;
         $this->resetAfterTest(true);
         $this->set_safeassign_records();
-        $submission = $DB->get_record('plagiarism_safeassign_subm', array('submissionid' => $this->student1submission->id));
-        $this->assertEquals('0', $submission->deprecated);
+        $course = $DB->count_records('plagiarism_safeassign_course', ['courseid' => $this->course->id]);
+        $this->assertEquals(1, $course);
+        $mod = $DB->count_records('plagiarism_safeassign_mod', ['instanceid' => $this->assigninstance->id,
+            'moduleid' => $this->cm->module]);
+        $this->assertEquals(1, $mod);
+        $submission = $DB->count_records('plagiarism_safeassign_subm', ['submissionid' => $this->student1submission->id]);
+        $this->assertEquals(1, $submission);
         delete_course($this->course->id, false);
-        $submission = $DB->get_record('plagiarism_safeassign_subm', array('submissionid' => $this->student1submission->id));
-        $this->assertEquals('1', $submission->deprecated);
+        $course = $DB->count_records('plagiarism_safeassign_course', ['courseid' => $this->course->id]);
+        $this->assertEquals(0, $course);
+        $mod = $DB->count_records('plagiarism_safeassign_mod', ['instanceid' => $this->assigninstance->id,
+            'moduleid' => $this->cm->module]);
+        $this->assertEquals(0, $mod);
+        $submission = $DB->count_records('plagiarism_safeassign_subm', ['submissionid' => $this->student1submission->id,
+                'status' => \plagiarism_safeassign\api\safeassign_submission::STATUS_SUBMISSION_DELETED]);
+        $this->assertEquals(1, $submission);
     }
 
     /**
@@ -401,14 +421,25 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         global $DB;
         $this->resetAfterTest(true);
         $this->set_safeassign_records();
-        $submission = $DB->get_record('plagiarism_safeassign_subm', array('submissionid' => $this->student1submission->id));
-        $this->assertEquals('0', $submission->deprecated);
+        $course = $DB->count_records('plagiarism_safeassign_course', ['courseid' => $this->course->id]);
+        $this->assertEquals(1, $course);
+        $mod = $DB->count_records('plagiarism_safeassign_mod', ['instanceid' => $this->assigninstance->id,
+            'moduleid' => $this->cm->module]);
+        $this->assertEquals(1, $mod);
+        $submission = $DB->count_records('plagiarism_safeassign_subm', ['submissionid' => $this->student1submission->id]);
+        $this->assertEquals(1, $submission);
         // Delete the course module.
         course_delete_module($this->cm->id);
         // Now, run the course module deletion adhoc task.
         phpunit_util::run_all_adhoc_tasks();
-        $submission = $DB->get_record('plagiarism_safeassign_subm', array('submissionid' => $this->student1submission->id));
-        $this->assertEquals('1', $submission->deprecated);
+        $course = $DB->count_records('plagiarism_safeassign_course', ['courseid' => $this->course->id]);
+        $this->assertEquals(1, $course);
+        $mod = $DB->count_records('plagiarism_safeassign_mod', ['instanceid' => $this->assigninstance->id,
+            'moduleid' => $this->cm->module]);
+        $this->assertEquals(0, $mod);
+        $submission = $DB->count_records('plagiarism_safeassign_subm', ['submissionid' => $this->student1submission->id,
+            'status' => \plagiarism_safeassign\api\safeassign_submission::STATUS_SUBMISSION_DELETED]);
+        $this->assertEquals(1, $submission);
     }
 
     /**
@@ -434,14 +465,16 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         $record = new stdClass();
         $record->uuid = null;
         $record->courseid = $this->course->id;
-        $record->instructorid = $this->teacher->id;
+        $record->creatorid = $this->teacher->id;
         $DB->insert_record('plagiarism_safeassign_course', $record);
 
         $record2 = new stdClass();
         $record2->uuid = null;
-        $record2->assignmentid = $this->assigninstance->id;
+        $record2->instanceid = $this->assigninstance->id;
         $record2->courseid = $this->course->id;
-        $DB->insert_record('plagiarism_safeassign_assign', $record2);
+        $record2->moduleid = $this->cm->module;
+        $record2->cmid = $this->cm->id;
+        $DB->insert_record('plagiarism_safeassign_mod', $record2);
 
         $record3 = new stdClass();
         $record3->uuid = null;
@@ -454,6 +487,8 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         $record3->hasonlinetext = 1;
         $record3->timecreated = time();
         $record3->assignmentid = $this->assigninstance->id;
+        $record3->cmid = $this->cm->id;
+        $record3->userid = $this->student1->id;
         $DB->insert_record('plagiarism_safeassign_subm', $record3);
 
         // Turn on SafeAssign for the test assignment.

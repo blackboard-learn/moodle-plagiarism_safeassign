@@ -61,6 +61,11 @@ class behat_plagiarism_safeassign extends behat_base {
     static private $assignment;
 
     /**
+     *
+     */
+    static private $coursemodule;
+
+    /**
      * Redirects to a course with an specific shortname.
      * @Given /^I am on the course with shortname "(?P<shortname_string>(?:[^"]|\\")*)"$/
      * @param string $shortname
@@ -108,7 +113,10 @@ class behat_plagiarism_safeassign extends behat_base {
      */
     public function set_test_helper_assignment_with_name($name) {
         global $DB;
-        self::$assignment = $DB->get_record('assign', array('course' => self::$course->id, 'name' => $name));
+        self::$assignment = $DB->get_record('assign', ['course' => self::$course->id, 'name' => $name]);
+        self::$coursemodule = $DB->get_record('course_modules', ['course' => self::$course->id,
+                'instance' => self::$assignment->id
+            ]);
     }
 
     /**
@@ -151,10 +159,11 @@ class behat_plagiarism_safeassign extends behat_base {
         // Create an assignment in the given course.
         $assignmenturl = test_safeassign_api_connectors::create_assignment_url($courseuuid);
         testhelper::push_pair($assignmenturl, 'create-assignment-ok.json');
-        $checkassignmenturl = test_safeassign_api_connectors::create_check_assignment_url($courseuuid, self::$assignment->id);
+        $checkassignmenturl = test_safeassign_api_connectors::create_check_assignment_url($courseuuid, self::$coursemodule->module,
+                self::$assignment->id);
         testhelper::push_pair($checkassignmenturl, 'create-assignment-ok.json');
         $safeassignassignment = safeassign_api::create_assignment(self::$teacher->id,
-            $courseuuid, self::$assignment->id, self::$assignment->name);
+            $courseuuid, self::$coursemodule->id, self::$assignment->id, self::$assignment->name);
         $assignmentuuid = $safeassignassignment->uuid;
 
         // Create a submission for the given assignment.
@@ -162,7 +171,10 @@ class behat_plagiarism_safeassign extends behat_base {
         if ($onlinesubmission) {
             testhelper::push_pair($submissionurl, 'create-online-submission-ok.json');
         } else {
-            testhelper::push_pair($submissionurl, 'create-submission-one-file-ok.json');
+            $filename = basename($filepath);
+            $filepath = 'create-submission-file-ok.json';
+            $this->create_submission_json_file($filename, $filepath);
+            testhelper::push_pair($submissionurl, $filepath);
         }
         safeassign_api::create_submission(self::$student->id, $courseuuid,
             $assignmentuuid, array($filepath), $globalcheck, $groupsubmission);
@@ -218,7 +230,8 @@ class behat_plagiarism_safeassign extends behat_base {
         $unsynced = $safeassign->get_unsynced_submissions();
         $submission = reset($unsynced);
 
-        $filename = 'userid_' . self::$student->id . '_text_submissionid_' . $submission->submissionid . '.txt';
+        $filename = 'userid_' . self::$student->id . '_assignsubmission_text_as_file_' . $submission->submissionid . '.txt';
+
         $textfile = $fs->get_file($usercontext->id, 'assignsubmission_text_as_file', 'submission_text_files',
             $submission->submissionid , '/', $filename);
 
@@ -247,6 +260,30 @@ class behat_plagiarism_safeassign extends behat_base {
         // It should be created in every test because te name of the file depends of several IDs records.
         make_upload_directory('safeassign');
         $file = fopen($CFG->dataroot . '/safeassign/create-online-submission-ok.json', 'w');
+        fwrite($file, json_encode($jsonobject));
+        fclose($file);
+    }
+
+    /**
+     * Creates a file that simulates the JSON response from SafeAssign server.
+     * @param string $filename
+     * @param string $filepath
+     */
+    private function create_submission_json_file($filename, $filepath) {
+        global $CFG;
+        $file = new stdClass();
+        $file->file_name = $filename;
+        $file->file_uuid = '5140a223-8cbc-7a85-3cb4-f52d959ee067';
+        $submission = new stdClass();
+        $submission->submission_uuid = '5140a223-8cbc-7a85-3cb4-f52d959ee06';
+        $submission->submission_files = array($file);
+        $jsonobject = new stdClass();
+        $jsonobject->submissions = array($submission);
+        $jsonobject->unprocessed_file_names = array();
+        // We should create a file to simulate the json response from SafeAssign server.
+        // It should be created in every test because te name of the file depends of several IDs records.
+        make_upload_directory('safeassign');
+        $file = fopen($CFG->dataroot . '/safeassign/' . $filepath, 'w');
         fwrite($file, json_encode($jsonobject));
         fclose($file);
     }

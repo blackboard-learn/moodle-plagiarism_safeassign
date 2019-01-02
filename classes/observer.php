@@ -36,64 +36,6 @@ require_once($CFG->dirroot.'/plagiarism/safeassign/lib.php');
 class plagiarism_safeassign_observer {
 
     /**
-     * Upload a forum file
-     * @param  \mod_forum\event\assessable_uploaded $event Event
-     * @return void
-     */
-    public static function forum_file_uploaded(
-        \mod_forum\event\assessable_uploaded $event) {
-
-    }
-
-    /**
-     * Upload a workshop file
-     * @param  \mod_workshop\event\assessable_uploaded $event Event
-     * @return void
-     */
-    public static function workshop_file_uploaded(
-        \mod_workshop\event\assessable_uploaded $event) {
-
-    }
-
-    /**
-     * Uploads an online submission text.
-     * @param  \assignsubmission_onlinetext\event\submission_created $event Event
-     * @return void
-     */
-    public static function assignsubmission_onlinetext_created(
-        \assignsubmission_onlinetext\event\submission_created $event) {
-        $eventdata = $event->get_data();
-        $safeassign = new plagiarism_plugin_safeassign();
-        $safeassign->make_file_from_text_submission($eventdata);
-        $safeassign->create_submission($eventdata);
-
-    }
-
-    /**
-     * Uploads a submission file.
-     * @param  \assignsubmission_file\event\assessable_uploaded $event Event
-     * @return void
-     */
-    public static function assignsubmission_file_uploaded(
-        \assignsubmission_file\event\assessable_uploaded $event) {
-        $eventdata = $event->get_data();
-        $safeassign = new plagiarism_plugin_safeassign();
-        $safeassign->create_submission($eventdata);
-    }
-
-    /**
-     * Detects a change in the submission text and call a function to update the corresponding file.
-     * @param \assignsubmission_onlinetext\event\submission_updated $event Event
-     */
-    public static function assignsubmission_onlinetext_updated(
-        \assignsubmission_onlinetext\event\submission_updated $event ) {
-        $eventdata = $event->get_data();
-        $safeassign = new plagiarism_plugin_safeassign();
-        $safeassign->make_file_from_text_submission($eventdata);
-        $safeassign->create_submission($eventdata);
-    }
-
-    /**
      * Creates an instructor record if the given enrolment correspond to an editing teacher.
      * @param \core\event\user_enrolment_created
      */
@@ -113,4 +55,12 @@ class plagiarism_safeassign_observer {
         $safeassign->process_role_assignments($eventdata, 'delete');
     }
 
+    /**
+     * Sends the event to the SafeAssign plug-in.
+     * @param \core\event\base $event
+     */
+    public static function event_triggered(\core\event\base $event) {
+        $safeassign = new plagiarism_plugin_safeassign();
+        $safeassign->process_event($event);
+    }
 }
