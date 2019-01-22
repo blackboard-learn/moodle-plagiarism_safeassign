@@ -29,6 +29,7 @@ require_once(__DIR__.'/base.php');
 require_once($CFG->dirroot . '/mod/assign/tests/base_test.php');
 require_once($CFG->dirroot . '/plagiarism/safeassign/tests/base.php');
 require_once($CFG->dirroot . '/plagiarism/safeassign/tests/safeassign_api_test.php');
+require_once($CFG->dirroot.'/mod/assign/externallib.php');
 use plagiarism_safeassign\api\testhelper;
 use plagiarism_safeassign\task\sync_assignments;
 
@@ -60,7 +61,7 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         $params['course'] = $this->course->id;
         $params['assignsubmission_onlinetext_enabled'] = 1;
         $params['assignsubmission_file_enabled'] = 1;
-        $params['assignsubmission_file_maxfiles'] = 5;
+        $params['assignsubmission_file_maxfiles'] = 6;
         $params['assignsubmission_file_maxsizebytes'] = 1024 * 1024;
         $instance = $generator->create_instance($params);
         $this->assigninstance = $instance;
@@ -128,6 +129,11 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         $fs->create_file_from_string($filerecord, 'text contents');
 
         $filerecord['filename'] = 'file5.csv';
+
+        $fs = get_file_storage();
+        $fs->create_file_from_string($filerecord, 'text contents');
+
+        $filerecord['filename'] = 'file6_ ';
 
         $fs = get_file_storage();
         $fs->create_file_from_string($filerecord, 'text contents');
@@ -327,7 +333,7 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
         $supportedfiles = $DB->get_records('plagiarism_safeassign_files', array('supported' => 1));
         $unsupportedfiles = $DB->get_records('plagiarism_safeassign_files', array('supported' => 0));
         $this->assertCount(2, $supportedfiles);
-        $this->assertCount(3, $unsupportedfiles);
+        $this->assertCount(4, $unsupportedfiles);
 
         // Now we want to extend this test and delete the previous submission since it will be deprecated.
         $DB->set_field('plagiarism_safeassign_subm', 'deprecated', 1, array('submissionid' => $this->student1submission->id));

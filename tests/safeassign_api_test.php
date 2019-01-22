@@ -546,7 +546,8 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
         $submissionurl = $this->create_submission_url($courseuuid, $assignmentuuid);
         testhelper::push_pair($submissionurl, 'create-submission-ok.json');
         // Create a submission with an array of files for an assignment.
-        $filepaths = array('/path/file1.txt', '/path/file2.txt', '/path/file3.json', '/path/file4.zip', '/path/file5.csv');
+        $filepaths = array('/path/file1.txt', '/path/file2.txt', '/path/file3.json', '/path/file4.zip', '/path/file5.csv',
+            '/path/file6_ ');
         $result = safeassign_api::create_submission($this->user->id, $courseuuid, $assignmentuuid, $filepaths, false, false);
         $this->assertTrue($result);
         $this->assertEquals(rest_provider::instance()->lasthttpcode(), 200);
@@ -586,7 +587,8 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
         $submissionurl = $this->create_submission_url($courseuuid, $assignmentuuid);
         testhelper::push_pair($submissionurl, 'create-submission-fail.json', 400);
         // Create a submission with an array of files for an assignment.
-        $filepaths = array('/path/file1.txt', '/path/file2.txt', '/path/file3.json', '/path/file4.zip', '/path/file5.csv');
+        $filepaths = array('/path/file1.txt', '/path/file2.txt', '/path/file3.json', '/path/file4.zip', '/path/file5.csv',
+            '/path/file6_ ');
         $result = safeassign_api::create_submission($this->user->id, $courseuuid, $assignmentuuid, $filepaths, false, false);
 
         $this->assertFalse($result);
