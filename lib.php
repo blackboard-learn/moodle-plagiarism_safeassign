@@ -531,10 +531,34 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                     }
                 }
 
-                $params['globalcheck'] = $config['safeassign_global_reference'];
+                $globaldbpref = $this->should_send_to_global_check($config, $eventdata['userid']);
+                $params['globalcheck'] = $globaldbpref;
                 $this->validate_submission($eventdata, $params);
             }
         }
+    }
+
+    /**
+     * Checks if submission has to be sent to global reference db or not depending on user settings.
+     * @param array $configdata Contains the data returned by check_assignment_config() function
+     * @param int $userid The ID of the submitter
+     * @return bool $response
+     */
+    public function should_send_to_global_check($configdata, $userid) {
+        $siteglobalref = get_config('plagiarism_safeassign', 'safeassign_referencedbactivity');
+        $response = false;
+        if ($siteglobalref) {
+            if (!$configdata['safeassign_global_reference']) {
+                $submitterpreference = 0;
+                if (isset($configdata[$userid])) {
+                    $submitterpreference = $configdata[$userid];
+                }
+                if ($submitterpreference) {
+                    $response = true;
+                }
+            }
+        }
+        return $response;
     }
 
     /**
