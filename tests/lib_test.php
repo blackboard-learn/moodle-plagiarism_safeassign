@@ -602,4 +602,35 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $findneedle2 = strpos($result2, get_string('studentdisclosuredefault', 'plagiarism_safeassign'));
         $this->assertNotFalse($findneedle2);
     }
+
+    public function test_global_reference_db_logic() {
+        $this->resetAfterTest(true);
+        $generator = $this->getDataGenerator();
+        $student = $generator->create_user();
+
+        $bits = 3;
+        $max = (1 << $bits);
+        $lib = new plagiarism_plugin_safeassign();
+
+        for ($i = 0; $i < $max; $i++) {
+            $numbercombinations = str_pad(decbin($i), $bits, '0', STR_PAD_LEFT);
+            $flagcombinations = str_split($numbercombinations, 1);
+
+            set_config('safeassign_referencedbactivity', $flagcombinations[0], 'plagiarism_safeassign'); // Admin flag.
+            $assignconfig = [ // We need to simulate the array returned from safeassign_config table.
+                'safeassign_enabled' => 1,
+                'safeassign_originality_report' => 0,
+                'safeassign_global_reference' => $flagcombinations[1], // Teacher flag.
+            ];
+            $assignconfig[$student->id] = $flagcombinations[2]; // Submitter flag.
+
+            if ($numbercombinations === '101') { // This is the only combination that allows globalcheck to be true.
+                $result = $lib->should_send_to_global_check($assignconfig, $student->id);
+                $this->assertTrue($result);
+            } else {
+                $result = $lib->should_send_to_global_check($assignconfig, $student->id);
+                $this->assertFalse($result);
+            }
+        }
+    }
 }
