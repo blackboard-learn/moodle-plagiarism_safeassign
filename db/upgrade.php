@@ -361,7 +361,7 @@ function xmldb_plagiarism_safeassign_upgrade($oldversion) {
 
         // If there are old records, update new table with old records.
         if (!empty($oldrecords)) {
-            $assignmoduleid = $DB->get_field("modules", "id", ["name", "assign"]);
+            $assignmoduleid = $DB->get_field("modules", "id", ["name" => "assign"]);
             $newrecords = [];
             foreach ($oldrecords as $oldrecord) {
                 $newrecord = new stdClass();
