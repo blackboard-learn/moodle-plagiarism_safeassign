@@ -375,8 +375,7 @@ function xmldb_plagiarism_safeassign_upgrade($oldversion) {
                 array_push($newrecords, $newrecord);
             }
             if (!empty($newrecords)) {
-                $DB->insert_records($newrecords);
-
+                $DB->insert_records('plagiarism_safeassign_mod', $newrecords);
             }
         }
 
