@@ -80,6 +80,11 @@ class safeassign_submission {
     const STATUS_SUBMISSION_ERROR_DELETION = 'error_del';
 
     /**
+     * If a submission have been restored.
+     */
+    const STATUS_SUBMISSION_RESTORED = 'restored';
+
+    /**
      * @var boolean Flag to check if the submission is an update or is a new one.
      */
     private $update;

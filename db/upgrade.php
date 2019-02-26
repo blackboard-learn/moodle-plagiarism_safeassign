@@ -323,8 +323,14 @@ function xmldb_plagiarism_safeassign_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2017121508, 'plagiarism', 'safeassign');
     }
 
-    if ($oldversion < 2019013100) {
+    if ($oldversion < 2019030100) {
         // New database schema implemented. Old data is restored to new schema if needed.
+        // Old data will be preserved in tables renamed as this:
+        // plagiarism_safeassign_assign -> plagiarism_safeassign_old_a.
+        // plagiarism_safeassign_submission -> plagiarism_safeassign_old_s.
+        // plagiarism_safeassign_course -> plagiarism_safeassign_old_c.
+        // plagiarism_safeassign_files -> plagiarism_safeassign_old_f.
+        // Old data for other tables will remain due no changes on tables structure.
 
         // SafeAssign assignments table.
         // Old table: plagiarism_safeassign_assign.
@@ -335,11 +341,12 @@ function xmldb_plagiarism_safeassign_upgrade($oldversion) {
         $oldrecords = null;
         if ($dbman->table_exists($table)) {
             $oldrecords = $DB->get_records('plagiarism_safeassign_assign');
+            // Rename original table.
+            $dbman->rename_table($table, 'plagiarism_safeassign_old_a');
         }
 
         // Define table plagiarism_safeassign_mod to be created.
         $table = new xmldb_table('plagiarism_safeassign_mod');
-
         // Adding fields to table plagiarism_safeassign_mod.
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
         $table->add_field('uuid', XMLDB_TYPE_CHAR, '36', null, null, null, null);
@@ -347,7 +354,6 @@ function xmldb_plagiarism_safeassign_upgrade($oldversion) {
         $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
         $table->add_field('instanceid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
         $table->add_field('cmid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-
         // Adding keys to table plagiarism_safeassign_mod.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
         $table->add_key('courseid', XMLDB_KEY_FOREIGN, ['courseid'], 'course', ['id']);
@@ -382,82 +388,215 @@ function xmldb_plagiarism_safeassign_upgrade($oldversion) {
         // SafeAssign configuration table has no changes.
 
         // SafeAssign courses table.
-        // Change in name from instructorid to creatorid.
         $table = new xmldb_table('plagiarism_safeassign_course');
-        $field = new xmldb_field('instructorid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'courseid');
-        // Launch rename field instructorid.
-        $dbman->rename_field($table, $field, 'creatorid');
-        $key = new xmldb_key('creatorid', XMLDB_KEY_FOREIGN, ['creatorid'], 'user', ['id']);
-        // Launch add key creatorid.
-        $dbman->add_key($table, $key);
+        $oldrecords = null;
+        if ($dbman->table_exists('plagiarism_safeassign_course')) {
+            $oldrecords = $DB->get_records('plagiarism_safeassign_course');
+            // Rename original table.
+            $dbman->rename_table($table, 'plagiarism_safeassign_old_c');
+        }
+
+        // Create new course table.
+        $table = new xmldb_table('plagiarism_safeassign_course');
+        // Adding fields to table plagiarism_safeassign_course.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('uuid', XMLDB_TYPE_CHAR, '36', null, null, null, null);
+        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('creatorid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        // Adding keys to table plagiarism_safeassign_course.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('creatorid', XMLDB_KEY_FOREIGN, array('creatorid'), 'user', array('id'));
+
+        // Conditionally launch create table for plagiarism_safeassign_course.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+        // If there are old records, update new table with old records.
+        if (!empty($oldrecords)) {
+            $newrecords = [];
+            foreach ($oldrecords as $oldrecord) {
+                $newrecord = new stdClass();
+                $newrecord->uuid = $oldrecord->uuid;
+                $newrecord->courseid = $oldrecord->courseid;
+                $newrecord->creatorid = $oldrecord->instructorid;
+                array_push($newrecords, $newrecord);
+            }
+            if (!empty($newrecords)) {
+                $DB->insert_records('plagiarism_safeassign_course', $newrecords);
+            }
+        }
 
         // SafeAssign files table.
-        // Fields to remove: cm, userid.
         $table = new xmldb_table('plagiarism_safeassign_files');
-        // Drop keys cm, userid.
-        $key = new xmldb_key('cm', XMLDB_KEY_FOREIGN, ['cm'], 'course_modules', ['id']);
-        $dbman->drop_key($table, $key);
-        $key = new xmldb_key('userid', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
-        $dbman->drop_key($table, $key);
-        // Drop fields.
-        $fieldstoremove = ['cm', 'userid'];
-        foreach ($fieldstoremove as $fieldname) {
-            $field = new xmldb_field($fieldname);
-            // Conditionally launch drop field.
-            if ($dbman->field_exists($table, $field)) {
-                $dbman->drop_field($table, $field);
+        $oldrecords = null;
+        if ($dbman->table_exists('plagiarism_safeassign_files')) {
+            $oldrecords = $DB->get_records('plagiarism_safeassign_files');
+        }
+
+        // Define table plagiarism_safeassign_old_f to be created. This table will hold the old files if there are some.
+        $table = new xmldb_table('plagiarism_safeassign_old_f');
+
+        // Adding fields to table plagiarism_safeassign_old_f.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('cm', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('olduserid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('uuid', XMLDB_TYPE_CHAR, '36', null, null, null, null);
+        $table->add_field('reporturl', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('similarityscore', XMLDB_TYPE_NUMBER, '3, 2', null, null, null, '0');
+        $table->add_field('timesubmitted', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('supported', XMLDB_TYPE_INTEGER, '1', null, null, null, null);
+        $table->add_field('submissionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('fileid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table plagiarism_safeassign_old_f.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('cm', XMLDB_KEY_FOREIGN, array('cm'), 'course_modules', array('id'));
+        $table->add_key('submissionid', XMLDB_KEY_FOREIGN, array('submissionid'), 'assign_submission', array('id'));
+        $table->add_key('fileid', XMLDB_KEY_FOREIGN, array('fileid'), 'files', array('id'));
+
+        // Conditionally launch create table for plagiarism_safeassign_old_f.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // If there are old records, save records.
+        if (!empty($oldrecords)) {
+            $newrecords = [];
+            foreach ($oldrecords as $oldrecord) {
+                $newrecord = new stdClass();
+                $newrecord->cm = $oldrecord->cm;
+                $newrecord->olduserid = $oldrecord->userid;
+                $newrecord->uuid = $oldrecord->uuid;
+                $newrecord->reporturl = $oldrecord->reporturl;
+                $newrecord->similarityscore = $oldrecord->similarityscore;
+                $newrecord->timesubmitted = $oldrecord->timesubmitted;
+                $newrecord->supported = $oldrecord->supported;
+                $newrecord->submissionid = $oldrecord->submissionid;
+                $newrecord->fileid = $oldrecord->fileid;
+                array_push($newrecords, $newrecord);
+            }
+            if (!empty($newrecords)) {
+                $DB->insert_records('plagiarism_safeassign_sa_f', $newrecords);
+            }
+        }
+
+        // Define table plagiarism_safeassign_files to be created.
+        $table = new xmldb_table('plagiarism_safeassign_files');
+        $dbman->drop_table($table);
+
+        // Adding fields to table plagiarism_safeassign_files.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('uuid', XMLDB_TYPE_CHAR, '36', null, null, null, null);
+        $table->add_field('reporturl', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('similarityscore', XMLDB_TYPE_NUMBER, '3, 2', null, null, null, '0');
+        $table->add_field('timesubmitted', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('supported', XMLDB_TYPE_INTEGER, '1', null, null, null, null);
+        $table->add_field('submissionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('fileid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table plagiarism_safeassign_files.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('submissionid', XMLDB_KEY_FOREIGN, array('submissionid'), 'assign_submission', array('id'));
+        $table->add_key('fileid', XMLDB_KEY_FOREIGN, array('fileid'), 'files', array('id'));
+
+        // Conditionally launch create table for plagiarism_safeassign_files.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // If there are old records, update new table with old records.
+        if (!empty($oldrecords)) {
+            $newrecords = [];
+            foreach ($oldrecords as $oldrecord) {
+                $newrecord = new stdClass();
+                $newrecord->uuid = $oldrecord->uuid;
+                $newrecord->reporturl = $oldrecord->reporturl;
+                $newrecord->similarityscore = $oldrecord->similarityscore;
+                $newrecord->timesubmitted = $oldrecord->timesubmitted;
+                $newrecord->supported = $oldrecord->supported;
+                $newrecord->submissionid = $oldrecord->submissionid;
+                $newrecord->fileid = $oldrecord->fileid;
+                array_push($newrecords, $newrecord);
+            }
+            if (!empty($newrecords)) {
+                $DB->insert_records('plagiarism_safeassign_files', $newrecords);
             }
         }
 
         // SafeAssign instructors table has no changes.
 
         // SafeAssign submissions table.
-        // Fields to remove: deprecated, hasfile, hasonlinetext, timecreated, assignmentid.
         $table = new xmldb_table('plagiarism_safeassign_subm');
-        // Drop key assignmentid.
-        $key = new xmldb_key('assignmentid', XMLDB_KEY_FOREIGN, ['assignmentid'], 'assignment', ['id']);
-        $dbman->drop_key($table, $key);
-        $fieldstoremove = ['deprecated', 'hasfile', 'hasonlinetext', 'timecreated', 'assignmentid', 'deleted'];
-        foreach ($fieldstoremove as $fieldname) {
-            $field = new xmldb_field($fieldname);
-            // Conditionally launch drop field.
-            if ($dbman->field_exists($table, $field)) {
-                $dbman->drop_field($table, $field);
+        $oldrecords = null;
+        if ($dbman->table_exists('plagiarism_safeassign_subm')) {
+            $oldrecords = $DB->get_records('plagiarism_safeassign_subm');
+            // Rename original table.
+            $dbman->rename_table($table, 'plagiarism_safeassign_old_s');
+        }
+
+        // Define table plagiarism_safeassign_subm to be created.
+        $table = new xmldb_table('plagiarism_safeassign_subm');
+
+        // Adding fields to table plagiarism_safeassign_subm.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('uuid', XMLDB_TYPE_CHAR, '36', null, null, null, null);
+        $table->add_field('globalcheck', XMLDB_TYPE_INTEGER, '1', null, null, null, null);
+        $table->add_field('groupsubmission', XMLDB_TYPE_INTEGER, '1', null, null, null, null);
+        $table->add_field('highscore', XMLDB_TYPE_NUMBER, '3, 2', null, null, null, null);
+        $table->add_field('avgscore', XMLDB_TYPE_NUMBER, '3, 2', null, null, null, null);
+        $table->add_field('submitted', XMLDB_TYPE_INTEGER, '1', null, null, null, null);
+        $table->add_field('reportgenerated', XMLDB_TYPE_INTEGER, '1', null, null, null, null);
+        $table->add_field('submissionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('status', XMLDB_TYPE_CHAR, '10', null, null, null, null);
+        $table->add_field('type', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('cmid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+
+        // Adding keys to table plagiarism_safeassign_subm.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('submissionid', XMLDB_KEY_FOREIGN, array('submissionid'), 'assign_submission', array('id'));
+        $table->add_key('cmid', XMLDB_KEY_FOREIGN, array('cmid'), 'course_modules', array('id'));
+        $table->add_key('userid', XMLDB_KEY_FOREIGN, array('userid'), 'user', array('id'));
+
+        // Conditionally launch create table for plagiarism_safeassign_subm.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+        // If there are old records, update new table with old records.
+        if (!empty($oldrecords)) {
+            $assignmoduleid = $DB->get_field("modules", "id", ["name" => "assign"]);
+            $newrecords = [];
+            foreach ($oldrecords as $oldrecord) {
+                $newrecord = new stdClass();
+                $newrecord->uuid = $oldrecord->uuid;
+                $newrecord->globalcheck = $oldrecord->globalcheck;
+                $newrecord->groupsubmission = $oldrecord->groupsubmission;
+                $newrecord->highscore = $oldrecord->highscore;
+                $newrecord->avgscore = $oldrecord->avgscore;
+                $newrecord->submitted = $oldrecord->submitted;
+                $newrecord->reportgenerated = $oldrecord->reportgenerated;
+                $newrecord->submissionid = $oldrecord->submissionid;
+                $newrecord->status = $oldrecord->uuid ?
+                    \plagiarism_safeassign\api\safeassign_submission::STATUS_SUBMISSION_SUBMITTED :
+                    \plagiarism_safeassign\api\safeassign_submission::STATUS_SUBMISSION_RESTORED;
+                $newrecord->type = $oldrecord->hasfile && $oldrecord->hasonlinetext ?
+                    \plagiarism_safeassign\api\safeassign_submission::TYPE_SUBMISSION_FILE_AND_TEXT :
+                    $oldrecord->hasfile ? \plagiarism_safeassign\api\safeassign_submission::TYPE_SUBMISSION_FILE :
+                    $oldrecord->hasonlinetext ? \plagiarism_safeassign\api\safeassign_submission::TYPE_SUBMISSION_ONLINETEXT : 0;
+
+                // In old versions, SafeAssign only get info from assign submissions.
+                $newrecord->cmid = $DB->get_field('course_modules', 'id',
+                    ['module' => $assignmoduleid, 'instance' => $oldrecord->submissionid]);
+                $newrecord->userid = $DB->get_field('assign_submission', 'userid', ['id' => $oldrecord->submissionid]);
+                array_push($newrecords, $newrecord);
             }
-        }
-
-        // Fields to add: status, type, cmid, userid.
-        $fieldstoadd = [];
-        array_push($fieldstoadd, new xmldb_field('status', XMLDB_TYPE_CHAR, '10', null, null, null, null, 'submissionid'));
-        array_push($fieldstoadd, new xmldb_field('type', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', 'status'));
-        array_push($fieldstoadd, new xmldb_field('cmid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'type'));
-        array_push($fieldstoadd, new xmldb_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'cmid'));
-
-        foreach ($fieldstoadd as $field) {
-            // Conditionally launch add field.
-            if (!$dbman->field_exists($table, $field)) {
-                $dbman->add_field($table, $field);
+            if (!empty($newrecords)) {
+                $DB->insert_records('plagiarism_safeassign_subm', $newrecords);
             }
-        }
-
-        // Keys to add: cmid, userid.
-        $keystoadd = [];
-        array_push($keystoadd, new xmldb_key('cmid', XMLDB_KEY_FOREIGN, ['cmid'], 'course_modules', ['id']));
-        array_push($keystoadd, new xmldb_key('userid', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']));
-
-        foreach ($keystoadd as $key) {
-            // Launch add key.
-            $dbman->add_key($table, $key);
-        }
-
-        // Remove old assign table.
-        $table = new xmldb_table('plagiarism_safeassign_assign');
-        if ($dbman->table_exists($table)) {
-            $dbman->drop_table($table);
         }
 
         // Safeassign savepoint reached.
-        upgrade_plugin_savepoint(true, 2019013100, 'plagiarism', 'safeassign');
+        upgrade_plugin_savepoint(true, 2019030100, 'plagiarism', 'safeassign');
     }
 
     return true;

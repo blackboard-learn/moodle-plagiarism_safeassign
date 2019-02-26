@@ -23,7 +23,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2019013100;
+$plugin->version = 2019030100;
 $plugin->release = '3.5.2';
 $plugin->requires = 2018051700;
 $plugin->component = 'plagiarism_safeassign';
