@@ -26,7 +26,6 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
 require_once(__DIR__.'/base.php');
-require_once($CFG->dirroot . '/mod/assign/externallib.php');
 require_once($CFG->dirroot . '/plagiarism/safeassign/tests/base.php');
 require_once($CFG->dirroot . '/plagiarism/safeassign/tests/safeassign_api_test.php');
 require_once($CFG->dirroot . '/plagiarism/safeassign/classes/observer.php');
@@ -74,7 +73,6 @@ class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase 
         $data->safeassign_enabled = 1;
         $data->course = $course->id;
         $data->instance = $instance->id;
-        $data->module = $cm->module;
         $safeassign = new plagiarism_plugin_safeassign();
         $safeassign->save_form_elements($data);
 
@@ -97,28 +95,25 @@ class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase 
         $plugin = $assign->get_submission_plugin_by_type('onlinetext');
         $sink = $this->redirectEvents();
         $plugin->save($submission, $data);
-        mod_assign_external::submit_for_grading($assign->get_instance()->id, false);
-
         $events = $sink->get_events();
-        $this->assertCount(3, $events);
-        $event1 = $events[1];
-        $event2 = $events[2];
+        $sink->clear();
+        $event = $events[1];
+        // Submission is processed by the event observer class.
+        plagiarism_safeassign_observer::assignsubmission_onlinetext_created($event);
 
-        plagiarism_safeassign_observer::event_triggered($event1);
-        plagiarism_safeassign_observer::event_triggered($event2);
-
-        $filename = 'userid_' . $student->id . '_assignsubmission_text_as_file_' . $submission->id . '.txt';
-
+        $filename = 'userid_' . $student->id . '_text_submissionid_' . $submission->id . '.txt';
         $fi = $DB->get_record('files', array('filename' => $filename));
 
-        // Simulate that file has been processed in SafeAssign and is supported.
-        $safileid = $DB->get_field('plagiarism_safeassign_files', 'id', ["fileid" => $fi->id]);
-        $safile = new stdClass();
-        $safile->id = $safileid;
-        $safile->supported = true;
-
-        $DB->update_record('plagiarism_safeassign_files', $safile);
-        $record = $DB->get_record('plagiarism_safeassign_files', ["id" => $safileid]);
+        $record = new stdClass();
+        $record->cm = $context->instanceid;
+        $record->userid = $student->id;
+        $record->reporturl = '';
+        $record->similarityscore = 0.50;
+        $record->timesubmitted = time();
+        $record->supported = 1;
+        $record->submissionid = $submission->id;
+        $record->fileid = $fi->id;
+        $DB->insert_record('plagiarism_safeassign_files', $record, true);
         return [$record, $submission];
     }
 
@@ -145,23 +140,28 @@ class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase 
         $plugin = $assign->get_submission_plugin_by_type('file');
         $sink = $this->redirectEvents();
         $plugin->save($submission, $data);
-        mod_assign_external::submit_for_grading($assign->get_instance()->id, false);
-
         $events = $sink->get_events();
-        $this->assertCount(3, $events);
-        $event0 = $events[0];
-        $event1 = $events[1];
-        $event2 = $events[2];
+        $event = reset($events);
+        $this->setUser($student->id);
         // Submission is processed by the event observer class.
-        plagiarism_safeassign_observer::event_triggered($event0);
-        plagiarism_safeassign_observer::event_triggered($event1);
-        plagiarism_safeassign_observer::event_triggered($event2);
+        plagiarism_safeassign_observer::assignsubmission_file_uploaded($event);
 
-        $record = $DB->get_record('plagiarism_safeassign_files', ["fileid" => $fi->get_id()]);
+        $record = new stdClass();
+        $record->cm = $context->instanceid;
+        $record->userid = $student->id;
+        $record->reporturl = '';
+        $record->similarityscore = 0.50;
+        $record->timesubmitted = time();
+        $record->supported = 1;
+        $record->submissionid = $submission->id;
+        $record->fileid = $fi->get_id();
+        $DB->insert_record('plagiarism_safeassign_files', $record, true);
         return [$record, $submission];
     }
 
     private function validate_file($file, $result) {
+        $this->assertEquals($file->cm, $result->cm);
+        $this->assertEquals($file->userid, $result->userid);
         $this->assertEquals($file->reporturl, $result->reporturl);
         $this->assertEquals($file->timesubmitted, $result->timesubmitted);
         $this->assertEquals($file->supported, $result->supported);
@@ -312,14 +312,6 @@ class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase 
         $course1 = $this->getDataGenerator()->create_course();
         $course2 = $this->getDataGenerator()->create_course();
         $student = $this->getDataGenerator()->create_user();
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
-        $this->getDataGenerator()->enrol_user($student->id,
-            $course1->id,
-            $studentrole->id);
-        $this->getDataGenerator()->enrol_user($student->id,
-            $course2->id,
-            $studentrole->id);
-
         $assignment1 = $this->create_assignment($course1);
         $assignment2 = $this->create_assignment($course2);
         $this->setUser($student);
@@ -359,36 +351,22 @@ class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase 
         $course2 = $this->getDataGenerator()->create_course();
         $student1 = $this->getDataGenerator()->create_user();
         $student2 = $this->getDataGenerator()->create_user();
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
-        $this->getDataGenerator()->enrol_user($student1->id,
-            $course1->id,
-            $studentrole->id);
-        $this->getDataGenerator()->enrol_user($student2->id,
-            $course1->id,
-            $studentrole->id);
-        $this->getDataGenerator()->enrol_user($student2->id,
-            $course2->id,
-            $studentrole->id);
         $assignment1 = $this->create_assignment($course1);
         $assignment2 = $this->create_assignment($course2);
 
-        $this->setUser($student1);
         // Do several submissions.
-        $record1 = $this->make_file_submission($student1, $assignment1);
-        $this->setUser($student2);
-        $record2 = $this->make_file_submission($student2, $assignment1);
-        $record3 = $this->make_file_submission($student2, $assignment2);
+        $this->make_file_submission($student1, $assignment1);
+        $this->make_file_submission($student2, $assignment1);
+        $this->make_file_submission($student2, $assignment2);
 
-        $this->assertEquals(1, $DB->count_records('plagiarism_safeassign_files', ['fileid' => $record1[0]->fileid]));
-        $this->assertEquals(1, $DB->count_records('plagiarism_safeassign_files', ['fileid' => $record2[0]->fileid]));
-        $this->assertEquals(1, $DB->count_records('plagiarism_safeassign_files', ['fileid' => $record3[0]->fileid]));
+        $this->assertEquals(1, $DB->count_records('plagiarism_safeassign_files', array('userid' => $student1->id)));
+        $this->assertEquals(2, $DB->count_records('plagiarism_safeassign_files', array('userid' => $student2->id)));
 
         // Delete information in assignment one.
         provider::_delete_plagiarism_for_context($assignment1->get_context());
 
-        $this->assertEquals(0, $DB->count_records('plagiarism_safeassign_files', ['fileid' => $record1[0]->fileid]));
-        $this->assertEquals(0, $DB->count_records('plagiarism_safeassign_files', ['fileid' => $record2[0]->fileid]));
-        $this->assertEquals(1, $DB->count_records('plagiarism_safeassign_files', ['fileid' => $record3[0]->fileid]));
+        $this->assertEquals(0, $DB->count_records('plagiarism_safeassign_files', array('userid' => $student1->id)));
+        $this->assertEquals(1, $DB->count_records('plagiarism_safeassign_files', array('userid' => $student2->id)));
     }
 
     public function test_delete_plagiarism_for_user() {
@@ -397,43 +375,28 @@ class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase 
         $course2 = $this->getDataGenerator()->create_course();
         $student1 = $this->getDataGenerator()->create_user();
         $student2 = $this->getDataGenerator()->create_user();
-        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
-        $this->getDataGenerator()->enrol_user($student1->id,
-            $course1->id,
-            $studentrole->id);
-        $this->getDataGenerator()->enrol_user($student2->id,
-            $course1->id,
-            $studentrole->id);
-        $this->getDataGenerator()->enrol_user($student1->id,
-            $course2->id,
-            $studentrole->id);
         $assignment1 = $this->create_assignment($course1);
         $assignment2 = $this->create_assignment($course2);
 
         // Do several submissions.
-        $this->setUser($student1);
-        $record1 = $this->make_file_submission($student1, $assignment1);
-        $record2 = $this->make_file_submission($student1, $assignment2);
-        $this->setUser($student2);
-        $record3 = $this->make_file_submission($student2, $assignment1);
+        $this->make_file_submission($student1, $assignment1);
+        $this->make_file_submission($student2, $assignment1);
+        $this->make_file_submission($student1, $assignment2);
 
-        $this->assertEquals(1, $DB->count_records('plagiarism_safeassign_files', ['fileid' => $record1[0]->fileid]));
-        $this->assertEquals(1, $DB->count_records('plagiarism_safeassign_files', ['fileid' => $record2[0]->fileid]));
-        $this->assertEquals(1, $DB->count_records('plagiarism_safeassign_files', ['fileid' => $record3[0]->fileid]));
+        $this->assertEquals(2, $DB->count_records('plagiarism_safeassign_files', array('userid' => $student1->id)));
+        $this->assertEquals(1, $DB->count_records('plagiarism_safeassign_files', array('userid' => $student2->id)));
 
         // Delete information of assignment one for student one.
         provider::_delete_plagiarism_for_user($student1->id, $assignment1->get_context());
 
-        $this->assertEquals(0, $DB->count_records('plagiarism_safeassign_files', ['fileid' => $record1[0]->fileid]));
-        $this->assertEquals(1, $DB->count_records('plagiarism_safeassign_files', ['fileid' => $record2[0]->fileid]));
-        $this->assertEquals(1, $DB->count_records('plagiarism_safeassign_files', ['fileid' => $record3[0]->fileid]));
+        $this->assertEquals(1, $DB->count_records('plagiarism_safeassign_files', array('userid' => $student1->id)));
+        $this->assertEquals(1, $DB->count_records('plagiarism_safeassign_files', array('userid' => $student2->id)));
 
         // Delete information of assignment two for student one.
         provider::_delete_plagiarism_for_user($student1->id, $assignment2->get_context());
 
-        $this->assertEquals(0, $DB->count_records('plagiarism_safeassign_files', ['fileid' => $record1[0]->fileid]));
-        $this->assertEquals(0, $DB->count_records('plagiarism_safeassign_files', ['fileid' => $record2[0]->fileid]));
-        $this->assertEquals(1, $DB->count_records('plagiarism_safeassign_files', ['fileid' => $record3[0]->fileid]));
+        $this->assertEquals(0, $DB->count_records('plagiarism_safeassign_files', array('userid' => $student1->id)));
+        $this->assertEquals(1, $DB->count_records('plagiarism_safeassign_files', array('userid' => $student2->id)));
     }
 
 }

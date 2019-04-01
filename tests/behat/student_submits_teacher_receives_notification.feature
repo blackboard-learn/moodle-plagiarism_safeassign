@@ -71,12 +71,12 @@ Feature: Sending a submission to a SafeAssign assignment and receiving notificat
     And set test helper student "student1"
     And set test helper course with shortname "C1"
     And set test helper assignment with name "Assignment One"
-    And I send a submission with file "plagiarism/safeassign/tests/fixtures/dummy-files/test1.txt"
+    And I send a submission with file "plagiarism/safeassign/tests/fixtures/dummy-files/test2.txt"
     Given I log in as "student2"
     And I am on "Course 1" course homepage
     And I follow "Assignment One"
     When I press "Add submission"
-    And I upload "plagiarism/safeassign/tests/fixtures/dummy-files/test2.txt" file to "File submissions" filemanager
+    And I upload "plagiarism/safeassign/tests/fixtures/dummy-files/test3.txt" file to "File submissions" filemanager
     And I press "Save changes"
     Then I log out
 
@@ -103,8 +103,7 @@ Feature: Sending a submission to a SafeAssign assignment and receiving notificat
       Given I change notifications setup for user "teacher1" with "popup"
       And I change notifications setup for user "teacher2" with "popup"
       And set test helper student "student2"
-      Then I sync submissions
-      And I send a submission with file "plagiarism/safeassign/tests/fixtures/dummy-files/test2.txt"
+      And I send a submission with file "plagiarism/safeassign/tests/fixtures/dummy-files/test4.txt"
       Then I sync submissions
       Then I log in as "teacher1"
       And I open the notification popover
