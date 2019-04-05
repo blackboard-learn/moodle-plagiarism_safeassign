@@ -173,7 +173,6 @@ Feature: Send an submission to a SafeAssign assignment
     And I upload "lib/tests/fixtures/empty.txt" file to "File submissions" filemanager
     And I press "Save changes"
     And The submission for assignment exceeds the file size limit
-    And I press "Edit submission"
-    And I press "Save changes"
+    And I reload the page
     And I should see "This submission exceeds the combined size limit of 10 MB and won't be processed by SafeAssign"
     And I log out

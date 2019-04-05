@@ -197,7 +197,6 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
         $assignment = new stdClass();
         $assignment->id = "1234567890";
         $assignment->title = "Test assignment for creation";
-        $assignment->cmid = 1234;
 
         return $assignment;
     }
@@ -399,8 +398,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
         // Push fixture for assignment creation.
         $assignmenturl = $this->create_assignment_url($courseuuid);
         testhelper::push_pair($assignmenturl, 'create-assignment-ok.json');
-        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->cmid,
-            $assignment->id, $assignment->title);
+        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->id, $assignment->title);
         $this->assertTrue(!empty($result->id) && !empty($result->uuid) && !empty($result->title));
         $this->assertEquals(rest_provider::instance()->lasthttpcode(), 200);
     }
@@ -432,11 +430,11 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
         // Push fixture for assignment creation.
         $assignmenturl = $this->create_assignment_url($courseuuid);
         testhelper::push_pair($assignmenturl, 'create-assignment-fail.json', 401);
-        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->cmid,
-            $assignment->id, $assignment->title);
+        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->id, $assignment->title);
         $this->assertFalse($result);
         $this->assertTrue(rest_provider::instance()->lasthttpcode() >= 400);
     }
+
 
     /**
      *  Attempts to check an assignment.
@@ -464,15 +462,14 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
         // Push fixture for assignment creation.
         $assignmenturl = $this->create_assignment_url($courseuuid);
         testhelper::push_pair($assignmenturl, 'create-assignment-ok.json');
-        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->cmid,
-            $assignment->id, $assignment->title);
+        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->id, $assignment->title);
         $this->assertTrue(!empty($result->id) && !empty($result->uuid) && !empty($result->title));
 
         // Check created assignment.
         $assignmentid = $result->id;
         $assignurl = $this->create_assignment_url($courseuuid, $assignmentid);
-        testhelper::push_pair($assignurl . '?id=' . $assignment->cmid . "-" . $assignment->id, "create-assignment-ok.json");
-        $result = safeassign_api::check_assignment($this->user->id, $courseuuid, $assignment->cmid, $assignment->id);
+        testhelper::push_pair($assignurl . '?id=' . $assignment->id, "create-assignment-ok.json");
+        $result = safeassign_api::check_assignment($this->user->id, $courseuuid, $assignment->id);
         $this->assertTrue(!empty($result->id) && !empty($result->uuid) && !empty($result->title));
         $this->assertEquals(rest_provider::instance()->lasthttpcode(), 200);
     }
@@ -503,15 +500,14 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
         // Push fixture for assignment creation.
         $assignmenturl = $this->create_assignment_url($courseuuid);
         testhelper::push_pair($assignmenturl, 'create-assignment-ok.json');
-        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->cmid,
-            $assignment->id, $assignment->title);
+        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->id, $assignment->title);
         $this->assertTrue(!empty($result->id) && !empty($result->uuid) && !empty($result->title));
 
         // Check created assignment.
         $assignmentid = $result->id;
         $assignurl = $this->create_assignment_url($courseuuid);
-        testhelper::push_pair($assignurl . '?id=' . $assignment->cmid . "-" . $assignment->id, "create-assignment-fail.json", 401);
-        $result = safeassign_api::check_assignment($this->user->id, $courseuuid, $assignment->cmid, $assignment->id);
+        testhelper::push_pair($assignurl . '?id=' . $assignment->id, "create-assignment-fail.json", 401);
+        $result = safeassign_api::check_assignment($this->user->id, $courseuuid, $assignment->id);
         $this->assertFalse($result);
         $this->assertTrue(rest_provider::instance()->lasthttpcode() >= 400);
     }
@@ -542,8 +538,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
         // Push fixture for assignment creation.
         $assignmenturl = $this->create_assignment_url($courseuuid);
         testhelper::push_pair($assignmenturl, 'create-assignment-ok.json');
-        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->cmid,
-            $assignment->id, $assignment->title);
+        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->id, $assignment->title);
         $this->assertNotEmpty($result->uuid);
         $assignmentuuid = $result->uuid;
 
@@ -584,8 +579,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
         // Push fixture for assignment creation.
         $assignmenturl = $this->create_assignment_url($courseuuid);
         testhelper::push_pair($assignmenturl, 'create-assignment-ok.json');
-        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->cmid,
-            $assignment->id, $assignment->title);
+        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->id, $assignment->title);
         $this->assertNotEmpty($result->uuid);
         $assignmentuuid = $result->uuid;
 
@@ -627,8 +621,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
         // Push fixture for assignment creation.
         $assignmenturl = $this->create_assignment_url($courseuuid);
         testhelper::push_pair($assignmenturl, 'create-assignment-ok.json');
-        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->cmid,
-            $assignment->id, $assignment->title);
+        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->id, $assignment->title);
         $this->assertNotEmpty($result->uuid);
         $assignmentuuid = $result->uuid;
 
@@ -670,8 +663,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
         // Push fixture for assignment creation.
         $assignmenturl = $this->create_assignment_url($courseuuid);
         testhelper::push_pair($assignmenturl, 'create-assignment-ok.json');
-        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->cmid,
-            $assignment->id, $assignment->title);
+        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->id, $assignment->title);
         $this->assertNotEmpty($result->uuid);
         $assignmentuuid = $result->uuid;
 
@@ -713,8 +705,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
         // Push fixture for assignment creation.
         $assignmenturl = $this->create_assignment_url($courseuuid);
         testhelper::push_pair($assignmenturl, 'create-assignment-ok.json');
-        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->cmid,
-            $assignment->id, $assignment->title);
+        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->id, $assignment->title);
         $this->assertNotEmpty($result->uuid);
         $assignmentuuid = $result->uuid;
 
@@ -758,8 +749,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
         // Push fixture for assignment creation.
         $assignmenturl = $this->create_assignment_url($courseuuid);
         testhelper::push_pair($assignmenturl, 'create-assignment-ok.json');
-        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->cmid,
-            $assignment->id, $assignment->title);
+        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->id, $assignment->title);
         $this->assertNotEmpty($result->uuid);
         $assignmentuuid = $result->uuid;
 
@@ -806,8 +796,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
         // Push fixture for assignment creation.
         $assignmenturl = $this->create_assignment_url($courseuuid);
         testhelper::push_pair($assignmenturl, 'create-assignment-ok.json');
-        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->cmid,
-            $assignment->id, $assignment->title);
+        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->id, $assignment->title);
         $this->assertNotEmpty($result->uuid);
         $assignmentuuid = $result->uuid;
 
@@ -849,8 +838,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
         // Push fixture for assignment creation.
         $assignmenturl = $this->create_assignment_url($courseuuid);
         testhelper::push_pair($assignmenturl, 'create-assignment-ok.json');
-        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->cmid,
-            $assignment->id, $assignment->title);
+        $result = safeassign_api::create_assignment($this->user->id, $courseuuid, $assignment->id, $assignment->title);
         $this->assertNotEmpty($result->uuid);
         $assignmentuuid = $result->uuid;
 

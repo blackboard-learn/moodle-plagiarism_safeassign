@@ -51,9 +51,9 @@ class plagiarism_safeassign_restore_course_testcase extends plagiarism_safeassig
         $this->setAdminUser();
         $this->create_test_data();
 
-        // Check that new course and assignment are in SafeAssign tables.
+        // Check that new course and assignment is in SafeAssign tables.
         $sacourses = $DB->count_records('plagiarism_safeassign_course');
-        $saassignments = $DB->count_records('plagiarism_safeassign_mod');
+        $saassignments = $DB->count_records('plagiarism_safeassign_assign');
         $this->assertEquals(1, $sacourses);
         $this->assertEquals(1, $saassignments);
 
@@ -62,19 +62,16 @@ class plagiarism_safeassign_restore_course_testcase extends plagiarism_safeassig
 
         // Restore course to existing course.
         $this->restore_course($backup['id'], $this->course->id, $USER->id);
-        // The last cmid is the assignment that was restored.
-        $restoredcmid = max($DB->get_fieldset_select("course_modules", "id", "", []));
 
         // Simulate restoration of assignment activity.
         $plugintype = 'plagiarism';
         $pluginname = 'safeassign';
         $info = new stdClass();
         $info->modulename = 'assign';
-        // Restored assignment will have a new instance id.
-        $info->moduleid = $restoredcmid;
+        $info->moduleid = 342001;
 
         $task = new restore_assign_activity_task('name', $info);
-        $task->set_moduleid($info->moduleid);
+        $task->set_moduleid(342001);
 
         $step = new restore_module_structure_step('module_info', $backup['destination'], $task);
 
@@ -83,7 +80,7 @@ class plagiarism_safeassign_restore_course_testcase extends plagiarism_safeassig
 
         // Check that the new restored course and assignment is in SafeAssign tables.
         $sacourses = $DB->count_records('plagiarism_safeassign_course');
-        $saassignments = $DB->count_records('plagiarism_safeassign_mod');
+        $saassignments = $DB->count_records('plagiarism_safeassign_assign');
         $this->assertEquals(1, $sacourses);
         $this->assertEquals(2, $saassignments);
     }
@@ -97,7 +94,7 @@ class plagiarism_safeassign_restore_course_testcase extends plagiarism_safeassig
 
         // Check that new course and assignment is in SafeAssign tables.
         $sacourses = $DB->count_records('plagiarism_safeassign_course');
-        $saassignments = $DB->count_records('plagiarism_safeassign_mod');
+        $saassignments = $DB->count_records('plagiarism_safeassign_assign');
         $this->assertEquals(1, $sacourses);
         $this->assertEquals(1, $saassignments);
 
@@ -106,18 +103,16 @@ class plagiarism_safeassign_restore_course_testcase extends plagiarism_safeassig
 
         // Restore course to new course.
         $this->restore_course($backup['id'], 0, $USER->id);
-        // The last cmid is the assignment that was restored.
-        $restoredcmid = max($DB->get_fieldset_select("course_modules", "id", "", []));
 
         // Simulate restoration of assignment activity.
         $plugintype = 'plagiarism';
         $pluginname = 'safeassign';
         $info = new stdClass();
         $info->modulename = 'assign';
-        $info->moduleid = $restoredcmid;
+        $info->moduleid = 342001;
 
         $task = new restore_assign_activity_task('name', $info);
-        $task->set_moduleid($info->moduleid);
+        $task->set_moduleid(342001);
 
         $step = new restore_module_structure_step('module_info', $backup['destination'], $task);
 
@@ -126,7 +121,7 @@ class plagiarism_safeassign_restore_course_testcase extends plagiarism_safeassig
 
         // Check that the new restored course and assignment is in SafeAssign tables.
         $sacourses = $DB->count_records('plagiarism_safeassign_course');
-        $saassignments = $DB->count_records('plagiarism_safeassign_mod');
+        $saassignments = $DB->count_records('plagiarism_safeassign_assign');
         $this->assertEquals(2, $sacourses);
         $this->assertEquals(2, $saassignments);
     }
@@ -203,7 +198,6 @@ class plagiarism_safeassign_restore_course_testcase extends plagiarism_safeassig
         $DB->insert_record('plagiarism_safeassign_config', $record);
         $record->name = 'safeassign_global_reference';
         $record->value = self::GLOBALCHECK;
-        $record->module = $this->cm->module;
         $DB->insert_record('plagiarism_safeassign_config', $record);
 
         $data = new stdClass();
@@ -211,7 +205,6 @@ class plagiarism_safeassign_restore_course_testcase extends plagiarism_safeassig
         $data->safeassign_enabled = 1;
         $data->course = $this->course->id;
         $data->instance = $this->instance->id;
-        $data->module = $this->cm->module;
         $safeassign = new plagiarism_plugin_safeassign();
         $safeassign->save_form_elements($data);
     }
