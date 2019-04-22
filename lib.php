@@ -728,14 +728,14 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                   ELSE asg.userid END as userid
                   FROM {plagiarism_safeassign_subm} plg
                   JOIN {assign_submission} asg ON plg.submissionid = asg.id
-             LEFT JOIN {files} f ON plg.submissionid = f.itemid AND mimetype IS NULL
+             LEFT JOIN {files} f ON plg.submissionid = f.itemid
                  WHERE plg.deprecated = 0
-                   AND (f.filepath = "/" AND f.filename = "." AND f.userid IS NOT NULL)
+                   AND f.userid IS NOT NULL
                    AND plg.reportgenerated = 0
                    AND plg.submitted = 1';
 
         $submissions = $DB->get_records_sql($sql);
-
+        var_dump($submissions);
         $count = 0;
         $baseurl = get_config('plagiarism_safeassign', 'safeassign_api');
         foreach ($submissions as $submission) {
@@ -752,7 +752,8 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             } else {
                 continue;
             }
-
+            var_dump($result);
+            var_dump(json_decode(rest_provider::instance()->lastresponse()));
             if (!empty($result)) {
                 $convhighscore = floatval($result->highest_score / 100);
                 $convavgscore = floatval($result->average_score / 100);
@@ -860,6 +861,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                         $params['Course ID'] = $course->courseid;
                         $params['Url'] = $baseurl . '/api/v1/courses';
                     }
+                    var_dump($course);
                     if ($response) {
                         $lastresponse = json_decode(rest_provider::instance()->lastresponse());
                         if (isset($lastresponse->uuid)) {
@@ -1062,14 +1064,13 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                   JOIN {plagiarism_safeassign_assign} a ON a.assignmentid = s.assignmentid
                   JOIN {plagiarism_safeassign_course} c ON a.courseid = c.courseid
                   JOIN {assign_submission} asubm ON asubm.id = s.submissionid
-             LEFT JOIN {files} f ON s.submissionid = f.itemid AND mimetype IS NULL
+             LEFT JOIN {files} f ON s.submissionid = f.itemid
                  WHERE s.deprecated = 0
-                   AND (f.filepath = "/" AND f.filename = "." AND f.userid IS NOT NULL)
+                   AND f.userid IS NOT NULL
                    AND s.uuid IS NULL
                    AND s.submitted = 0
                    AND (s.hasonlinetext = 1 OR s.hasfile = 1)
-                   AND asubm.status = "submitted"
-                   AND NOT(asubm.userid = 0 AND asubm.groupid = 0)';
+                   AND asubm.status = "submitted"';
 
         $records = $DB->get_records_sql($sql, array());
 
@@ -1098,6 +1099,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             }
             // Check each submission.
             $count = 0;
+            var_dump($unsynced);
             foreach ($unsynced as $unsyncsubmission) {
                 $cm = $this->get_cmid($unsyncsubmission->assignmentid);
                 $assignmentcontext = context_module::instance($cm->id);
