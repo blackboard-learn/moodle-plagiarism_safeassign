@@ -112,7 +112,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         static $courseconfiguration;
         $courseconfiguration = $DB->get_records_menu('plagiarism_safeassign_config', array('cm' => $cmid), '', 'name, value');
 
-        if (!empty($courseconfiguration['safeassign_enabled'])) {
+        if (!empty($courseconfiguration['safeassign_enabled']) && $linkarray['userid'] != '0') {
             // The activity has SafeAssign enabled.
             $message = '';
             $file = null;
@@ -735,7 +735,6 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                    AND plg.submitted = 1';
 
         $submissions = $DB->get_records_sql($sql);
-        var_dump($submissions);
         $count = 0;
         $baseurl = get_config('plagiarism_safeassign', 'safeassign_api');
         foreach ($submissions as $submission) {
@@ -752,8 +751,6 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             } else {
                 continue;
             }
-            var_dump($result);
-            var_dump(json_decode(rest_provider::instance()->lastresponse()));
             if (!empty($result)) {
                 $convhighscore = floatval($result->highest_score / 100);
                 $convavgscore = floatval($result->average_score / 100);
@@ -861,7 +858,6 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                         $params['Course ID'] = $course->courseid;
                         $params['Url'] = $baseurl . '/api/v1/courses';
                     }
-                    var_dump($course);
                     if ($response) {
                         $lastresponse = json_decode(rest_provider::instance()->lastresponse());
                         if (isset($lastresponse->uuid)) {
@@ -1099,7 +1095,6 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             }
             // Check each submission.
             $count = 0;
-            var_dump($unsynced);
             foreach ($unsynced as $unsyncsubmission) {
                 $cm = $this->get_cmid($unsyncsubmission->assignmentid);
                 $assignmentcontext = context_module::instance($cm->id);
