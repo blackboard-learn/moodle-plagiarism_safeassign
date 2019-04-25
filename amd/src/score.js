@@ -123,11 +123,11 @@ define(['jquery', 'core/str'], function($, str) {
             var pageObject = $('#page-mod-assign-grading');
             var isFeedbackView = pageObject.length;
             var fileSelector = '.ygtvchildren';
+            var onlineSelector = '.plagiarism-inline.online-text-div';
             if (isFeedbackView) {
                 fileSelector = '.user' + userId + ' .ygtvchildren';
+                onlineSelector = '.user' + userId + ' td div.plagiarism-inline.online-text-div';
             }
-
-            var onlineSelector = '.plagiarism-inline.online-text-div';
 
             var readyFiles = whenTrue(fileSelector, 20);
             readyFiles.then(function() {

@@ -63,6 +63,8 @@ Feature: See plagiarism overall score for a submission in an assignment with Saf
     And I follow "Assignment One"
    When I press "Add submission"
     And I upload "lib/tests/fixtures/empty.txt" file to "File submissions" filemanager
+    And I set the following fields to these values:
+      | Online text | I'm the student onliine text submission |
     And I press "Save changes"
    Then I log out
   Given set test helper teacher "teacher1"
@@ -116,6 +118,20 @@ Feature: See plagiarism overall score for a submission in an assignment with Saf
     And set test helper assignment with name "Assignment One"
     And submission with online text is synced
     And I sync submissions
+    Then I log in as "student2"
+    And I am on "Course 1" course homepage
+    And I follow "Assignment One"
+    When I press "Add submission"
+    And I set the following fields to these values:
+      | Online text | I'm the student first submission |
+    And I press "Save changes"
+    Then I log out
+    Given set test helper teacher "teacher1"
+    And set test helper student "student2"
+    And set test helper course with shortname "C1"
+    And set test helper assignment with name "Assignment One"
+    And submission with online text is synced
+    And I sync submissions
 
   @javascript
   Scenario: See plagiarism overall score in the submission view with one file and more files
@@ -146,6 +162,9 @@ Feature: See plagiarism overall score for a submission in an assignment with Saf
       And I follow "Assignment One"
      Then I navigate to "View all submissions" in current page administration
       And I wait until "SafeAssign overall score" "text" exists
+      And "Student 1" row "Online text" column of "generaltable" table should contain "SafeAssign overall score"
+      And "Student 2" row "Online text" column of "generaltable" table should contain "SafeAssign overall score"
+      And "Student 3" row "Online text" column of "generaltable" table should contain "SafeAssign overall score"
       And I click on "Grade" "link" in the "student1" "table_row"
       And I wait until "SafeAssign overall score" "text" exists
      Then I am on "Course 1" course homepage
@@ -175,7 +194,7 @@ Feature: See plagiarism overall score for a submission in an assignment with Saf
       And I wait until "SafeAssign overall score" "text" exists
       And I select "Student 2" from the "guser" singleselect
       And I wait until the page is ready
-      And I should not see "SafeAssign overall score"
+      And I should see "SafeAssign overall score"
      Then I select "Assignment Two" from the "garea" singleselect
       And I wait until "SafeAssign overall score" "text" exists
       And I select "Student 1" from the "guser" singleselect
