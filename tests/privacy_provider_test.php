@@ -186,6 +186,32 @@ class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase 
 
     }
 
+    public function test_get_users_in_context() {
+        global $DB;
+
+        $teacher1 = $this->getDataGenerator()->create_user();
+        $teacher2 = $this->getDataGenerator()->create_user();
+        $course = $this->getDataGenerator()->create_course();
+        $context = context_course::instance($course->id);
+        $this->make_teacher_enrolment($teacher1, $course);
+        $this->make_teacher_enrolment($teacher2, $course);
+        $this->create_assignment($course);
+
+        // Admin is included there.
+        $this->assertCount(3, $DB->get_records('plagiarism_safeassign_instr'));
+        $userlist = new \core_privacy\local\request\userlist($context, 'core_course');
+        provider::get_users_in_context($userlist);
+
+        $this->assertCount(3, $userlist->get_userids());
+
+        $course2 = $this->getDataGenerator()->create_course();
+        $context2 = context_course::instance($course2->id);
+
+        $userlist2 = new \core_privacy\local\request\userlist($context2, 'core_course');
+        provider::get_users_in_context($userlist2);
+        $this->assertCount(0, $userlist2->get_userids());
+    }
+
     public function test_export_user_data() {
         global $DB;
 
@@ -222,6 +248,28 @@ class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase 
             $this->assertEquals(transform::yesno($register->unenrolled), $data[$i]->unenrolled);
             $i++;
         }
+    }
+
+    public function test_delete_data_for_users() {
+        global $DB;
+
+        $teacher1 = $this->getDataGenerator()->create_user();
+        $teacher2 = $this->getDataGenerator()->create_user();
+        $course = $this->getDataGenerator()->create_course();
+        $context = context_course::instance($course->id);
+        $this->make_teacher_enrolment($teacher1, $course);
+        $this->make_teacher_enrolment($teacher2, $course);
+        $this->create_assignment($course);
+
+        // Admin is included there.
+        $this->assertCount(3, $DB->get_records('plagiarism_safeassign_instr'));
+        $approveduserlist = new \core_privacy\local\request\approved_userlist($context, 'core_course',
+            [$teacher1->id]);
+        provider::delete_data_for_users($approveduserlist);
+
+        $this->assertCount(1, $DB->get_records('plagiarism_safeassign_instr', ['unenrolled' => 1,
+            'instructorid' => $teacher1->id]));
+
     }
 
     public function test_delete_data_for_all_users_in_context() {

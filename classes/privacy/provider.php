@@ -35,6 +35,9 @@ use core_privacy\local\request\context;
 use core_privacy\local\request\contextlist;
 use core_privacy\local\request\writer;
 use core_privacy\local\request\transform;
+use \core_privacy\local\request\userlist;
+use \core_privacy\local\request\approved_userlist;
+
 
 class provider implements
     // This plugin does export personal user data.
@@ -44,7 +47,9 @@ class provider implements
     \core_plagiarism\privacy\plagiarism_provider,
 
     // This plugin need to export other data that is not related to one activity module.
-    \core_privacy\local\request\plugin\provider {
+    \core_privacy\local\request\plugin\provider,
+    // GDPR changes for 3.6.
+    \core_privacy\local\request\core_userlist_provider {
 
     // This trait must be included.
     use \core_privacy\local\legacy_polyfill;
@@ -111,6 +116,29 @@ class provider implements
     }
 
     /**
+     * Get the list of users who have data within a context.
+     *
+     * @param   userlist    $userlist   The userlist containing the list of users who have data in this context/plugin combination.
+     */
+    public static function get_users_in_context(userlist $userlist) {
+        $context = $userlist->get_context();
+
+        if (!$context instanceof \context_course) {
+            return;
+        }
+
+        $params = [
+            'courseid' => $context->instanceid
+        ];
+
+        $sql = "SELECT instr.instructorid as userid
+                  FROM {plagiarism_safeassign_instr} instr
+                 WHERE instr.courseid = :courseid";
+
+        $userlist->add_from_sql('userid', $sql, $params);
+    }
+
+    /**
      * Export all plagiarism data from each plagiarism plugin for the specified userid and context.
      *
      * @param   int         $userid The user to export.
@@ -174,6 +202,32 @@ class provider implements
             writer::with_context($context)->export_related_data($subcontext, 'safeassign-files',
                 (object)[
                     'files' => $files]);
+        }
+    }
+
+    /**
+     * Delete multiple users within a single context.
+     *
+     * @param   approved_userlist       $userlist The approved context and user information to delete information for.
+     */
+    public static function delete_data_for_users(approved_userlist $userlist) {
+        global $DB;
+
+        $context = $userlist->get_context();
+        if (!$context instanceof \context_course) {
+            return;
+        }
+        $params = [];
+        $sqlin = '';
+        list($sqlin, $params) = $DB->get_in_or_equal($userlist->get_userids(), SQL_PARAMS_NAMED);
+        $params['courseid'] = $context->instanceid;
+        $records = $DB->get_records_sql('SELECT *
+                                           FROM {plagiarism_safeassign_instr}
+                                          WHERE courseid = :courseid
+                                            AND instructorid ' . $sqlin, $params);
+        foreach ($records as $record) {
+            $record->unenrolled = 1;
+            $DB->update_record('plagiarism_safeassign_instr', $record);
         }
     }
 
