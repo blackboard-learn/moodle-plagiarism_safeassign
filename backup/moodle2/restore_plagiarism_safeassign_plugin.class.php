@@ -103,6 +103,9 @@ class restore_plagiarism_safeassign_plugin extends restore_plagiarism_plugin {
                 $data->instructorid = $USER->id;
 
                 $DB->insert_record('plagiarism_safeassign_course', $data);
+
+                $safeassign = new \plagiarism_plugin_safeassign();
+                $safeassign->set_course_instructors($course->id);
             }
         }
     }

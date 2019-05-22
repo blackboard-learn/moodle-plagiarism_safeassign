@@ -1544,7 +1544,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                             WHERE id ';
                 $sql5 = '';
                 $params = array();
-                list($sql5, $params) = $DB->get_in_or_equal($additionalroles);
+                list($sql5, $params) = $DB->get_in_or_equal(explode(",", $additionalroles));
                 $plusroles = $DB->get_records_sql($select . $sql5, $params);
                 $context = context_system::instance();
                 foreach ($plusroles as $plusrole) {
@@ -1553,7 +1553,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                     }
                 }
             }
-            if ($users) {
+            if ($users || $plususers) {
                 // We handle first enrolled users.
                 foreach ($users as $user) {
                     $user->courseid = $contexts[$user->contextid];
@@ -1608,10 +1608,9 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 if ($systemcontext->id == $data['contextid']) {
                     // Process system level enrollment.
                     $role = $DB->get_record('role', array('id' => $data['objectid']));
-                    $sql = 'SELECT sa_ins.courseid
-                              FROM {plagiarism_safeassign_instr} sa_ins
-                              JOIN {course} c ON c.id = sa_ins.courseid
-                             WHERE sa_ins.courseid NOT IN (SELECT courseid
+                    $sql = 'SELECT sa_course.courseid
+                              FROM {plagiarism_safeassign_course} sa_course
+                             WHERE sa_course.courseid NOT IN (SELECT courseid
                                                       FROM {plagiarism_safeassign_instr}
                                                      WHERE instructorid = ? GROUP BY courseid)
                           GROUP BY courseid';
