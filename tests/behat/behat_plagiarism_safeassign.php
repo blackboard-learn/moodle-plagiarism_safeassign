@@ -218,7 +218,7 @@ class behat_plagiarism_safeassign extends behat_base {
         $unsynced = $safeassign->get_unsynced_submissions();
         $submission = reset($unsynced);
 
-        $filename = 'userid_' . self::$student->id . '_text_submissionid_' . $submission->submissionid . '.txt';
+        $filename = 'userid_' . self::$student->id . '_text_submissionid_' . $submission->submissionid . '.html';
         $textfile = $fs->get_file($usercontext->id, 'assignsubmission_text_as_file', 'submission_text_files',
             $submission->submissionid , '/', $filename);
 

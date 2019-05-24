@@ -129,7 +129,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                     // This submission has an online text associated with it.
                     $submission = $DB->get_record('assign_submission', array('userid' => $userid,
                         'assignment' => $linkarray['assignment']));
-                    $namefile = 'userid_' . $userid . '_text_submissionid_' . $submission->id . '.txt';
+                    $namefile = 'userid_' . $userid . '_text_submissionid_' . $submission->id . '.html';
                     $filerecord = $DB->get_record('files', array('filename' => $namefile));
                     if (is_object($filerecord)) {
                         $file = $this->get_file_results($cmid, $userid, $filerecord->id);
@@ -628,7 +628,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $total += $file->get_filesize();
         }
         $onlinetext = $fs->get_file($usercontext->id, 'assignsubmission_text_as_file', 'submission_text_files', $submissionid,
-            '/', 'userid_' . $USER->id . '_text_submissionid_' . $submissionid . '.txt');
+            '/', 'userid_' . $USER->id . '_text_submissionid_' . $submissionid . '.html');
         if ($onlinetext) {
             $total += $onlinetext->get_filesize();
         }
@@ -1193,7 +1193,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $fs = get_file_storage();
             $usercontext = context_user::instance($wrapper->userid );
             $textfile = $fs->get_file($usercontext->id, 'assignsubmission_text_as_file', 'submission_text_files', $submissionid,
-                '/', 'userid_' . $userid . '_text_submissionid_' . $submissionid . '.txt');
+                '/', 'userid_' . $userid . '_text_submissionid_' . $submissionid . '.html');
             if ($textfile) {
                 $wrapper->files[] = $textfile;
                 $wrapper->filenames[] = $textfile->get_filename();
@@ -1300,13 +1300,24 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $usercontext = context_user::instance($eventdata['userid']);
             $oldfile = $fs->get_file($usercontext->id, 'assignsubmission_text_as_file', 'submission_text_files',
                 $eventdata['other']['submissionid'], '/',
-                'userid_' . $eventdata['userid'] . '_text_submissionid_' . $eventdata['other']['submissionid'] .'.txt');
+                'userid_' . $eventdata['userid'] . '_text_submissionid_' . $eventdata['other']['submissionid'] .'.html');
             if ($oldfile) {
                 $oldfile->delete();
             }
 
-            $filecontent = $DB->get_field('assignsubmission_onlinetext', 'onlinetext',  array('id' => $eventdata['objectid']));
-            if ($filecontent) {
+            $assignsubmission = $DB->get_record('assignsubmission_onlinetext', array('id' => $eventdata['objectid']));
+            if ($assignsubmission) {
+                $filecontent = $assignsubmission->onlinetext;
+                $onlinetexttype = $assignsubmission->onlineformat;
+                // Markdown is the only format that needs to be converted.
+                if ($onlinetexttype == FORMAT_MARKDOWN) {
+                    $filecontent = markdown_to_html($filecontent);
+                }
+                if (is_purify_html_necessary($filecontent)) {
+                    $filecontent = purify_html($filecontent);
+                }
+                // Adds html open and closing tags to be a valid html file.
+                $filecontent = "<html>" . $filecontent . "</html>";
                 $fs = get_file_storage();
                 // Create a new one.
                 $filerecord = array(
@@ -1316,7 +1327,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                     'itemid' => $eventdata['other']['submissionid'],
                     'filepath' => '/',
                     'filename' => 'userid_' . $eventdata['userid'] .
-                        '_text_submissionid_' . $eventdata['other']['submissionid'] .'.txt',
+                        '_text_submissionid_' . $eventdata['other']['submissionid'] .'.html',
                     'userid' => $eventdata['userid']
                 );
                 $fs->create_file_from_string($filerecord, $filecontent);
