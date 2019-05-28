@@ -69,6 +69,12 @@ if (($data = $mform->get_data()) && confirm_sesskey()) {
                 }
                 $value = implode(',', $value);
             }
+            if (in_array($field, ['safeassign_instructor_username', 'safeassign_student_username'])) {
+                $old = get_config('plagiarism_safeassign', $field);
+                if ($value != $old) {
+                    add_to_config_log($field, $old, $value, 'plagiarism_safeassign');
+                }
+            }
             set_config($field, $value, 'plagiarism_safeassign');
         }
         if ($field == 'default_safeassign_api') {
