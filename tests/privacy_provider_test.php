@@ -101,7 +101,7 @@ class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase 
         // Submission is processed by the event observer class.
         plagiarism_safeassign_observer::assignsubmission_onlinetext_created($event);
 
-        $filename = 'userid_' . $student->id . '_text_submissionid_' . $submission->id . '.txt';
+        $filename = 'userid_' . $student->id . '_text_submissionid_' . $submission->id . '.html';
         $fi = $DB->get_record('files', array('filename' => $filename));
 
         $record = new stdClass();
