@@ -1252,11 +1252,12 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                   FROM {files} f
                   JOIN {assign_submission} sub ON sub.id = f.itemid
                   JOIN {course_modules} cm ON cm.instance = sub.assignment
+                  JOIN {modules} m ON m.id = cm.module AND m.name = ?
                  WHERE f.filearea IN (?,?)
                    AND f.itemid = ?
                    AND cm.course = ?
                    AND f.filename ";
-        $params = array('submission_files', 'submission_text_files', $submissionid, $courseid);
+        $params = array('assign', 'submission_files', 'submission_text_files', $submissionid, $courseid);
         list($sqlin, $params2) = $DB->get_in_or_equal($filenames);
         $sentfiles = $DB->get_records_sql($sql . $sqlin, array_merge($params, $params2));
         if ($sentfiles) {
