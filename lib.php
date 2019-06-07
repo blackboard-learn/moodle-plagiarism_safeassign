@@ -728,10 +728,12 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                   ELSE asg.userid END as userid
                   FROM {plagiarism_safeassign_subm} plg
                   JOIN {assign_submission} asg ON plg.submissionid = asg.id
+                  JOIN {plagiarism_safeassign_files} saf ON asg.id = saf.submissionid
              LEFT JOIN {files} f ON plg.submissionid = f.itemid
                  WHERE plg.deprecated = 0
                    AND f.userid IS NOT NULL
                    AND plg.reportgenerated = 0
+                   AND saf.supported = 1
                    AND plg.submitted = 1';
 
         $submissions = $DB->get_records_sql($sql);
@@ -783,8 +785,6 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $event = score_sync_log::create_log_message($count);
             $event->trigger();
         }
-        $event = score_sync_log::create();
-        $event->trigger();
 
         // Send a message to the teachers.
         if (!local::duringphptesting()) {
