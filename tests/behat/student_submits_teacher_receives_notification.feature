@@ -64,7 +64,7 @@ Feature: Sending a submission to a SafeAssign assignment and receiving notificat
     And I am on "Course 1" course homepage
     And I follow "Assignment One"
     When I press "Add submission"
-    And I upload "plagiarism/safeassign/tests/fixtures/dummy-files/test1.txt" file to "File submissions" filemanager
+    And I upload "lib/tests/fixtures/empty.txt" file to "File submissions" filemanager
     And I press "Save changes"
     Then I log out
     Given set test helper teacher "teacher1"
@@ -76,7 +76,7 @@ Feature: Sending a submission to a SafeAssign assignment and receiving notificat
     And I am on "Course 1" course homepage
     And I follow "Assignment One"
     When I press "Add submission"
-    And I upload "plagiarism/safeassign/tests/fixtures/dummy-files/test3.txt" file to "File submissions" filemanager
+    And I upload "lib/tests/fixtures/empty.txt" file to "File submissions" filemanager
     And I press "Save changes"
     Then I log out
 

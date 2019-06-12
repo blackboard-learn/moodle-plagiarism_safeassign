@@ -115,6 +115,19 @@ class plagiarism_safeassign_tasks_testcase extends plagiarism_safeassign_base_te
         $record->submitted = 1;
         $DB->update_record('plagiarism_safeassign_subm', $record);
 
+        // Simulate file sync.
+        $filerecord = new stdClass();
+        $filerecord->cm = $this->cm->id;
+        $filerecord->userid = $this->user->id;
+        $filerecord->uuid = "k93e61c6-be1f-6c49-5c86-76d8f04f3f2b";
+        $filerecord->reporturl = null;
+        $filerecord->similarityscore = 0;
+        $filerecord->timesubmitted = time();
+        $filerecord->supported = 1;
+        $filerecord->submissionid = $record->submissionid;
+        $filerecord->fileid = 1;
+        $DB->insert_record('plagiarism_safeassign_files', $filerecord);
+
         // Get originality report basic data.
         $getreporturl = '%s/api/v1/submissions/%s/report/metadata';
         $getreporturl = sprintf($getreporturl, $baseapiurl, $submissionuuid);
