@@ -1262,25 +1262,27 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $record->userid = $userid;
             $record->timesubmitted = time();
             $record->submissionid = (int) $submissionid;
+
             if (!empty($responsedata->submissions[0]->submission_files)) {
                 foreach ($responsedata->submissions[0]->submission_files as $file) {
                     $record->uuid = null;
-                    if (isset($sentfiles[urldecode($file->file_name)])) {
-                        $record->fileid = $sentfiles[urldecode($file->file_name)]->fileid;
+                    $filename = trim($file->file_name);
+                    if (isset($sentfiles[$filename])) {
+                        $record->fileid = $sentfiles[$filename]->fileid;
                         $record->supported = 1;
                         $record->uuid = $file->file_uuid;
-                        $record->cm = (int) $sentfiles[urldecode($file->file_name)]->cmid;
+                        $record->cm = (int) $sentfiles[$filename]->cmid;
                         $DB->insert_record('plagiarism_safeassign_files', $record);
                     }
                 }
             }
             if (!empty($responsedata->unprocessed_file_names)) {
                 foreach ($responsedata->unprocessed_file_names as $unsupportedfilename) {
-                    if (isset($sentfiles[urldecode($unsupportedfilename)])) {
+                    if (isset($sentfiles[trim($unsupportedfilename)])) {
                         $record->uuid = null;
                         $record->supported = 0;
-                        $record->cm = (int) $sentfiles[urldecode($unsupportedfilename)]->cmid;
-                        $record->fileid = $sentfiles[urldecode($unsupportedfilename)]->fileid;
+                        $record->cm = (int) $sentfiles[trim($unsupportedfilename)]->cmid;
+                        $record->fileid = $sentfiles[trim($unsupportedfilename)]->fileid;
                         $DB->insert_record('plagiarism_safeassign_files', $record);
                     }
                 }
