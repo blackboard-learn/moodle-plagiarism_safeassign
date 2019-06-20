@@ -1746,44 +1746,46 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     public function sync_instructors() {
         global $DB, $CFG;
         $courses = $this->get_valid_courses();
-        $courseids = array();
-        foreach ($courses as $course) {
-            $courseids[] = $course->courseid;
-        }
-        list($sqlin, $params) = $DB->get_in_or_equal($courseids);
-        $sql = "
-       SELECT DISTINCT sa_tchr.id, sa_tchr.instructorid, sa_tchr.courseid, sa_course.uuid
-                  FROM {plagiarism_safeassign_instr} sa_tchr
-                  JOIN {plagiarism_safeassign_course} sa_course ON sa_course.courseid = sa_tchr.courseid
-                 WHERE sa_tchr.synced = 0
-                   AND sa_tchr.unenrolled = 0
-                   AND sa_tchr.deleted = 0
-                   AND sa_tchr.courseid {$sqlin}";
+        if (!empty($courses)) {
+            $courseids = array();
+            foreach ($courses as $course) {
+                $courseids[] = $course->courseid;
+            }
+            list($sqlin, $params) = $DB->get_in_or_equal($courseids);
+            $sql = "
+                   SELECT DISTINCT sa_tchr.id, sa_tchr.instructorid, sa_tchr.courseid, sa_course.uuid
+                              FROM {plagiarism_safeassign_instr} sa_tchr
+                              JOIN {plagiarism_safeassign_course} sa_course ON sa_course.courseid = sa_tchr.courseid
+                             WHERE sa_tchr.synced = 0
+                               AND sa_tchr.unenrolled = 0
+                               AND sa_tchr.deleted = 0
+                               AND sa_tchr.courseid {$sqlin}";
 
-        $instructors = $DB->get_records_sql($sql, $params);
-        $count = 0;
-        $baseurl = get_config('plagiarism_safeassign', 'safeassign_api');
-        foreach ($instructors as $instructor) {
-            $result = safeassign_api::put_instructor_to_course($instructor->instructorid, $instructor->uuid);
-            if ($result === true) {
-                $DB->set_field('plagiarism_safeassign_instr', 'synced', 1, array('instructorid' => $instructor->instructorid,
-                    'courseid' => $instructor->courseid));
-                $count++;
-            } else {
-                $params = array();
-                if (!empty($CFG->plagiarism_safeassign_debugging)) {
-                    $params['Instructor id'] = $instructor->instructorid;
-                    $params['Course UUID'] = $instructor->uuid;
-                    $params['Url'] = $baseurl . '/api/v1/'. $instructor->uuid .'/members';
+            $instructors = $DB->get_records_sql($sql, $params);
+            $count = 0;
+            $baseurl = get_config('plagiarism_safeassign', 'safeassign_api');
+            foreach ($instructors as $instructor) {
+                $result = safeassign_api::put_instructor_to_course($instructor->instructorid, $instructor->uuid);
+                if ($result === true) {
+                    $DB->set_field('plagiarism_safeassign_instr', 'synced', 1, array('instructorid' => $instructor->instructorid,
+                        'courseid' => $instructor->courseid));
+                    $count++;
+                } else {
+                    $params = array();
+                    if (!empty($CFG->plagiarism_safeassign_debugging)) {
+                        $params['Instructor id'] = $instructor->instructorid;
+                        $params['Course UUID'] = $instructor->uuid;
+                        $params['Url'] = $baseurl . '/api/v1/'. $instructor->uuid .'/members';
+                    }
+                    $event = sync_content_log::create_log_message('instructor', $instructor->instructorid, true, null, $params);
+                    $event->trigger();
                 }
-                $event = sync_content_log::create_log_message('instructor', $instructor->instructorid, true, null, $params);
+            }
+
+            if ($count > 0) {
+                $event = sync_content_log::create_log_message('Instructors', $count, false);
                 $event->trigger();
             }
-        }
-
-        if ($count > 0) {
-            $event = sync_content_log::create_log_message('Instructors', $count, false);
-            $event->trigger();
         }
     }
 
