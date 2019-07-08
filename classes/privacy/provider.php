@@ -31,7 +31,6 @@ global $CFG;
 require_once($CFG->dirroot.'/mod/assign/externallib.php');
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
-use core_privacy\local\request\context;
 use core_privacy\local\request\contextlist;
 use core_privacy\local\request\writer;
 use core_privacy\local\request\transform;
@@ -51,19 +50,13 @@ class provider implements
     // GDPR changes for 3.6.
     \core_privacy\local\request\core_userlist_provider {
 
-    // This trait must be included.
-    use \core_privacy\local\legacy_polyfill;
-
-    // This trait must be included to provide the relevant polyfill for the plagiarism provider.
-    use \core_plagiarism\privacy\legacy_polyfill;
-
     /**
      * Returns meta data about this system.
      *
      * @param   collection     $collection The initialised collection to add items to.
      * @return  collection     A listing of user data stored through this system.
      */
-    public static function _get_metadata(collection $collection) {
+    public static function get_metadata(collection $collection) : collection {
         $collection->add_database_table('plagiarism_safeassign_files', [
             'userid' => 'privacy:metadata:plagiarism_safeassign_files:userid',
             'uuid' => 'privacy:metadata:plagiarism_safeassign_files:uuid',
@@ -146,7 +139,7 @@ class provider implements
      * @param   array       $subcontext The subcontext within the context to export this information to.
      * @param   array       $linkarray The weird and wonderful link array used to display information for a specific item
      */
-    public static function _export_plagiarism_user_data($userid, \context $context, array $subcontext, array $linkarray) {
+    public static function export_plagiarism_user_data(int $userid, \context $context, array $subcontext, array $linkarray) {
         global $DB;
 
         $moduledata = get_context_info_array($context->id);
@@ -236,7 +229,7 @@ class provider implements
      *
      * @param  \context $context The context to delete user data for.
      */
-    public static function _delete_plagiarism_for_context(\context $context) {
+    public static function delete_plagiarism_for_context(\context $context) {
         global $DB;
 
         $validmodnames = ['assign'];
@@ -268,7 +261,7 @@ class provider implements
      * @param  int      $userid    The user to delete
      * @param  \context $context   The context to refine the deletion.
      */
-    public static function _delete_plagiarism_for_user($userid, \context $context) {
+    public static function delete_plagiarism_for_user(int $userid, \context $context) {
         global $DB;
 
         $validmodnames = ['assign'];
@@ -300,7 +293,7 @@ class provider implements
      * @param int $userid The user to search.
      * @return contextlist $contextlist The contextlist containing the list of contexts used in this plugin.
      */
-    public static function _get_contexts_for_userid($userid) {
+    public static function get_contexts_for_userid(int $userid) : contextlist {
         $contextlist = new \core_privacy\local\request\contextlist();
 
         $sql = "SELECT ctx.id
@@ -325,7 +318,7 @@ class provider implements
      *
      * @param approved_contextlist $contextlist The approved contexts to export information for.
      */
-    public static function _export_user_data(approved_contextlist $contextlist) {
+    public static function export_user_data(approved_contextlist $contextlist) {
         global $DB;
         $user = $contextlist->get_user();
 
@@ -373,7 +366,7 @@ class provider implements
      *
      * @param context $context The specific context to delete data for.
      */
-    public static function _delete_data_for_all_users_in_context(\context $context) {
+    public static function delete_data_for_all_users_in_context(\context $context) {
         global $DB;
 
         $courseid = null;
@@ -400,7 +393,7 @@ class provider implements
      *
      * @param approved_contextlist $contextlist The approved contexts and user information to delete information for.
      */
-    public static function _delete_data_for_user(approved_contextlist $contextlist) {
+    public static function delete_data_for_user(approved_contextlist $contextlist) {
 
         global $DB;
         $userid = $contextlist->get_user()->id;

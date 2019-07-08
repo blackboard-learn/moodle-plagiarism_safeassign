@@ -341,7 +341,7 @@ class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase 
         $approvedlist = new approved_contextlist($teacher, 'plagiarism_safeassign', [$course1context->id,
             $course2context->id]);
 
-        provider::_delete_data_for_user($approvedlist);
+        provider::delete_data_for_user($approvedlist);
 
         // Simulate delete_instructors task.
         $DB->set_field('plagiarism_safeassign_instr', 'deleted', 1, ['deleted' => 0]);
@@ -377,7 +377,7 @@ class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase 
         $writer = writer::with_context($course1context);
         self::assertFalse($writer->has_any_data());
 
-        provider::_export_plagiarism_user_data($student->id, $assignment1->get_context(), ['test'], array());
+        provider::export_plagiarism_user_data($student->id, $assignment1->get_context(), ['test'], array());
         $submissions = $writer->get_related_data(['test'], 'safeassign-submissions')->submissions;
         $submission = reset($submissions);
         $this->assertEquals($submission1->id, $submission->submissionid);
@@ -385,7 +385,7 @@ class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase 
         $this->validate_file($file1, reset($files));
 
         $writer = writer::with_context($course2context);
-        provider::_export_plagiarism_user_data($student->id, $assignment2->get_context(), ['test'], array('file' => 'file'));
+        provider::export_plagiarism_user_data($student->id, $assignment2->get_context(), ['test'], array('file' => 'file'));
         $submissions = $writer->get_related_data(['test'], 'safeassign-submissions')->submissions;
         $submission = reset($submissions);
         $this->assertEquals($submission2->id, $submission->submissionid);
@@ -411,7 +411,7 @@ class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase 
         $this->assertEquals(2, $DB->count_records('plagiarism_safeassign_files', array('userid' => $student2->id)));
 
         // Delete information in assignment one.
-        provider::_delete_plagiarism_for_context($assignment1->get_context());
+        provider::delete_plagiarism_for_context($assignment1->get_context());
 
         $this->assertEquals(0, $DB->count_records('plagiarism_safeassign_files', array('userid' => $student1->id)));
         $this->assertEquals(1, $DB->count_records('plagiarism_safeassign_files', array('userid' => $student2->id)));
@@ -435,13 +435,13 @@ class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase 
         $this->assertEquals(1, $DB->count_records('plagiarism_safeassign_files', array('userid' => $student2->id)));
 
         // Delete information of assignment one for student one.
-        provider::_delete_plagiarism_for_user($student1->id, $assignment1->get_context());
+        provider::delete_plagiarism_for_user($student1->id, $assignment1->get_context());
 
         $this->assertEquals(1, $DB->count_records('plagiarism_safeassign_files', array('userid' => $student1->id)));
         $this->assertEquals(1, $DB->count_records('plagiarism_safeassign_files', array('userid' => $student2->id)));
 
         // Delete information of assignment two for student one.
-        provider::_delete_plagiarism_for_user($student1->id, $assignment2->get_context());
+        provider::delete_plagiarism_for_user($student1->id, $assignment2->get_context());
 
         $this->assertEquals(0, $DB->count_records('plagiarism_safeassign_files', array('userid' => $student1->id)));
         $this->assertEquals(1, $DB->count_records('plagiarism_safeassign_files', array('userid' => $student2->id)));
