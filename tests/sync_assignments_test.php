@@ -427,6 +427,33 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
     }
 
     /**
+     * Test the initialization of SafeAssign without courses does not launch any log events.
+     */
+    public function test_no_courses() {
+        global $DB, $CFG;
+
+        $this->resetAfterTest(true);
+        $this->set_safeassign_records();
+
+        // Remove all courses from SafeAssign.
+        $DB->delete_records("plagiarism_safeassign_course");
+        set_config('syncedadmins', $CFG->siteadmins, 'plagiarism_safeassign');
+
+        $this->config_set_ok();
+        $this->push_login_urls();
+
+        $sink = $this->redirectEvents();
+        $task = new sync_assignments();
+        $safeassign = new plagiarism_plugin_safeassign();
+        $safeassign->set_course_instructors();
+        $task->execute();
+
+        // Execution of task does not launch any log events.
+        $events = $sink->get_events();
+        $this->assertCount(0, $events);
+    }
+
+    /**
      * Insert some SafeAssign records directly on the database.
      */
     public function set_safeassign_records() {
