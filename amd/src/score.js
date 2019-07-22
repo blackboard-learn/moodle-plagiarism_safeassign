@@ -33,8 +33,9 @@ define(['jquery', 'core/str'], function($, str) {
          * score for some submission.
          * @param {int} avgScore
          * @param {int} userId
+         * @param {string} originalityReportLink
          */
-        init: function(avgScore, userId) {
+        init: function(avgScore, userId, originalityReportLink) {
 
             /**
              * Checks if some element exist in page DOM.
@@ -51,7 +52,7 @@ define(['jquery', 'core/str'], function($, str) {
              * @param {string} selector
              */
             var appendAvgScoreFilesTree = function(selector) {
-                if (!elementExists('#safeassign_text_' + userId)) {
+                if (!elementExists('#safeassign_score_' + userId)) {
                     var tree = $(selector);
                     var td = $('<td></td>').attr('id', 'safeassign_text_' + userId);
                     td.addClass('ygtvcell ygtvhtml ygtvcontent');
@@ -59,6 +60,13 @@ define(['jquery', 'core/str'], function($, str) {
                     var table = $('<table></table>').attr('id', 'safeassign_score_' + userId).append(trow);
                     var div = $('<div></div>').addClass('ygtvitem').append(table);
                     tree.prepend(div);
+                    if (originalityReportLink) {
+                        var reporttd = $('<td></td>').attr('id', 'safeassign_or_' + userId)
+                            .addClass('ygtvcell ygtvhtml ygtvcontent');
+                        reporttd.append(originalityReportLink);
+                        var reportrow = $('<tr></tr>').addClass('ygtvrow').append(reporttd);
+                        $('#safeassign_score_' + userId).append(reportrow);
+                    }
                     getMessage(avgScore, '#safeassign_text_' + userId);
                 }
             };
@@ -71,6 +79,11 @@ define(['jquery', 'core/str'], function($, str) {
                 if (!elementExists('#safeassign_online_sub_' + userId)) {
                     var el = $(selector).parent();
                     var div = $('<div></div>').attr('id', 'safeassign_online_sub_' + userId);
+                    if (originalityReportLink) {
+                        var reportdiv = $('<div></div>').attr('id', 'safeassign_online_or_' + userId);
+                        reportdiv.append(originalityReportLink);
+                        el.prepend(reportdiv);
+                    }
                     el.prepend(div);
                     getMessage(avgScore, '#safeassign_online_sub_' + userId);
                 }

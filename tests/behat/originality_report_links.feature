@@ -77,7 +77,7 @@ Feature: Navigate a wrapped version of the originality report and review the wra
     And I follow "Assignment One"
     Then I navigate to "View all submissions" in current page administration
     And I wait until the page is ready
-    And I click on ".plagiarism-inline a" "css_element"
+    And I click on file originality report for student "student1"
     And I switch to "_sa_originality_report" window
     And I wait until the page is ready
     Then I should see the SafeAssign old report link updated

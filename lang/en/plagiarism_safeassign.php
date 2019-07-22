@@ -103,9 +103,10 @@ $string['error_behat_getjson'] = 'Error to get json file "{$a}" from folder plag
 $string['error_behat_instancefail'] = 'This is an instance configured to fail with behat tests.';
 $string['safeassign'] = 'SafeAssign Plagiarism plugin';
 $string['assignment_check_submissions'] = 'Check submissions with SafeAssign';
-$string['assignment_check_submissions_help'] = 'SafeAssign Originality Reports will not be available to Teachers if anonymous grading
- is set, but Students will be able to view their own SafeAssign Originality Reports if "Allow students to view originality report" is selected.
-<br><br>Although SafeAssign officially supports only English, clients are welcome to attempt to use SafeAssign with languages other than English.
+$string['assignment_check_submissions_help'] = 'SafeAssign Originality Reports aren\'t available to Teachers if anonymous grading
+ is set, but Students can view their own SafeAssign Originality Reports if "Allow students to view originality report" is selected.
+<br><br>SafeAssign returns a single Originality Report when users submit multiple files. You can choose which file to review from within this report.
+<br><br>Although SafeAssign officially supports only English, you can try to use SafeAssign with other languages.
 SafeAssign has no technical limitations that preclude using it with other languages.
 See <a href="http://www.blackboard.com/docs/documentation.htm?DocID=191SafeAssign001en_US" target="_blank">Blackboard help</a> for more information.';
 $string['students_originality_report'] = 'Allow students to view originality report';
