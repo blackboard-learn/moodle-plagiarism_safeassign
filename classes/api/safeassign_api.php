@@ -470,8 +470,12 @@ abstract class safeassign_api {
         $url = new \moodle_url($baseurl . '/api/v1/submissions/' . $submissionuuid . '/report', $params);
 
         // This request needs special headers.
+        $locale = get_string('locale', 'langconfig');
+        $locale = str_replace('.UTF-8', '', $locale);
+        $locale = str_replace('_', '-', $locale);
         $headers = [
-            'Accept: text/html'
+            'Accept: text/html',
+            'Accept-Language: ' . $locale
         ];
 
         $result = self::generic_getcall_raw($url->out(false), $userid, $isinstructor, $headers);
