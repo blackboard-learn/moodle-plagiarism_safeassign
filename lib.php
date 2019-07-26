@@ -182,6 +182,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 // We need to validate that the user can see the link to the similarity report.
                 $role = get_user_roles($cm, $USER->id);
                 $roleid = key($role);
+                $orhtml = "";
                 if (empty($role) || $role[$roleid]->shortname != 'student' ||
                     $courseconfiguration['safeassign_originality_report']) {
                     // The report is enabled for this user.
@@ -190,14 +191,14 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                         'uuid' => $file['subuuid'],
                         'fileuuid' => $file['fileuuid']
                     ]);
-                    $message .= html_writer::link($reporturl,
+                    $orhtml = html_writer::link($reporturl,
                         get_string('safeassign_link_originality_report', 'plagiarism_safeassign'),
                         ['target' => '_sa_originality_report']);
                 }
 
                 // Print the overall score for this submission.
                 $PAGE->requires->js_call_amd('plagiarism_safeassign/score', 'init',
-                    array(intval($file['avgscore'] * 100), $userid));
+                    array(intval($file['avgscore'] * 100), $userid, $orhtml));
             } else {
                 if ($submissionsize > SAFEASSIGN_SUBMISSION_MAX_SIZE) {
                     $message .= get_string('safeassign_file_limit_exceeded', 'plagiarism_safeassign');

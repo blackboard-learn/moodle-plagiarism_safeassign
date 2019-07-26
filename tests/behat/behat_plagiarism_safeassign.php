@@ -322,4 +322,16 @@ class behat_plagiarism_safeassign extends behat_base {
             throw new Exception("SafeAssign old report link not found or not updated.");
         }
     }
+
+    /**
+     * @Given /^I click on file originality report for student "(?P<username_string>(?:[^"]|\\")*)"$/
+     * @param string $username
+     * @return Given
+     */
+    public function i_click_on_file_or_for_student($username) {
+        global $DB;
+        $student = $DB->get_record('user', array('username' => $username));
+        $csspath = "#safeassign_or_" . $student->id . " a";
+        $this->execute("behat_general::i_click_on", array($this->escape($csspath), "css_element"));
+    }
 }
