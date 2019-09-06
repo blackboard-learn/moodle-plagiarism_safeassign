@@ -131,6 +131,12 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                         'assignment' => $linkarray['assignment']));
                     $namefile = 'userid_' . $userid . '_text_submissionid_' . $submission->id . '.html';
                     $filerecord = $DB->get_record('files', array('filename' => $namefile));
+                    // If html file of online text does not exist, try finding a txt file.
+                    // Fixing bug of syncing old submissions when they were saved as txt files.
+                    if (!$filerecord) {
+                        $namefile = 'userid_' . $userid . '_text_submissionid_' . $submission->id . '.txt';
+                        $filerecord = $DB->get_record('files', array('filename' => $namefile));
+                    }
                     if (is_object($filerecord)) {
                         $file = $this->get_file_results($cmid, $userid, $filerecord->id);
                         $modcontext = context_module::instance($linkarray['cmid']);
@@ -1195,6 +1201,13 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $usercontext = context_user::instance($wrapper->userid );
             $textfile = $fs->get_file($usercontext->id, 'assignsubmission_text_as_file', 'submission_text_files', $submissionid,
                 '/', 'userid_' . $userid . '_text_submissionid_' . $submissionid . '.html');
+
+            // If html file of online text does not exist, try finding a txt file.
+            // Fixing bug of syncing old submissions when they were saved as txt files.
+            if (!$textfile) {
+                $textfile = $fs->get_file($usercontext->id, 'assignsubmission_text_as_file', 'submission_text_files', $submissionid,
+                    '/', 'userid_' . $userid . '_text_submissionid_' . $submissionid . '.txt');
+            }
             if ($textfile) {
                 $wrapper->files[] = $textfile;
                 $wrapper->filenames[] = $textfile->get_filename();
