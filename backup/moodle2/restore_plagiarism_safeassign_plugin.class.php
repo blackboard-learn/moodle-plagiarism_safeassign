@@ -92,8 +92,7 @@ class restore_plagiarism_safeassign_plugin extends restore_plagiarism_plugin {
             $DB->insert_record('plagiarism_safeassign_assign', $data);
 
             $params = array(
-                'courseid'     => $course->id,
-                'instructorid' => $USER->id
+                'courseid'     => $course->id
             );
 
             if (!$DB->record_exists('plagiarism_safeassign_course', $params)) {
