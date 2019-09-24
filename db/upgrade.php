@@ -323,6 +323,23 @@ function xmldb_plagiarism_safeassign_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2017121508, 'plagiarism', 'safeassign');
     }
 
+    if ($oldversion < 2019092000) {
+
+        $courses = $DB->get_records('plagiarism_safeassign_course');
+        $recordtodelete = [];
+        $coursescount = [];
+        foreach ($courses as $course) {
+            if (!isset($coursescount[$course->courseid])) {
+                $coursescount[$course->courseid] = $course->id;
+            } else {
+                $recordtodelete[] = $course->id;
+            }
+        }
+
+        $DB->delete_records_list('plagiarism_safeassign_course', 'id', $recordtodelete);
+
+        upgrade_plugin_savepoint(true, 2019092000, 'plagiarism', 'safeassign');
+    }
     return true;
 
 }
