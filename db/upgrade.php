@@ -329,7 +329,7 @@ function xmldb_plagiarism_safeassign_upgrade($oldversion) {
         $table = new xmldb_table('plagiarism_safeassign_course');
 
         // Launch rename table for plagiarism_safeassign_course.
-        $dbman->rename_table($table, 'plagiarism_safeassign_course_old');
+        $dbman->rename_table($table, 'plagiarism_safeassign_old_c');
 
         // Define table plagiarism_safeassign_course to be created.
         $table = new xmldb_table('plagiarism_safeassign_course');
@@ -349,7 +349,7 @@ function xmldb_plagiarism_safeassign_upgrade($oldversion) {
             $dbman->create_table($table);
         }
 
-        $courses = $DB->get_records('plagiarism_safeassign_course_old');
+        $courses = $DB->get_records('plagiarism_safeassign_old_c');
         $recordtodelete = [];
         $cleancourseslist = [];
         foreach ($courses as $course) {
