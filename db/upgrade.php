@@ -350,13 +350,10 @@ function xmldb_plagiarism_safeassign_upgrade($oldversion) {
         }
 
         $courses = $DB->get_records('plagiarism_safeassign_old_c');
-        $recordtodelete = [];
         $cleancourseslist = [];
         foreach ($courses as $course) {
             if (!isset($cleancourseslist[$course->courseid])) {
                 $cleancourseslist[$course->courseid] = $course;
-            } else {
-                $recordtodelete[] = $course->id;
             }
         }
         $DB->insert_records('plagiarism_safeassign_course', $cleancourseslist);
