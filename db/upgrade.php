@@ -353,7 +353,7 @@ function xmldb_plagiarism_safeassign_upgrade($oldversion) {
         $recordtodelete = [];
         $cleancourseslist = [];
         foreach ($courses as $course) {
-            if (!isset($coursescount[$course->courseid])) {
+            if (!isset($cleancourseslist[$course->courseid])) {
                 $cleancourseslist[$course->courseid] = $course;
             } else {
                 $recordtodelete[] = $course->id;
