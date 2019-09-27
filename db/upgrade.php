@@ -323,6 +323,43 @@ function xmldb_plagiarism_safeassign_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2017121508, 'plagiarism', 'safeassign');
     }
 
+    if ($oldversion < 2019092401) {
+
+        // Define table plagiarism_safeassign_course to be renamed to NEWNAMEGOESHERE.
+        $table = new xmldb_table('plagiarism_safeassign_course');
+
+        // Launch rename table for plagiarism_safeassign_course.
+        $dbman->rename_table($table, 'plagiarism_safeassign_old_c');
+
+        // Define table plagiarism_safeassign_course to be created.
+        $table = new xmldb_table('plagiarism_safeassign_course');
+
+        // Adding fields to table plagiarism_safeassign_course.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('uuid', XMLDB_TYPE_CHAR, '36', null, null, null, null);
+        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('instructorid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+
+        // Adding keys to table plagiarism_safeassign_course.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('courseid', XMLDB_KEY_FOREIGN, ['courseid'], 'course', ['id']);
+
+        // Conditionally launch create table for plagiarism_safeassign_course.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        $courses = $DB->get_records('plagiarism_safeassign_old_c');
+        $cleancourseslist = [];
+        foreach ($courses as $course) {
+            if (!isset($cleancourseslist[$course->courseid])) {
+                $cleancourseslist[$course->courseid] = $course;
+            }
+        }
+        $DB->insert_records('plagiarism_safeassign_course', $cleancourseslist);
+
+        upgrade_plugin_savepoint(true, 2019092401, 'plagiarism', 'safeassign');
+    }
     return true;
 
 }
