@@ -91,6 +91,7 @@ Feature: Enable SafeAssign in an assignment
      Then I follow "Assignment One"
       And I press "Add submission"
       And I should see "Plagiarism Tools"
+      And I should see "SafeAssign accepts files in .doc, .docx, .docm, .ppt, .pptx, .odt, .txt, .rtf, .pdf and .html file formats only."
       And I should see "I agree to submit my paper(s) to the Global Reference Database."
       And I set the field "agreement" to "1"
       And I follow "Course 1"
@@ -152,8 +153,9 @@ Feature: Enable SafeAssign in an assignment
     And I am on the course with shortname "C1"
     Then I follow "Assignment One"
     And I press "Add submission"
-    And I should not see "Plagiarism Tools"
+    And I should see "Plagiarism Tools"
     And I should not see "I agree to submit my paper(s) to the Global Reference Database."
+    And I should see "SafeAssign accepts files in .doc, .docx, .docm, .ppt, .pptx, .odt, .txt, .rtf, .pdf and .html file formats only."
 
   @javascript
   Scenario: SafeAssign settings should only appear in assignments
