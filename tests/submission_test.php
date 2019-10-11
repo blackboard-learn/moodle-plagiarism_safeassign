@@ -257,6 +257,80 @@ class plagiarism_safeassign_submission_test extends advanced_testcase  {
     }
 
     /**
+     * Test to remove a submission from the grader.
+     */
+    public function test_remove_submission_from_viewed() {
+        global $DB, $PAGE;
+
+        $this->resetAfterTest();
+
+        $fs = get_file_storage();
+        $dummy = (object) array(
+            'contextid' => $this->context->id,
+            'component' => 'assignsubmission_file',
+            'filearea' => ASSIGNSUBMISSION_FILE_FILEAREA,
+            'itemid' => $this->submission->id,
+            'filepath' => '/',
+            'filename' => 'myassignmnent.pdf'
+        );
+        $this->fi = $fs->create_file_from_string($dummy, 'Content of ' . $dummy->filename);
+        $dummy = (object) array(
+            'contextid' => $this->context->id,
+            'component' => 'assignsubmission_file',
+            'filearea' => ASSIGNSUBMISSION_FILE_FILEAREA,
+            'itemid' => $this->submission->id,
+            'filepath' => '/',
+            'filename' => 'myassignmnent.png'
+        );
+        $this->fi2 = $fs->create_file_from_string($dummy, 'Content of ' . $dummy->filename);
+        $this->files = $fs->get_area_files($this->context->id, 'assignsubmission_file', ASSIGNSUBMISSION_FILE_FILEAREA,
+            $this->submission->id, 'id', false);
+
+        $data = new stdClass();
+        $plugin = $this->assign->get_submission_plugin_by_type('file');
+        $sink = $this->redirectEvents();
+        $plugin->save($this->submission, $data);
+        $events = $sink->get_events();
+        $event = reset($events);
+
+        // Submission is processed by the event observer class.
+        plagiarism_safeassign_observer::assignsubmission_file_uploaded($event);
+        $teacher = $this->getDataGenerator()->create_and_enrol($this->course, 'editingteacher');
+        $roleid = $DB->get_field('role', 'id', ['shortname' => 'editingteacher'], MUST_EXIST);
+
+        assign_capability('mod/assign:editothersubmission', CAP_ALLOW,
+            $roleid, $this->assign->get_context()->id, true);
+        assign_capability('mod/assign:submit', CAP_ALLOW,
+            $roleid, $this->assign->get_context()->id, true);
+
+        $this->getDataGenerator()->enrol_user($teacher->id,
+            $this->course->id, $roleid);
+
+        $this->setUser($teacher->id);
+        // We need to set the URL in order to view the submission.
+        $PAGE->set_url('/a_url');
+        // A hack - these variables are used by the view_plugin_content function to
+        // determine what we actually want to view - would usually be set in URL.
+        global $_POST;
+        $_POST['plugin'] = 'comments';
+        $_POST['sid'] = $this->submission->id;
+        $_POST['userid'] = $this->user->id;
+        // Trigger and capture the event.
+        $sink = $this->redirectEvents();
+        $this->assign->view('removesubmissionconfirm');
+        $events = $sink->get_events();
+        $event = reset($events);
+
+        // Simulate that the submission has been synced with SafeAssign.
+        $DB->set_field("plagiarism_safeassign_subm", 'uuid', '1234567890', ['submissionid' => $this->submission->id]);
+        $record = $DB->get_record('plagiarism_safeassign_subm', ['submissionid' => $this->submission->id]);
+        $this->assertEquals(0, $record->deprecated);
+        plagiarism_safeassign_observer::submission_removed($event);
+        $record = $DB->get_record('plagiarism_safeassign_subm', ['submissionid' => $this->submission->id]);
+        $this->assertEquals(1, $record->deprecated);
+    }
+
+    /**
      * Checks that the values of a record are the expected.
      * @param stdClass $record
      * @param boolean $deprecated

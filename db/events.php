@@ -52,5 +52,9 @@ $observers = array (
     array(
         'eventname' => '\core\event\role_unassigned',
         'callback' => 'plagiarism_safeassign_observer::role_unassigned'
+    ),
+    array(
+        'eventname' => '\mod_assign\event\remove_submission_form_viewed',
+        'callback' => 'plagiarism_safeassign_observer::submission_removed'
     )
 );
