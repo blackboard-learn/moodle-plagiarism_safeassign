@@ -128,14 +128,14 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 if (!empty($linkarray['content'])) {
                     // This submission has an online text associated with it.
                     $submission = $DB->get_record('assign_submission', array('userid' => $userid,
-                        'assignment' => $linkarray['assignment']));
+                        'assignment' => $linkarray['assignment']), 'id');
                     $namefile = 'userid_' . $userid . '_text_submissionid_' . $submission->id . '.html';
-                    $filerecord = $DB->get_record('files', array('filename' => $namefile));
+                    $filerecord = $DB->get_record('files', array('filename' => $namefile, 'userid' => $userid));
                     // If html file of online text does not exist, try finding a txt file.
                     // Fixing bug of syncing old submissions when they were saved as txt files.
                     if (!$filerecord) {
                         $namefile = 'userid_' . $userid . '_text_submissionid_' . $submission->id . '.txt';
-                        $filerecord = $DB->get_record('files', array('filename' => $namefile));
+                        $filerecord = $DB->get_record('files', array('filename' => $namefile, 'userid' => $userid));
                     }
                     if (is_object($filerecord)) {
                         $file = $this->get_file_results($cmid, $userid, $filerecord->id);
