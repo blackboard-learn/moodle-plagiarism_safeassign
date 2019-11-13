@@ -38,7 +38,7 @@ $string['safeassign:report'] = 'Zezwalaj na wyświetlanie raportu usługi SafeAs
 $string['usesafeassign'] = 'Włącz usługę SafeAssign';
 $string['savedconfigsuccess'] = 'Zapisano ustawienia wykrywania plagiatów';
 $string['safeassign_additionalroles'] = 'Dodatkowe role';
-$string['safeassign_additionalroles_help'] = 'Użytkownicy o przypisanych tych rolach na poziomie systemu zostaną 
+$string['safeassign_additionalroles_help'] = 'Użytkownicy o przypisanych tych rolach na poziomie systemu zostaną
 dodani do każdego kursu SafeAssign jako instruktorzy.';
 $string['safeassign_api'] = 'Adres URL integracji z usługą SafeAssign';
 $string['safeassign_api_help'] = 'To jest adres interfejsu API usługi SafeAssign.';
@@ -98,7 +98,7 @@ $string['connectionverified'] = 'Zweryfikowano połączenie';
 $string['cachedef_request'] = 'Pamięć podręczna żądań usługi SafeAssign';
 $string['error_behat_instancefail'] = 'To jest instancja skonfigurowana w taki sposób, aby generować błąd podczas testów behat.';
 $string['assignment_check_submissions'] = 'Sprawdź złożone prace za pomocą usługi SafeAssign';
-$string['assignment_check_submissions_help'] = 'Raporty usługi SafeAssign na temat oryginalności będą niedostępne dla nauczycieli, jeśli zostanie ustawione ocenianie anonimowe, 
+$string['assignment_check_submissions_help'] = 'Raporty usługi SafeAssign na temat oryginalności będą niedostępne dla nauczycieli, jeśli zostanie ustawione ocenianie anonimowe,
 ale studenci będą mogli wyświetlać swoje własne raporty usługi SafeAssign na temat oryginalności, jeśli zostanie ustawiona opcja Zezwól studentom na wyświetlanie raportu na temat oryginalności.
 <br><br>Usługa SafeAssign oficjalnie obsługuje tylko język angielski, zachęca się jednak klientów, aby próbowali korzystać z usługi SafeAssign także w przypadku języków innych niż angielski.
 W usłudze SafeAssign nie występują żadne ograniczenia techniczne, które wykluczają jej użycie z innymi językami.
@@ -110,7 +110,7 @@ $string['plagiarism_tools'] = 'Narzędzia do wykrywania plagiatów';
 $string['files_accepted'] = 'Usługa SafeAssign przyjmuje tylko pliki w formatach .doc, .docx, .docm, .ppt, .pptx, .odt, .txt, .rtf, .pdf i .html. Pliki w innym formacie, na przykład .zip lub innych formatach plików skompresowanych, nie będą sprawdzane przy użyciu usługi SafeAssign.
 <br><br>Przesłanie pracy jest równoznaczne z uznaniem:
  (1) że przesłana praca będzie używana i przechowywana w ramach usług SafeAssign&trade; zgodnie z <a href="http://www.blackboard.com/safeassign/tos.htm" target="_blank">Warunkami korzystania z usługi</a> firmy Blackboard oraz <a href="http://blackboard.com/footer/privacy-policy.aspx" target="_blank">Zasadami ochrony prywatności firmy Blackboard</a>;
- (2) że instytucja użytkownika może użyć pracy zgodnie z własnymi zasadami; a także 
+ (2) że instytucja użytkownika może użyć pracy zgodnie z własnymi zasadami; a także
  (3) że korzystanie z usługi SafeAssign nie będzie się wiązało z odpowiedzialnością firmy Blackboard Inc. ani podmiotów od niej zależnych.';
 $string['agreement'] = 'Zgadzam się przesłać prace do <a href="https://help.blackboard.com/Learn/Instructor/Assignments/SafeAssign#global_reference" target="_blank">globalnej referencyjnej bazy danych</a>.';
 $string['error_api_generic'] = 'Podczas przetwarzania żądania wystąpił błąd';
