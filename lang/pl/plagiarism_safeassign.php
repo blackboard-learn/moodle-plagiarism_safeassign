@@ -38,7 +38,8 @@ $string['safeassign:report'] = 'Zezwalaj na wyświetlanie raportu usługi SafeAs
 $string['usesafeassign'] = 'Włącz usługę SafeAssign';
 $string['savedconfigsuccess'] = 'Zapisano ustawienia wykrywania plagiatów';
 $string['safeassign_additionalroles'] = 'Dodatkowe role';
-$string['safeassign_additionalroles_help'] = 'Użytkownicy o przypisanych tych rolach na poziomie systemu zostaną dodani do każdego kursu SafeAssign jako instruktorzy.';
+$string['safeassign_additionalroles_help'] = 'Użytkownicy o przypisanych tych rolach na poziomie systemu zostaną
+dodani do każdego kursu SafeAssign jako instruktorzy.';
 $string['safeassign_api'] = 'Adres URL integracji z usługą SafeAssign';
 $string['safeassign_api_help'] = 'To jest adres interfejsu API usługi SafeAssign.';
 $string['instructor_role_credentials'] = 'Dane logowania roli instruktora';
@@ -97,7 +98,8 @@ $string['connectionverified'] = 'Zweryfikowano połączenie';
 $string['cachedef_request'] = 'Pamięć podręczna żądań usługi SafeAssign';
 $string['error_behat_instancefail'] = 'To jest instancja skonfigurowana w taki sposób, aby generować błąd podczas testów behat.';
 $string['assignment_check_submissions'] = 'Sprawdź złożone prace za pomocą usługi SafeAssign';
-$string['assignment_check_submissions_help'] = 'Raporty usługi SafeAssign na temat oryginalności będą niedostępne dla nauczycieli, jeśli zostanie ustawione ocenianie anonimowe, ale studenci będą mogli wyświetlać swoje własne raporty usługi SafeAssign na temat oryginalności, jeśli zostanie ustawiona opcja Zezwól studentom na wyświetlanie raportu na temat oryginalności.
+$string['assignment_check_submissions_help'] = 'Raporty usługi SafeAssign na temat oryginalności będą niedostępne dla nauczycieli, jeśli zostanie ustawione ocenianie anonimowe,
+ale studenci będą mogli wyświetlać swoje własne raporty usługi SafeAssign na temat oryginalności, jeśli zostanie ustawiona opcja Zezwól studentom na wyświetlanie raportu na temat oryginalności.
 <br><br>Usługa SafeAssign oficjalnie obsługuje tylko język angielski, zachęca się jednak klientów, aby próbowali korzystać z usługi SafeAssign także w przypadku języków innych niż angielski.
 W usłudze SafeAssign nie występują żadne ograniczenia techniczne, które wykluczają jej użycie z innymi językami.
 Więcej informacji można znaleźć w <a href="http://www.blackboard.com/docs/documentation.htm?DocID=191SafeAssign001en_US" target="_blank">pomocy do systemu Blackboard</a>.';
