@@ -2041,6 +2041,29 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     }
 
     /**
+     * Removes a submission from a course assignment.
+     * @param $data
+     */
+    public function remove_submission($data) {
+        global $DB;
+        $assignid = $data['other']['assignid'];
+        $userid = $data['relateduserid'];
+
+        // Check if the submission was already being synced with SafeAssign.
+        $sql = "SELECT subm.id
+                  FROM {assign_submission} as subm
+                  JOIN {plagiarism_safeassign_subm} as sasubm ON subm.id = sasubm.submissionid
+                 WHERE subm.assignment = $assignid AND subm.userid = $userid AND sasubm.uuid IS NOT NULL";
+
+        $sasubmid = $DB->get_record_sql($sql, ['assignid' => $assignid, 'userid' => $userid]);
+
+        if ($sasubmid) {
+            $DB->set_field('plagiarism_safeassign_subm', 'deprecated', 1, ['submissionid' => $sasubmid->id]);
+            $this->delete_submissions();
+        }
+    }
+
+    /**
      * Accepts the specific SafeAssign license version stored in DB.
      */
     public function accept_safeassign_license() {

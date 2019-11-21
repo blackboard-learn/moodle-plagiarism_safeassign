@@ -113,4 +113,14 @@ class plagiarism_safeassign_observer {
         $safeassign->process_role_assignments($eventdata, 'delete');
     }
 
+    /**
+     * Remove submissions when they were removed from grader view.
+     * @param \mod_assign\event\remove_submission_form_viewed $event
+     */
+    public static function submission_removed(\mod_assign\event\remove_submission_form_viewed $event) {
+        $eventdata = $event->get_data();
+        $safeassign = new plagiarism_plugin_safeassign();
+        $safeassign->remove_submission($eventdata);
+    }
+
 }
