@@ -916,7 +916,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                        AND cm.instance=a.id
                        AND sa_course.uuid IS NOT NULL
                        AND sa_config.name = 'safeassign_enabled'
-                       AND sa_config.value = 1
+                       AND sa_config.value = '1'
                        AND m.name = 'assign'
                        AND a.course ";
 
@@ -1073,9 +1073,9 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                    AND s.uuid IS NULL
                    AND s.submitted = 0
                    AND (s.hasonlinetext = 1 OR s.hasfile = 1)
-                   AND asubm.status = "submitted"';
+                   AND asubm.status = ?';
 
-        $records = $DB->get_records_sql($sql, array());
+        $records = $DB->get_records_sql($sql, ["submitted"]);
 
         return $records;
     }
@@ -1543,10 +1543,11 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 // First time SA is being used.
                 $admins = explode(',', $CFG->siteadmins);
             }
-            $select = 'SELECT id
-                     FROM {role}
-                    WHERE archetype = "editingteacher" OR archetype = "manager"';
-            $editingroles = $DB->get_fieldset_sql($select);
+            $select = "SELECT id
+                         FROM {role}
+                        WHERE archetype = ? OR archetype = ?";
+            $params = ["editingteacher", "manager"];
+            $editingroles = $DB->get_fieldset_sql($select, $params);
 
             // Get the enrolled users.
             $sql = 'SELECT id, userid AS instructorid, contextid
@@ -1624,8 +1625,9 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         global $DB, $CFG;
         $select = "SELECT id
                      FROM {role}
-                    WHERE archetype = 'editingteacher' OR archetype = 'manager'";
-        $editingroles = $DB->get_fieldset_sql($select);
+                    WHERE archetype = ? OR archetype = ?";
+        $params = ['editingteacher', 'manager'];
+        $editingroles = $DB->get_fieldset_sql($select, $params);
         $systemcontext = context_system::instance();
         $additionalroles = explode(',', get_config('plagiarism_safeassign', 'safeassign_additional_roles'));
         if (($DB->record_exists('plagiarism_safeassign_course', array('courseid' => $data['courseid'])) &&
@@ -1840,14 +1842,14 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
 
     /**
      * Checks if there is a new additional role and creates records in plagiarism_safeassign_instr for new users.
-     * @param string $additionalroles - Gotten from the config_plugins table which containes the user roles to sync.
+     * @param string $additionalroles - Gotten from the config_plugins table which contains the user roles to sync.
      * @param string $syncedroles - Value from config_plugins that indicates the additional synced roles.
      */
     public function set_additional_role_users($additionalroles, $syncedroles) {
         global $DB;
 
-        $additionalroles = explode(',', $additionalroles);
-        $syncedroles = explode(',', $syncedroles);
+        $additionalroles = $additionalroles ? explode(',', $additionalroles) : [];
+        $syncedroles = $syncedroles ? explode(',', $syncedroles) : [];
 
         $newroles = array_diff($additionalroles, $syncedroles);
         $deletedroles = array_diff($syncedroles, $additionalroles);
@@ -1944,8 +1946,9 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             if (!empty($userstodelete)) {
                 $select = 'SELECT id
                      FROM {role}
-                    WHERE archetype = "editingteacher" OR archetype = "manager"';
-                $editingroles = $DB->get_fieldset_sql($select);
+                    WHERE archetype = ? OR archetype = ?';
+                $params = ['editingteacher', 'manager'];
+                $editingroles = $DB->get_fieldset_sql($select, $params);
                 $inuserid = '';
                 list($inuserid, $userstodelete) = $DB->get_in_or_equal($userstodelete);
                 $sql2 = '';
@@ -2112,9 +2115,9 @@ function plagiarism_safeassign_pre_course_delete($course) {
                        SELECT asub.id
                          FROM {assign_submission} asub
                          JOIN {assign} a ON a.id = asub.assignment
-                        WHERE asub.status = "submitted"
+                        WHERE asub.status = ?
                           AND a.course = ?)';
-        $DB->execute($sql, array($course->id));
+        $DB->execute($sql, ['submitted', $course->id]);
         // Set instructor records as unenrolled, so scheduled tasks won't bother to send any info.
         $sql = 'UPDATE {plagiarism_safeassign_instr}
                    SET unenrolled = 1
@@ -2141,8 +2144,8 @@ function plagiarism_safeassign_pre_course_module_delete($cm) {
                  WHERE submissionid IN (
                        SELECT asub.id
                          FROM {assign_submission} asub
-                        WHERE asub.status = "submitted"
+                        WHERE asub.status = ?
                           AND asub.assignment = ?)';
-        $DB->execute($sql, array($cm->instance));
+        $DB->execute($sql, ["submitted", $cm->instance]);
     }
 }
