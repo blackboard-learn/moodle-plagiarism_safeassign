@@ -19,7 +19,7 @@
 # @copyright  Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
 # @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 
-@plugin @plagiarism_safeassign @plagiarism_safeassign_originality_report_links
+@plugin @plagiarism_safeassign @plagiarism_safeassign_originality_report_links @_file_upload
 Feature: Navigate a wrapped version of the originality report and review the wrapped links
   As a Teacher
   I should be able to navigate through the originality report links and stay within Moodle

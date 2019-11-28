@@ -2053,7 +2053,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         $sql = "SELECT subm.id
                   FROM {assign_submission} as subm
                   JOIN {plagiarism_safeassign_subm} as sasubm ON subm.id = sasubm.submissionid
-                 WHERE subm.assignment = $assignid AND subm.userid = $userid AND sasubm.uuid IS NOT NULL";
+                 WHERE subm.assignment = $assignid AND subm.userid = $userid";
 
         $sasubmid = $DB->get_record_sql($sql, ['assignid' => $assignid, 'userid' => $userid]);
 
