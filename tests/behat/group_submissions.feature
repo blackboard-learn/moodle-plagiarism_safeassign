@@ -19,7 +19,7 @@
 # @copyright  Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
 # @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 
-@plugin @plagiarism_safeassign
+@plugin @plagiarism_safeassign @_file_upload
 Feature: Send group submissions and get the SafeAssign Scores
   As a Student
   I should be able to send a group submission to SafeAssign and all my group get the score

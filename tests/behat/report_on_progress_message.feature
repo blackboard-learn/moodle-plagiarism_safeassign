@@ -21,7 +21,7 @@
 # @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
 # @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 
-@plugin @plagiarism_safeassign
+@plugin @plagiarism_safeassign @_file_upload
 Feature: SafeAssign displays the submission processing message only when there is a submission
   As a Student/Teacher
   I should be able to see the status "On progress" only when files are submitted.

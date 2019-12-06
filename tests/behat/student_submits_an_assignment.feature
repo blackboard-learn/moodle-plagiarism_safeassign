@@ -19,7 +19,7 @@
 # @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
 # @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 
-@plugin @plagiarism_safeassign
+@plugin @plagiarism_safeassign @_file_upload
 Feature: Send an submission to a SafeAssign assignment
   As a Student
   I should be able to send a submission with SafeAssign as plagiarism plugin
