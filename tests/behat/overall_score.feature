@@ -19,7 +19,7 @@
 # @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
 # @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 
-@plugin @plagiarism_safeassign
+@plugin @plagiarism_safeassign @_file_upload
 Feature: See plagiarism overall score for a submission in an assignment with SafeAssign enabled
   As a Student/Teacher
   I should be able to se the overall score for a submission with SafeAssign as plagiarism plugin

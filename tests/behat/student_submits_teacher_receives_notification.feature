@@ -19,7 +19,7 @@
 # @copyright  Copyright (c) 2017 Blackboard Inc.
 # @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 
-@plugin @plagiarism_safeassign
+@plugin @plagiarism_safeassign @_file_upload
 Feature: Sending a submission to a SafeAssign assignment and receiving notifications
   As a Teacher
   I should receive a notification when I enable notifications and a SafeAssign submission has been graded
