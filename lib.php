@@ -1144,6 +1144,8 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $fs = get_file_storage();
             $fileobj = $fs->get_file($contextid, 'assignsubmission_file', 'submission_files',
                 $submissionid, $file->filepath, $file->filename);
+            $gottenfilesystem = $fs->get_file_system();
+            $fileisreadable = $gottenfilesystem->is_file_readable_locally_by_storedfile($fileobj);
 
             // If file object does not exist, log an error and skip.
             if (!$fileobj) {
@@ -1152,12 +1154,32 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 $event = sync_content_log::create_log_message('error', null, true, $errortext);
                 $event->trigger();
                 continue;
+            } else if (!$fileisreadable) {
+                // If file is not readable, log an error and skip.
+                $errortext = 'File with submission ID: ' . $submissionid .
+                    ' and context ID: ' . $contextid . ' could not be read. Submission will be marked as deprecated.';
+                $event = sync_content_log::create_log_message('error', null, true, $errortext);
+                $event->trigger();
+                $this->mark_submission_deprecated($submissionid);
+                continue;
             }
             $files[] = $fileobj;
             $filenames[] = $file->filename;
         }
 
         return array("files" => $files, "filenames" => $filenames);
+    }
+
+    /**
+     * Marks submission as deprecated in mdl_plagiarism_safeassign_subm.
+     * @param int $submissionid
+     */
+    public function mark_submission_deprecated(int $submissionid) {
+        global $DB;
+        if (empty($submissionid)) {
+            return;
+        }
+        $DB->set_field("plagiarism_safeassign_subm", "deprecated", "1", array("submissionid" => $submissionid));
     }
 
     /**

@@ -633,4 +633,20 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
             }
         }
     }
+
+    public function test_mark_submission_deprecated() {
+        global $DB;
+
+        $this->resetAfterTest(true);
+        $this->insert_submission_for_testing(0, 0, 111, 0);
+        $this->insert_submission_for_testing(0, 0, 222, 0);
+        $this->insert_submission_for_testing(0, 0, 333, 0);
+        $notdeprecatedsubm = $DB->count_records('plagiarism_safeassign_subm', array('deprecated' => 0));
+        $this->assertEquals(3, $notdeprecatedsubm);
+        $lib = new plagiarism_plugin_safeassign();
+        $lib->mark_submission_deprecated(222);
+        $this->assertEquals(2, $DB->count_records('plagiarism_safeassign_subm', array('deprecated' => 0)));
+        $deprecatedrecord = $DB->get_record('plagiarism_safeassign_subm', array('submissionid' => 222));
+        $this->assertEquals(1, $deprecatedrecord->deprecated);
+    }
 }
