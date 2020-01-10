@@ -1279,7 +1279,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      */
     public function sync_submission_files($submissionid, stdClass $responsedata, array $filenames, $userid, $courseid) {
         global $DB;
-        $sql = "SELECT RTRIM(f.filename), f.id AS fileid, cm.id AS cmid
+        $sql = "SELECT TRIM(f.filename), f.id AS fileid, cm.id AS cmid
                   FROM {files} f
                   JOIN {assign_submission} sub ON sub.id = f.itemid
                   JOIN {course_modules} cm ON cm.instance = sub.assignment
