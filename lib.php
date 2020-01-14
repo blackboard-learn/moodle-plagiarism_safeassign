@@ -1145,7 +1145,13 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
             $fileobj = $fs->get_file($contextid, 'assignsubmission_file', 'submission_files',
                 $submissionid, $file->filepath, $file->filename);
             $gottenfilesystem = $fs->get_file_system();
-            $fileisreadable = $gottenfilesystem->is_file_readable_locally_by_storedfile($fileobj);
+            $fileisreadable = false;
+            if ($gottenfilesystem->is_file_readable_locally_by_storedfile($fileobj)) {
+                $fileisreadable = true;
+                // If file isn't found locally, then try it remotely.
+            } else if ($gottenfilesystem->is_file_readable_remotely_by_storedfile($fileobj)) {
+                $fileisreadable = true;
+            }
 
             // If file object does not exist, log an error and skip.
             if (!$fileobj) {
