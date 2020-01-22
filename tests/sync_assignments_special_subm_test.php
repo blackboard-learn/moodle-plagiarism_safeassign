@@ -61,7 +61,7 @@ class plagiarism_safeassign_sync_assignments_special_testcase extends plagiarism
         $params['course'] = $this->course->id;
         $params['assignsubmission_onlinetext_enabled'] = 1;
         $params['assignsubmission_file_enabled'] = 1;
-        $params['assignsubmission_file_maxfiles'] = 7;
+        $params['assignsubmission_file_maxfiles'] = 10;
         $params['assignsubmission_file_maxsizebytes'] = 1024 * 1024;
         $instance = $generator->create_instance($params);
         $this->assigninstance = $instance;
@@ -139,6 +139,11 @@ class plagiarism_safeassign_sync_assignments_special_testcase extends plagiarism
         $fs->create_file_from_string($filerecord, 'text contents');
 
         $filerecord['filename'] = 'file7_ ';
+
+        $fs = get_file_storage();
+        $fs->create_file_from_string($filerecord, 'text contents');
+
+        $filerecord['filename'] = '    file8.txt';
 
         $fs = get_file_storage();
         $fs->create_file_from_string($filerecord, 'text contents');
@@ -229,7 +234,7 @@ class plagiarism_safeassign_sync_assignments_special_testcase extends plagiarism
         $supportedfiles = $DB->get_records('plagiarism_safeassign_files', array('supported' => 1));
         $unsupportedfiles = $DB->get_records('plagiarism_safeassign_files', array('supported' => 0));
 
-        $this->assertCount(6, $supportedfiles);
+        $this->assertCount(7, $supportedfiles);
         $this->assertCount(1, $unsupportedfiles);
     }
 
