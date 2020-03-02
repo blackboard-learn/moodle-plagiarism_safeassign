@@ -154,7 +154,7 @@ class cache {
      * @return int
      */
     public function delete($param) {
-        if (local::duringtesting()) {
+        if (local::duringtesting() || $this->get($param) == false) {
             return 0;
         }
         return $this->muc->delete_many($this->getkeys($param));
