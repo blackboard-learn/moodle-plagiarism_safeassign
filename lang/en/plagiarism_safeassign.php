@@ -110,7 +110,7 @@ $string['assignment_check_submissions_help'] = 'SafeAssign Originality Reports a
 SafeAssign has no technical limitations that preclude using it with other languages.
 See <a href="http://www.blackboard.com/docs/documentation.htm?DocID=191SafeAssign001en_US" target="_blank">Blackboard help</a> for more information.';
 $string['students_originality_report'] = 'Allow students to view originality report';
-$string['submissions_global_reference'] = 'Exclude submissions from institutional and <a href="https://help.blackboard.com/Learn/Instructor/Assignments/SafeAssign#global_reference" target="_blank">Global Reference Database</a>';
+$string['submissions_global_reference'] = 'Exclude submissions from <a href="https://help.blackboard.com/Learn/Instructor/Assignments/SafeAssign#global_reference" target="_blank">Global Reference Database</a>';
 $string['submissions_global_reference_help'] = 'Submissions will still be processed by SafeAssign but won’t be registered in databases. This avoids files being marked as plagiarized when teachers allow re-submissions in a specific assignment.';
 // Disclosure agreement.
 $string['plagiarism_tools'] = 'Plagiarism Tools';
