@@ -454,6 +454,62 @@ class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeass
     }
 
     /**
+     * Test the update of the safeassign course table when a user is unenroled.
+     */
+    public function test_delete_instructor() {
+        global $DB;
+        $this->resetAfterTest(true);
+        $this->set_safeassign_records();
+
+        $this->setAdminUser();
+        $this->config_set_ok();
+        $this->push_login_urls();
+        // Add two instructors to SafeAssign.
+        $teacherrole = $DB->get_record('role', array('shortname' => 'editingteacher'));
+
+        $teacher1 = self::getDataGenerator()->create_user([
+            'firstname' => 'Teacher 1',
+            'lastname' => 'WhoTeaches'
+        ]);
+        $this->getDataGenerator()->enrol_user($teacher1->id,
+            $this->course->id,
+            $teacherrole->id);
+
+        $teacher2 = self::getDataGenerator()->create_user([
+            'firstname' => 'Teacher 2',
+            'lastname' => 'WhoTeaches'
+        ]);
+        $this->getDataGenerator()->enrol_user($teacher2->id,
+            $this->course->id,
+            $teacherrole->id);
+
+        // Simulate that instructors and course were synced.
+        $sql = 'UPDATE {plagiarism_safeassign_instr} SET synced=1';
+        $DB->execute($sql);
+        // Course has teacher 2 as instructor.
+        $sql = 'UPDATE {plagiarism_safeassign_course} SET uuid=?, instructorid = ?';
+        $DB->execute($sql, ["c93e61c6-be1f-6c49-5c86-76d8f04f3f2f", $teacher2->id]);
+        $instructors = $DB->count_records('plagiarism_safeassign_instr');
+        $this->assertEquals(2, $instructors);
+
+        // Unenrol user from course.
+        $enrol = enrol_get_plugin('manual');
+        $enrolinstances = enrol_get_instances($this->course->id, true);
+        foreach ($enrolinstances as $courseenrolinstance) {
+            if ($courseenrolinstance->enrol == "manual") {
+                $instance = $courseenrolinstance;
+                break;
+            }
+        }
+        $enrol->unenrol_user($instance, $teacher2->id);
+
+        // Now course should be unsynced and be related with the next instructor.
+        $course = $DB->get_record('plagiarism_safeassign_course', ['courseid' => $this->course->id]);
+        $this->assertNull($course->uuid);
+        $this->assertEquals($teacher1->id, $course->instructorid);
+    }
+
+    /**
      * Insert some SafeAssign records directly on the database.
      */
     public function set_safeassign_records() {

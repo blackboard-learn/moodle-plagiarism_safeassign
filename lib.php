@@ -1778,6 +1778,29 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                         }
                     }
                 }
+                // Update course table if necessary.
+                $instructorid = $data['relateduserid'];
+                $courseid = $data['courseid'];
+                $records = $DB->get_records('plagiarism_safeassign_course',
+                    ['courseid' => $courseid, "instructorid" => $instructorid]);
+                if ($records) {
+                    // Get next instructor of course.
+                    $sql = 'SELECT MAX(instructorid) as instructorid
+                              FROM {plagiarism_safeassign_instr}
+                             WHERE courseid = ?
+                               AND unenrolled = 0
+                               AND deleted = 0
+                          GROUP BY instructorid';
+                    $newinstructor = $DB->get_records_sql($sql, [$courseid]);
+                    if ($newinstructor) {
+                        foreach ($newinstructor as $inst) {
+                            $sql = 'UPDATE {plagiarism_safeassign_course}
+                                   SET uuid = ?, instructorid = ?
+                                 WHERE courseid = ?';
+                            $DB->execute($sql, [null, $inst->instructorid, $courseid]);
+                        }
+                    }
+                }
             }
         }
     }
