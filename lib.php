@@ -1042,6 +1042,24 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                    AND sasub.uuid IS NULL
                    AND sasub.assignmentid <> msub.assignment)';
 
+        if ($DB->get_dbfamily() == 'mssql') {
+            $sql = <<<SQL
+                 UPDATE sasub
+                    SET assignmentid = (
+                 SELECT msub.assignment
+                   FROM {assign_submission} msub
+                  WHERE sasub.submissionid = msub.id)
+                   FROM {plagiarism_safeassign_subm} sasub
+            WHERE EXISTS (
+                  SELECT *
+                    FROM {assign_submission} msub
+                   WHERE sasub.submissionid = msub.id
+                     AND sasub.deprecated = 0
+                     AND sasub.uuid IS NULL
+                     AND sasub.assignmentid <> msub.assignment)
+SQL;
+        }
+
         $DB->execute($sql);
 
         // Check validity of submissions. Should have at least hasfile or hasonlinetext.
@@ -1177,7 +1195,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     }
 
     /**
-     * Marks submission as deprecated in mdl_plagiarism_safeassign_subm.
+     * Marks submission as deprecated in plagiarism_safeassign_subm.
      * @param int $submissionid
      */
     public function mark_submission_deprecated(int $submissionid) {
