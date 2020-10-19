@@ -71,7 +71,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
         if (!empty($plagiarismsettings) || $plagiarismsettings === false) {
             return $plagiarismsettings;
         }
-        $safeassignenabled = get_config('plagiarism', 'safeassign_use');
+        $safeassignenabled = get_config('plagiarism_safeassign', 'enabled');
         // Check if enabled.
         if (!empty($safeassignenabled)) {
             // Now check to make sure required settings are set.
@@ -313,86 +313,12 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     }
 
     /**
-     * hook to add plagiarism specific settings to a module settings page
-     * @param object $mform  - Moodle form
-     * @param object $context - current context
-     * @param string $modulename - Name of the module
-     */
-    public function get_form_elements_module($mform, $context, $modulename = "") {
-
-        global $DB, $PAGE;
-
-        if (!$this->is_supported_module($modulename)) {
-            return;
-        }
-
-        $cmid = optional_param('update', 0, PARAM_INT);
-
-        $plagiarismelements = $this->get_configs();
-        $plagiarismvalues = $DB->get_records_menu('plagiarism_safeassign_config', array('cm' => $cmid),
-            '', 'name, value');
-
-        if (has_capability('plagiarism/safeassign:enable', $context)) {
-            safeassign_get_form_elements($mform);
-
-            foreach ($plagiarismelements as $element) {
-
-                // Disable all plagiarism elements if use_plagiarism eg 0.
-                if ($element != 'safeassign_enabled') { // Ignore this var.
-                    $mform->disabledIf($element, 'safeassign_enabled');
-                }
-
-                // Load old configuration values for this assignment.
-                if (isset($plagiarismvalues[$element])) {
-                    $mform->setDefault($element, $plagiarismvalues[$element]);
-                }
-            }
-
-            $PAGE->requires->js_call_amd('plagiarism_safeassign/formelements', 'init', array());
-
-        }
-    }
-
-    /**
      * Returns if a module is supported or not.
      * @param string $modulename
      * @return boolean true if the module is supported, false otherwise.
      */
     public function is_supported_module($modulename) {
         return in_array( $modulename, $this->supportedmodules);
-    }
-
-    /**
-     * hook to save plagiarism specific settings on a module settings page
-     * @param object $data - data from an mform submission.
-     */
-    public function save_form_elements($data) {
-        global $DB;
-
-        $existingelements = $DB->get_records_menu('plagiarism_safeassign_config', array('cm' => $data->coursemodule),
-            '', 'name, id');
-
-        $plagiarismelements = $this->get_configs();
-        $saenabled = isset($data->safeassign_enabled) && $data->safeassign_enabled;
-        foreach ($plagiarismelements as $element) {
-            $newelement = new stdClass();
-            $newelement->cm = $data->coursemodule;
-            $newelement->name = $element;
-            $newelement->value = isset($data->$element) && $saenabled ? $data->$element : 0;
-            if (isset($existingelements[$element])) {
-                $newelement->id = $existingelements[$element];
-                $DB->update_record('plagiarism_safeassign_config', $newelement);
-            } else {
-                $DB->insert_record('plagiarism_safeassign_config', $newelement);
-            }
-        }
-        if ($saenabled) {
-            $eventdata = new stdClass();
-            $eventdata->courseid = $data->course;
-            $eventdata->assignmentid = $data->instance;
-            $this->assign_dbsaver($eventdata);
-        }
-
     }
 
     /**
@@ -521,7 +447,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      */
     public function create_submission($eventdata) {
         // Check if SafeAssign is enable at site level.
-        if (get_config('plagiarism', 'safeassign_use')) {
+        if (get_config('plagiarism_safeassign', 'enabled')) {
             // Get SafeAssign assignment configuration.
             $config = $this->check_assignment_config($eventdata);
             if (!empty($config) && $config['safeassign_enabled']) {
@@ -1356,7 +1282,7 @@ SQL;
         global $DB;
 
         $config = $this->check_assignment_config($eventdata);
-        if (get_config('plagiarism', 'safeassign_use') & !empty($config) && $config['safeassign_enabled']) {
+        if (get_config('plagiarism_safeassign', 'enabled') & !empty($config) && $config['safeassign_enabled']) {
             $fs = get_file_storage();
             $usercontext = context_user::instance($eventdata['userid']);
             $oldfile = $fs->get_file($usercontext->id, 'assignsubmission_text_as_file', 'submission_text_files',
@@ -2238,4 +2164,88 @@ function plagiarism_safeassign_pre_course_module_delete($cm) {
                           AND asub.assignment = ?)';
         $DB->execute($sql, ["submitted", $cm->instance]);
     }
+}
+
+/**
+ * Add the safeassign settings form to an add/edit activity page
+ *
+ * @param moodleform $formwrapper
+ * @param MoodleQuickForm $mform
+ * @return type
+ */
+function plagiarism_safeassign_coursemodule_standard_elements($formwrapper, $mform) {
+    global $DB, $PAGE;
+    $modulename = '';
+    $pluginsafeassign = new plagiarism_plugin_safeassign();
+    if (isset($formwrapper->get_current()->modulename)) {
+        $modulename = 'mod_' . $formwrapper->get_current()->modulename;
+    }
+    $context = context_course::instance($formwrapper->get_course()->id);
+
+    if (!$pluginsafeassign->is_supported_module($modulename) || !get_config('plagiarism_safeassign', 'enabled')) {
+        return;
+    }
+
+    $cmid = optional_param('update', 0, PARAM_INT);
+
+    $plagiarismelements = $pluginsafeassign->get_configs();
+    $plagiarismvalues = $DB->get_records_menu('plagiarism_safeassign_config', array('cm' => $cmid),
+        '', 'name, value');
+
+    if (has_capability('plagiarism/safeassign:enable', $context)) {
+        safeassign_get_form_elements($mform);
+
+        foreach ($plagiarismelements as $element) {
+
+            // Disable all plagiarism elements if use_plagiarism eg 0.
+            if ($element != 'safeassign_enabled') { // Ignore this var.
+                $mform->disabledIf($element, 'safeassign_enabled');
+            }
+
+            // Load old configuration values for this assignment.
+            if (isset($plagiarismvalues[$element])) {
+                $mform->setDefault($element, $plagiarismvalues[$element]);
+            }
+        }
+
+        $PAGE->requires->js_call_amd('plagiarism_safeassign/formelements', 'init', array());
+
+    }
+}
+
+/**
+ * Handle saving data from the safeassign settings form..
+ *
+ * @param stdClass $data
+ * @param stdClass $course
+ */
+function plagiarism_safeassign_coursemodule_edit_post_actions($data, $course = null) {
+    global $DB;
+
+    $pluginsafeassign = new plagiarism_plugin_safeassign();
+
+    $existingelements = $DB->get_records_menu('plagiarism_safeassign_config', array('cm' => $data->coursemodule),
+        '', 'name, id');
+
+    $plagiarismelements = $pluginsafeassign->get_configs();
+    $saenabled = isset($data->safeassign_enabled) && $data->safeassign_enabled;
+    foreach ($plagiarismelements as $element) {
+        $newelement = new stdClass();
+        $newelement->cm = $data->coursemodule;
+        $newelement->name = $element;
+        $newelement->value = isset($data->$element) && $saenabled ? $data->$element : 0;
+        if (isset($existingelements[$element])) {
+            $newelement->id = $existingelements[$element];
+            $DB->update_record('plagiarism_safeassign_config', $newelement);
+        } else {
+            $DB->insert_record('plagiarism_safeassign_config', $newelement);
+        }
+    }
+    if ($saenabled) {
+        $eventdata = new stdClass();
+        $eventdata->courseid = $data->course;
+        $eventdata->assignmentid = $data->instance;
+        $pluginsafeassign->assign_dbsaver($eventdata);
+    }
+    return $data;
 }

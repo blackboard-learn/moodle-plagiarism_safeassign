@@ -44,7 +44,7 @@ Feature: SafeAssign displays the submission status for the correct files
       | student1 | C1     | student |
       | student2 | C1     | student |
     And the following config values are set as admin:
-      | safeassign_use   | 1 | plagiarism |
+      | enabled   | 1 | plagiarism_safeassign |
     Then I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
     And I add a "Assignment" to section "1" and I fill the form with:

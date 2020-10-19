@@ -48,7 +48,7 @@ class get_scores extends \core\task\scheduled_task {
      */
     public function execute() {
         global $CFG;
-        if (get_config('plagiarism', 'safeassign_use')) {
+        if (get_config('plagiarism_safeassign', 'enabled')) {
             require_once($CFG->dirroot . '/plagiarism/safeassign/lib.php');
             set_error_handler(function ($n, $errstr, $file, $line) {
                 $errormessage = $errstr . ' in ' . $file . ' on line ' . $line;

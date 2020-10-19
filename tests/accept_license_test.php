@@ -50,7 +50,7 @@ class plagiarism_safeassign_license_testcase extends plagiarism_safeassign_base_
 
         $this->resetAfterTest();
         $this->config_set_ok();
-        set_config('safeassign_use', 1, 'plagiarism');
+        set_config('enabled', 1, 'plagiarism_safeassign');
         $this->setAdminUser();
         $this->user = $USER;
     }

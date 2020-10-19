@@ -47,7 +47,7 @@ class plagiarism_safeassign_restore_course_testcase extends plagiarism_safeassig
     public function test_restore_to_existing_course() {
         global $DB, $USER;
         $this->resetAfterTest(true);
-        set_config('safeassign_use', 1, 'plagiarism');
+        set_config('enabled', 1, 'plagiarism_safeassign');
         $this->setAdminUser();
         $this->create_test_data();
 
@@ -91,7 +91,7 @@ class plagiarism_safeassign_restore_course_testcase extends plagiarism_safeassig
     public function test_restore_to_new_course() {
         global $DB, $USER;
         $this->resetAfterTest(true);
-        set_config('safeassign_use', 1, 'plagiarism');
+        set_config('enabled', 1, 'plagiarism_safeassign');
         $this->setAdminUser();
         $this->create_test_data();
 
@@ -201,13 +201,16 @@ class plagiarism_safeassign_restore_course_testcase extends plagiarism_safeassig
 
         // Enable SafeAssign in the assignment.
         $record = new stdClass();
-        $record->cm = $this->cm->id;
+        $record->course = $this->course->id;
+        $record->instance = $this->instance->id;
+        $record->coursemodule = $this->cm->id;
+        $record->safeassign_enabled = 1;
         $record->name = 'safeassign_enabled';
         $record->value = 1;
-        $DB->insert_record('plagiarism_safeassign_config', $record);
+        plagiarism_safeassign_coursemodule_edit_post_actions($record);
         $record->name = 'safeassign_global_reference';
         $record->value = self::GLOBALCHECK;
-        $DB->insert_record('plagiarism_safeassign_config', $record);
+        plagiarism_safeassign_coursemodule_edit_post_actions($record);
 
         $this->setUser($this->teacher);
 
@@ -217,7 +220,7 @@ class plagiarism_safeassign_restore_course_testcase extends plagiarism_safeassig
         $data->course = $this->course->id;
         $data->instance = $this->instance->id;
         $safeassign = new plagiarism_plugin_safeassign();
-        $safeassign->save_form_elements($data);
+        plagiarism_safeassign_coursemodule_edit_post_actions($data);
 
         $this->setAdminUser();
     }

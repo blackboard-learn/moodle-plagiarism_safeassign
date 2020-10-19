@@ -48,7 +48,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $this->setAdminUser();
         $this->user = $USER;
         // Enable SafeAssign in the platform.
-        set_config('safeassign_use', 1, 'plagiarism');
+        set_config('enabled', 1, 'plagiarism_safeassign');
     }
 
     public function test_assigndbsaver_assignments() {
@@ -81,7 +81,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $data->course = $course1->id;
         $data->instance = $instance->id;
         $safeassign = new plagiarism_plugin_safeassign();
-        $safeassign->save_form_elements($data);
+        plagiarism_safeassign_coursemodule_edit_post_actions($data);
         $confirmdbassign = $DB->get_record('plagiarism_safeassign_assign', array('assignmentid' => $instance->id));
         $confirmdbcourse = $DB->get_record('plagiarism_safeassign_course', array('courseid' => $course1->id));
 
@@ -105,7 +105,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $data->course = $course1->id;
         $data->instance = $instance2->id;
 
-        $safeassign->save_form_elements($data);
+        plagiarism_safeassign_coursemodule_edit_post_actions($data);
         $confirmdbassign2 = $DB->get_record('plagiarism_safeassign_assign', array('assignmentid' => $instance2->id));
         $confirmdbcourse2 = $DB->count_records('plagiarism_safeassign_course', array('courseid' => $course1->id));
 
@@ -131,7 +131,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $data->course = $course2->id;
         $data->instance = $instance3->id;
 
-        $safeassign->save_form_elements($data);
+        plagiarism_safeassign_coursemodule_edit_post_actions($data);
         $confirmdbassign3 = $DB->get_record('plagiarism_safeassign_assign', array('assignmentid' => $instance3->id));
         $confirmdbcourse3 = $DB->get_record('plagiarism_safeassign_course', array('courseid' => $course2->id));
 
@@ -145,7 +145,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $this->assertTrue($DB->record_exists('plagiarism_safeassign_instr', array('courseid' => $course2->id,
             'instructorid' => $this->teacher3->id, 'synced' => 0)));
 
-        set_config('safeassign_use', 0, 'plagiarism');
+        set_config('enabled', 0, 'plagiarism_safeassign');
         $course3 = $this->getDataGenerator()->create_course();
 
         // Create an activity.
@@ -167,7 +167,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $data->course = $course3->id;
         $data->instance = $instance->id;
         $safeassign = new plagiarism_plugin_safeassign();
-        $safeassign->save_form_elements($data);
+        plagiarism_safeassign_coursemodule_edit_post_actions($data);
 
         // Test that the editing instructor has not been added to the instructors table.
         $instructors2 = $DB->get_records('plagiarism_safeassign_instr', array('courseid' => $course3->id));
@@ -201,7 +201,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $data->course = $course1->id;
         $data->instance = $instance->id;
         $safeassign = new plagiarism_plugin_safeassign();
-        $safeassign->save_form_elements($data);
+        plagiarism_safeassign_coursemodule_edit_post_actions($data);
         $this->assertCount(2, $DB->get_records('plagiarism_safeassign_instr'));
         $this->admin2 = self::getDataGenerator()->create_user();
 
@@ -249,7 +249,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $data->course = $course1->id;
         $data->instance = $instance->id;
         $safeassign = new plagiarism_plugin_safeassign();
-        $safeassign->save_form_elements($data);
+        plagiarism_safeassign_coursemodule_edit_post_actions($data);
         // Teacher and admin should be there.
         $this->assertCount(2, $DB->get_records('plagiarism_safeassign_instr'));
         // Now add the roles that are going to be synced.
@@ -342,7 +342,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $data->course = $course2->id;
         $data->instance = $instance2->id;
         $safeassign = new plagiarism_plugin_safeassign();
-        $safeassign->save_form_elements($data);
+        plagiarism_safeassign_coursemodule_edit_post_actions($data);
         $this->assertCount(5, $DB->get_records('plagiarism_safeassign_instr'));
         set_config('safeassign_additional_roles', $newdean->id, 'plagiarism_safeassign');
 
@@ -567,7 +567,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $this->resetAfterTest(true);
 
         set_config('safeassign_new_student_disclosure', 'disclosure example for testing.', 'plagiarism_safeassign');
-        set_config('safeassign_use', 1, 'plagiarism');
+        set_config('enabled', 1, 'plagiarism_safeassign');
         set_config('safeassign_referencedbactivity', 1, 'plagiarism_safeassign');
         $course1 = $this->getDataGenerator()->create_course();
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_assign');
@@ -581,13 +581,16 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         // Enable SafeAssign for this particular activity.
         $this->setAdminUser();
         $assignconf = new stdClass();
-        $assignconf->cm = $cm->id;
+        $assignconf->course = $course1->id;
+        $assignconf->instance = $instance->id;
+        $assignconf->coursemodule = $cm->id;
+        $assignconf->safeassign_enabled = 1;
         $assignconf->name = 'safeassign_enabled';
         $assignconf->value = 1;
-        $DB->insert_record('plagiarism_safeassign_config', $assignconf);
+        plagiarism_safeassign_coursemodule_edit_post_actions($assignconf);
         $assignconf->name = 'safeassign_global_reference';
         $assignconf->value = 0;
-        $DB->insert_record('plagiarism_safeassign_config', $assignconf);
+        plagiarism_safeassign_coursemodule_edit_post_actions($assignconf);
 
         $lib = new plagiarism_plugin_safeassign();
         $result = $lib->print_disclosure($cm->id);

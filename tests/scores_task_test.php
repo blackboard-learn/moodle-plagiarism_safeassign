@@ -54,8 +54,8 @@ class plagiarism_safeassign_tasks_testcase extends plagiarism_safeassign_base_te
         $this->course = $this->getDataGenerator()->create_course();
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_assign');
         $params['course'] = $this->course->id;
-        $instance = $generator->create_instance($params);
-        $this->cm = get_coursemodule_from_instance('assign', $instance->id);
+        $this->moduleinstance = $generator->create_instance($params);
+        $this->cm = get_coursemodule_from_instance('assign', $this->moduleinstance->id);
         $this->context = context_module::instance($this->cm->id);
         $this->assign = new testable_assign($this->context, $this->cm, $this->course);
         $this->setUser($this->user->id);
@@ -70,7 +70,7 @@ class plagiarism_safeassign_tasks_testcase extends plagiarism_safeassign_base_te
 
         $this->resetAfterTest();
         $this->config_set_ok();
-        set_config('safeassign_use', 1, 'plagiarism');
+        set_config('enabled', 1, 'plagiarism_safeassign');
 
         // Login to SafeAssign.
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
@@ -83,13 +83,16 @@ class plagiarism_safeassign_tasks_testcase extends plagiarism_safeassign_base_te
 
         // Enable SafeAssign in the assignment.
         $record = new stdClass();
-        $record->cm = $this->cm->id;
+        $record->course = $this->course->id;
+        $record->instance = $this->moduleinstance->id;
+        $record->coursemodule = $this->cm->id;
+        $record->safeassign_enabled = 1;
         $record->name = 'safeassign_enabled';
         $record->value = 1;
-        $DB->insert_record('plagiarism_safeassign_config', $record);
+        plagiarism_safeassign_coursemodule_edit_post_actions($record);
         $record->name = 'safeassign_global_reference';
-        $record->value = 1;
-        $DB->insert_record('plagiarism_safeassign_config', $record);
+        $record->value = 0;
+        plagiarism_safeassign_coursemodule_edit_post_actions($record);
 
         $this->data = new stdClass();
         $this->data->onlinetext_editor = array(

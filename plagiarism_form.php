@@ -128,7 +128,7 @@ class plagiarism_setup_form extends moodleform {
         $mform->addHelpButton('safeassign_new_student_disclosure', 'studentdisclosure', 'plagiarism_safeassign');
         $mform->setDefault('safeassign_new_student_disclosure', get_string('studentdisclosuredefault', 'plagiarism_safeassign'));
 
-        $safeassignenabled = get_config('plagiarism_safeassign', 'safeassign_use');
+        $safeassignenabled = get_config('plagiarism_safeassign', 'enabled');
         $licensealreadyread = get_config('plagiarism_safeassign', 'safeassign_license_agreement_readbyadmin');
         $licensedata = \plagiarism_safeassign\terms::get_current_license_data();
 

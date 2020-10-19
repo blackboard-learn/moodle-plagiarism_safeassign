@@ -57,7 +57,7 @@ Feature: Send group submissions and get the SafeAssign Scores
       | student3 | G1 |
       | student4 | G2 |
     And the following config values are set as admin:
-      | safeassign_use   | 1 | plagiarism |
+      | enabled   | 1 | plagiarism_safeassign |
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
     And I add a "Assignment" to section "1" and I fill the form with:

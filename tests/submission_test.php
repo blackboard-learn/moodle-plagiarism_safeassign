@@ -79,16 +79,19 @@ class plagiarism_safeassign_submission_test extends advanced_testcase  {
         $this->setUser($this->user->id);
         $this->submission = $this->assign->get_user_submission($this->user->id, true);
         // Enable SafeAssign in the platform.
-        set_config('safeassign_use', 1, 'plagiarism');
+        set_config('enabled', 1, 'plagiarism_safeassign');
         // Enable SafeAssign in the assignment.
         $record = new stdClass();
-        $record->cm = $this->cm->id;
+        $record->course = $this->course->id;
+        $record->instance = $instance->id;
+        $record->coursemodule = $this->cm->id;
+        $record->safeassign_enabled = 1;
         $record->name = 'safeassign_enabled';
         $record->value = 1;
-        $DB->insert_record('plagiarism_safeassign_config', $record);
+        plagiarism_safeassign_coursemodule_edit_post_actions($record);
         $record->name = 'safeassign_global_reference';
         $record->value = self::GLOBALCHECK;
-        $DB->insert_record('plagiarism_safeassign_config', $record);
+        plagiarism_safeassign_coursemodule_edit_post_actions($record);
     }
 
     /**

@@ -54,7 +54,7 @@ class sync_assignments extends \core\task\scheduled_task {
     public function execute() {
         global $DB, $CFG;
 
-        if (get_config('plagiarism', 'safeassign_use')) {
+        if (get_config('plagiarism_safeassign', 'enabled')) {
 
             set_error_handler(function ($n, $errstr, $file, $line) {
                 $errormessage = $errstr . ' in ' . $file . ' on line ' . $line;

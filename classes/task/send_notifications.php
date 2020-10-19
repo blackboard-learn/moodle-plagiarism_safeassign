@@ -45,7 +45,7 @@ class send_notifications extends \core\task\scheduled_task {
 
         try {
 
-            if (get_config('plagiarism_safeassign', 'safeassign_use')) {
+            if (get_config('plagiarism_safeassign', 'enabled')) {
 
                 // Get the current status from the API, 0 when there is a new license version.
                 $status = get_config('plagiarism_safeassign', 'safeassign_license_agreement_status');

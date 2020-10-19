@@ -47,7 +47,7 @@ Feature: Enable SafeAssign in an assignment
       And I press "Cancel"
       And I turn editing mode off
      Then the following config values are set as admin:
-        | safeassign_use   | 1 | plagiarism |
+        | enabled   | 1 | plagiarism_safeassign |
       And I am on the course with shortname "C1"
      Then I turn editing mode on
       And I add a "Assignment" to section "1"
@@ -71,8 +71,8 @@ Feature: Enable SafeAssign in an assignment
   Scenario: Disclosure agreement checkbox should appear and maintain value
     Given I log in as "admin"
      Then the following config values are set as admin:
-        | safeassign_use                | 1 | plagiarism            |
-        |safeassign_referencedbactivity | 1 | plagiarism_safeassign |
+       | enabled   | 1 | plagiarism_safeassign |
+       |safeassign_referencedbactivity | 1 | plagiarism_safeassign |
       And I am on the course with shortname "C1"
      Then I turn editing mode on
       And I add a "Assignment" to section "1"
@@ -108,8 +108,8 @@ Feature: Enable SafeAssign in an assignment
   Scenario: Disclosure agreement checkbox should not appear if SafeAssign is not enabled in the Assignment
     Given I log in as "admin"
      Then the following config values are set as admin:
-        | safeassign_use                | 1 | plagiarism            |
-        |safeassign_referencedbactivity | 1 | plagiarism_safeassign |
+       | enabled   | 1 | plagiarism_safeassign |
+       |safeassign_referencedbactivity | 1 | plagiarism_safeassign |
       And I am on the course with shortname "C1"
      Then I turn editing mode on
       And I add a "Assignment" to section "1"
@@ -134,7 +134,7 @@ Feature: Enable SafeAssign in an assignment
   Scenario: Disclosure agreement checkbox should not appear if The Global Reference Database setting is unchecked
     Given I log in as "admin"
     Then the following config values are set as admin:
-      | safeassign_use                | 1 | plagiarism            |
+      | enabled   | 1 | plagiarism_safeassign |
       |safeassign_referencedbactivity | 0 | plagiarism_safeassign |
     And I am on the course with shortname "C1"
     Then I turn editing mode on
@@ -161,7 +161,7 @@ Feature: Enable SafeAssign in an assignment
   Scenario: SafeAssign settings should only appear in assignments
     Given I log in as "admin"
     Then the following config values are set as admin:
-      | safeassign_use   | 1 | plagiarism |
+      | enabled   | 1 | plagiarism_safeassign |
     And I am on the course with shortname "C1"
     Then I turn editing mode on
     And I add a "Assignment" to section "1"

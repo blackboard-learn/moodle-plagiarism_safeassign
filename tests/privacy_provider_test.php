@@ -47,7 +47,7 @@ class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase 
     public function setUp() {
         $this->resetAfterTest(true);
         // Enable SafeAssign in the platform.
-        set_config('safeassign_use', 1, 'plagiarism');
+        set_config('enabled', 1, 'plagiarism_safeassign');
     }
 
     private function make_teacher_enrolment($teacher, $course) {
@@ -74,7 +74,7 @@ class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase 
         $data->course = $course->id;
         $data->instance = $instance->id;
         $safeassign = new plagiarism_plugin_safeassign();
-        $safeassign->save_form_elements($data);
+        plagiarism_safeassign_coursemodule_edit_post_actions($data);
 
         return $assign;
     }

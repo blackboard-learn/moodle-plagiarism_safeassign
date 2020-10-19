@@ -45,7 +45,7 @@ Feature: SafeAssign displays the submission processing message only when there i
       | student1 | C1     | student |
       | student2 | C1     | student |
     And the following config values are set as admin:
-      | safeassign_use   | 1 | plagiarism |
+      | enabled   | 1 | plagiarism_safeassign |
 
   @javascript
   Scenario: SafeAssign shows Report in progress... only when files are submitted.

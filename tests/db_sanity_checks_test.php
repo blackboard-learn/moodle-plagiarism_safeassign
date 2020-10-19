@@ -40,7 +40,7 @@ class plagiarism_safeassign_sanity_checks_testcase extends plagiarism_safeassign
 
     public function setUp() {
         global $DB;
-        set_config('safeassign_use', 1, 'plagiarism');
+        set_config('enabled', 1, 'plagiarism_safeassign');
         // Create a course, assignment, and users.
         $this->course = self::getDataGenerator()->create_course();
 
