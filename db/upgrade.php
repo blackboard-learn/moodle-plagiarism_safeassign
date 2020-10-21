@@ -361,13 +361,14 @@ function xmldb_plagiarism_safeassign_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2019092401, 'plagiarism', 'safeassign');
     }
 
-    if ($oldversion < 2020101601) {
+    if ($oldversion < 2020101603) {
 
         $safeassignenabled = get_config('plagiarism', 'safeassign_use');
         if (!empty($safeassignenabled)) {
             set_config('enabled', $safeassignenabled, 'plagiarism_safeassign');
+            unset_config('safeassign_use', 'plagiarism');
         }
-        upgrade_plugin_savepoint(true, 2020101601, 'plagiarism', 'safeassign');
+        upgrade_plugin_savepoint(true, 2020101603, 'plagiarism', 'safeassign');
     }
     return true;
 
