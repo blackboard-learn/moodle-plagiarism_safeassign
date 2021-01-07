@@ -647,7 +647,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                   FROM {plagiarism_safeassign_subm} plg
                   JOIN {assign_submission} asg ON plg.submissionid = asg.id
                   JOIN {plagiarism_safeassign_files} saf ON asg.id = saf.submissionid
-             LEFT JOIN {files} f ON plg.submissionid = f.itemid
+             LEFT JOIN {files} f ON saf.fileid = f.id
                  WHERE plg.deprecated = 0
                    AND f.userid IS NOT NULL
                    AND plg.reportgenerated = 0
