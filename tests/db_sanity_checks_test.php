@@ -38,7 +38,7 @@ require_once($CFG->dirroot . '/plagiarism/safeassign/tests/safeassign_api_test.p
  */
 class plagiarism_safeassign_sanity_checks_testcase extends plagiarism_safeassign_base_testcase {
 
-    public function setUp() {
+    public function setUp(): void {
         global $DB;
         set_config('enabled', 1, 'plagiarism_safeassign');
         // Create a course, assignment, and users.

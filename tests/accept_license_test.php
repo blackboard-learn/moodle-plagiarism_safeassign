@@ -45,7 +45,7 @@ class plagiarism_safeassign_license_testcase extends plagiarism_safeassign_base_
      */
     private $user;
 
-    protected function setUp() {
+    protected function setUp():void {
         global $USER;
 
         $this->resetAfterTest();

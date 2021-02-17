@@ -46,7 +46,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
      * Set up the environment.
      * @return void
      */
-    public function setUp() {
+    public function setUp(): void {
         $this->reset_ws();
     }
 

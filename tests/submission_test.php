@@ -66,7 +66,7 @@ class plagiarism_safeassign_submission_test extends advanced_testcase  {
     /**
      * Setup all the various parts of an assignment activity including creating an onlinetext submission.
      */
-    protected function setUp() {
+    protected function setUp():void {
         global $DB;
         $this->user = $this->getDataGenerator()->create_user();
         $this->course = $this->getDataGenerator()->create_course();

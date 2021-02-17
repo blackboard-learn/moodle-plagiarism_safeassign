@@ -46,7 +46,7 @@ class plagiarism_safeassign_tasks_testcase extends plagiarism_safeassign_base_te
      */
     private $user;
 
-    protected function setUp() {
+    protected function setUp():void {
         $this->user = $this->getDataGenerator()->create_user([
             'firstname' => 'Oliver',
             'lastname' => 'Atom'

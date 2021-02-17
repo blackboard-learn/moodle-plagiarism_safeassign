@@ -41,7 +41,7 @@ use plagiarism_safeassign\task\sync_assignments;
  */
 class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeassign_base_testcase {
 
-    public function setUp() {
+    public function setUp(): void {
         global $DB, $USER;
         set_config('enabled', 1, 'plagiarism_safeassign');
         // Create a course and assignment and users.

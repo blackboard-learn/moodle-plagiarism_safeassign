@@ -42,7 +42,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
      */
     private $user;
 
-    protected function setUp() {
+    protected function setUp():void {
         global $USER;
 
         $this->setAdminUser();

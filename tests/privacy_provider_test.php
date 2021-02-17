@@ -44,7 +44,7 @@ use plagiarism_safeassign\privacy\provider;
  */
 class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase {
 
-    public function setUp() {
+    public function setUp(): void {
         $this->resetAfterTest(true);
         // Enable SafeAssign in the platform.
         set_config('enabled', 1, 'plagiarism_safeassign');
