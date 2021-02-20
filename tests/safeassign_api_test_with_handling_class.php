@@ -55,7 +55,7 @@ class plagiarism_safeassign_safeassign_api_testcase_with_handling_class extends 
     /**
      * Set up test.
      */
-    public function setUp() {
+    public function setUp(): void {
         $this->reset_ws();
         $this->user = test_safeassign_api_connectors::create_user();
         $this->course = test_safeassign_api_connectors::create_course();
