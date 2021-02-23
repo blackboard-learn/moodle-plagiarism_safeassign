@@ -19,7 +19,7 @@
  *
  * @package   plagiarism_safeassign
  * @category  test
- * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
+ * @copyright Copyright (c) 2017 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -35,7 +35,7 @@ use plagiarism_safeassign\api\rest_provider;
  *
  * @package   plagiarism_safeassign
  * @category  test
- * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
+ * @copyright Copyright (c) 2017 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class behat_plagiarism_safeassign extends behat_base {

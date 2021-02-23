@@ -19,7 +19,7 @@
  *
  * @package    plagiarism_safeassign
  * @author     Jonathan Garcia
- * @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
+ * @copyright  Copyright (c) 2017 Open LMS (https://www.openlms.net)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -36,7 +36,7 @@ use plagiarism_safeassign\task\sync_assignments;
 
 /**
  * Test the sync functions.
- * @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
+ * @copyright  Copyright (c) 2017 Open LMS (https://www.openlms.net)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class plagiarism_safeassign_sync_assignments_testcase extends plagiarism_safeassign_base_testcase {

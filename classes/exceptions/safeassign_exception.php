@@ -18,7 +18,7 @@
  * Convenient wrappers and helper for using the SafeAssign web service API.
  *
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
+ * @copyright Copyright (c) 2017 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -30,7 +30,7 @@ defined('MOODLE_INTERNAL') || die();
  * Class safeassign_exception
  *
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
+ * @copyright Copyright (c) 2017 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class safeassign_exception extends \moodle_exception {

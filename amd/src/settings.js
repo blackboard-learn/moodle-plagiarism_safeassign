@@ -15,8 +15,8 @@
  * along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
  *
  * @package   plagiarism_safeassign
- * @author    Jonathan Garcia Gomez jonathan.garcia@blackboard.com
- * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
+ * @author    Jonathan Garcia Gomez jonathan.garcia@openlms.net
+ * @copyright Copyright (c) 2017 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

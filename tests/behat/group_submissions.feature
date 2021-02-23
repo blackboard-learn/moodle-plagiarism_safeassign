@@ -16,7 +16,7 @@
 # Tests for getting safeassign score for group submissions.
 #
 # @package    plagiarism_safeassign
-# @copyright  Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
+# @copyright  Copyright (c) 2018 Open LMS (https://www.openlms.net)
 # @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 
 @plugin @plagiarism_safeassign @_file_upload

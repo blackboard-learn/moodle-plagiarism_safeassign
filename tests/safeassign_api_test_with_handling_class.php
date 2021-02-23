@@ -17,7 +17,7 @@
 /**
  * All tests in this class will fail in case there is no appropriate fixture to be loaded.
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
+ * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -34,7 +34,7 @@ use plagiarism_safeassign\api\test_safeassign_api_connectors;
 
 /**
  * Class plagiarism_safeassign_safeassign_api_testcase_with_handling_class
- * @copyright Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
+ * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class plagiarism_safeassign_safeassign_api_testcase_with_handling_class extends plagiarism_safeassign_base_testcase {

@@ -18,7 +18,7 @@
  * Convenient wrappers and helper for using the SafeAssign web service API.
  *
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
+ * @copyright Copyright (c) 2017 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -32,7 +32,7 @@ use plagiarism_safeassign\local;
  * A helper class to access REST api
  *
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
+ * @copyright Copyright (c) 2017 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class rest_provider {

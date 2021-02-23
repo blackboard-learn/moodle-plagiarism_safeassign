@@ -18,7 +18,7 @@
  * Test safeassign functions created for license feature.
  *
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
+ * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -35,7 +35,7 @@ use plagiarism_safeassign\api\test_safeassign_api_connectors;
 
 /**
  * Class plagiarism_safeassign_license_testcase
- * @copyright Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
+ * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class plagiarism_safeassign_license_testcase extends plagiarism_safeassign_base_testcase {
