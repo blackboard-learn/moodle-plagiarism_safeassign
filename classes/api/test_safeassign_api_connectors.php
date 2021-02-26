@@ -19,7 +19,7 @@
  *
  * @package    plagiarism_safeassign
  * @author     Jonathan Garcia
- * @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
+ * @copyright  Copyright (c) 2017 Open LMS (https://www.openlms.net)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -32,7 +32,7 @@ use testing_data_generator;
  * Class test_safeassign_api_connectors
  *
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
+ * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class test_safeassign_api_connectors {

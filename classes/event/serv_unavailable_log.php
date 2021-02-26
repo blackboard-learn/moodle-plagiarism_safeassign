@@ -20,7 +20,7 @@
  * This event is fired when Safeassign service is down.
  *
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
+ * @copyright Copyright (c) 2017 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace plagiarism_safeassign\event;
@@ -33,7 +33,7 @@ defined('MOODLE_INTERNAL') || die();
  * Class serv_unavailable_log
  *
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
+ * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class serv_unavailable_log extends base {

@@ -18,7 +18,7 @@
  * terms.php - Contains the License Agreement Text for SafeAssign.
  *
  * @package    plagiarism_safeassign
- * @copyright  Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
+ * @copyright  Copyright (c) 2018 Open LMS (https://www.openlms.net)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -30,7 +30,7 @@ use plagiarism_safeassign\api\safeassign_api;
 
 /**
  * Class terms
- * @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
+ * @copyright  Copyright (c) 2017 Open LMS (https://www.openlms.net)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class terms {

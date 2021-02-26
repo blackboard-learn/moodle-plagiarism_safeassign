@@ -18,7 +18,7 @@
  * SafeAssign language strings.
  *
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
+ * @copyright Copyright (c) 2017 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -118,7 +118,7 @@ $string['files_accepted'] = 'SafeAssign accepts files in .doc, .docx, .docm, .pp
 <br><br>By submitting this paper, you agree:
  (1) that you are submitting your paper to be used and stored as part of the SafeAssign&trade; services in accordance with the Blackboard <a href="http://www.blackboard.com/safeassign/tos.htm" target="_blank">Terms and Service</a> and <a href="http://blackboard.com/footer/privacy-policy.aspx" target="_blank">Blackboard Privacy Policy</a>;
  (2) that your institution may use your paper in accordance with your institution\'s policies; and
- (3) that your use of SafeAssign will be without recourse against Blackboard Inc. and its affiliates.';
+ (3) that your use of SafeAssign will be without recourse against Open LMS and its affiliates.';
 $string['agreement'] = 'I agree to submit my paper(s) to the <a href="https://help.blackboard.com/Learn/Instructor/Assignments/SafeAssign#global_reference" target="_blank">Global Reference Database</a>.';
 $string['error_api_generic'] = 'There was an error processing your request';
 $string['error_api_unauthorized'] = 'There was an authentication error processing your request';

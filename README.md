@@ -42,7 +42,7 @@ Upon saving, the *Test connection* button will be availiable for you to test the
  
 ## License for SafeAssign plagiarism plugin
 
-© Blackboard Inc 2017
+© Open LMS 2017
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software

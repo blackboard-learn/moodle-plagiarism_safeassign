@@ -19,7 +19,7 @@
  *
  * @package    plagiarism_safeassign
  * @author     Juan Ibarra
- * @copyright  Copyright (c) 2018 Blackboard Inc. (http://www.blackboard.com)
+ * @copyright  Copyright (c) 2018 Open LMS (https://www.openlms.net)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -33,7 +33,7 @@ require_once($CFG->dirroot . '/plagiarism/safeassign/backup/moodle2/restore_plag
 
 /**
  * Test restoring courses with assignments using SafeAssign.
- * @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
+ * @copyright  Copyright (c) 2017 Open LMS (https://www.openlms.net)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class plagiarism_safeassign_restore_course_testcase extends plagiarism_safeassign_base_testcase {

@@ -18,8 +18,8 @@
  * Unit tests for sync submissions with files with special characters on their names.
  *
  * @package    plagiarism_safeassign
- * @author     Juan Ibarra <juan.ibarra@blackboard.com>
- * @copyright  Copyright (c) 2019 Blackboard Inc. (http://www.blackboard.com)
+ * @author     Juan Ibarra <juan.ibarra@openlms.net>
+ * @copyright  Copyright (c) 2019 Open LMS (https://www.openlms.net)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -36,7 +36,7 @@ use plagiarism_safeassign\task\sync_assignments;
 
 /**
  * Test the sync function with file submissions with special characters on their name.
- * @copyright  Copyright (c) 2019 Blackboard Inc. (http://www.blackboard.com)
+ * @copyright  Copyright (c) 2019 Open LMS (https://www.openlms.net)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class plagiarism_safeassign_sync_assignments_special_testcase extends plagiarism_safeassign_base_testcase {
