@@ -134,7 +134,8 @@ $string['assign_success_sync'] = 'Assignments synced successfully';
 $string['course_success_sync'] = 'Courses synced successfully';
 $string['license_header'] = 'SafeAssign&trade; License Agreement';
 $string['license_title'] = 'SafeAssign License Agreement';
-$string['not_configured'] = 'SafeAssign&trade; is not configured. Please have your system administrator submit a ticket on Behind the Blackboard for assistance.';
+$string['not_configured'] = 'SafeAssign&trade; is not configured. Please have your system administrator submit a ticket
+to <a href="https://support.openlms.net/" target="_blank" rel="noopener">Open LMS Support</a> for assistance.';
 $string['agree_continue'] = 'Save form';
 
 $string['safeassign_file_not_supported'] = 'Not supported.';
