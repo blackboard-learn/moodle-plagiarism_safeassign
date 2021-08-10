@@ -310,17 +310,13 @@ class plagiarism_safeassign_submission_test extends advanced_testcase  {
             $this->course->id, $roleid);
 
         $this->setUser($teacher->id);
-        // We need to set the URL in order to view the submission.
-        $PAGE->set_url('/a_url');
-        // A hack - these variables are used by the view_plugin_content function to
-        // determine what we actually want to view - would usually be set in URL.
-        global $_POST;
-        $_POST['plugin'] = 'comments';
-        $_POST['sid'] = $this->submission->id;
-        $_POST['userid'] = $this->user->id;
+        // Check submission status different from submitted. Should not update on SafeAssign.
+        $this->submission->status = ASSIGN_SUBMISSION_STATUS_DRAFT;
+        $this->assign->testable_update_submission($this->submission, $this->user, true, false);
+
         // Trigger and capture the event.
         $sink = $this->redirectEvents();
-        $this->assign->view('removesubmissionconfirm');
+        $this->assign->remove_submission($this->user->id);
         $events = $sink->get_events();
         $event = reset($events);
 
@@ -330,6 +326,26 @@ class plagiarism_safeassign_submission_test extends advanced_testcase  {
         $this->assertEquals(0, $record->deprecated);
         plagiarism_safeassign_observer::submission_removed($event);
         $record = $DB->get_record('plagiarism_safeassign_subm', ['submissionid' => $this->submission->id]);
+        // The submission is not altered.
+        $this->assertEquals(0, $record->deprecated);
+
+        // Set submission as submitted to capture event and update submission.
+        $this->submission->status = ASSIGN_SUBMISSION_STATUS_SUBMITTED;
+        $this->assign->testable_update_submission($this->submission, $this->user, true, false);
+
+        // Trigger and capture the event.
+        $sink = $this->redirectEvents();
+        $this->assign->remove_submission($this->user->id);
+        $events = $sink->get_events();
+        $event = reset($events);
+
+        // Simulate that the submission has been synced with SafeAssign.
+        $DB->set_field("plagiarism_safeassign_subm", 'uuid', '1234567890', ['submissionid' => $this->submission->id]);
+        $record = $DB->get_record('plagiarism_safeassign_subm', ['submissionid' => $this->submission->id]);
+        $this->assertEquals(0, $record->deprecated);
+        plagiarism_safeassign_observer::submission_removed($event);
+        $record = $DB->get_record('plagiarism_safeassign_subm', ['submissionid' => $this->submission->id]);
+        // The submission is deprecated.
         $this->assertEquals(1, $record->deprecated);
     }
 
@@ -337,7 +353,7 @@ class plagiarism_safeassign_submission_test extends advanced_testcase  {
      * Test to remove an unsynced submission from the grader.
      */
     public function test_remove_unsynced_submission_from_viewed() {
-        global $DB, $PAGE;
+        global $DB;
 
         $this->resetAfterTest();
 
@@ -384,17 +400,11 @@ class plagiarism_safeassign_submission_test extends advanced_testcase  {
             $this->course->id, $roleid);
 
         $this->setUser($teacher->id);
-        // We need to set the URL in order to view the submission.
-        $PAGE->set_url('/a_url');
-        // A hack - these variables are used by the view_plugin_content function to
-        // determine what we actually want to view - would usually be set in URL.
-        global $_POST;
-        $_POST['plugin'] = 'comments';
-        $_POST['sid'] = $this->submission->id;
-        $_POST['userid'] = $this->user->id;
+        $this->submission->status = ASSIGN_SUBMISSION_STATUS_SUBMITTED;
+        $this->assign->testable_update_submission($this->submission, $this->user, true, false);
         // Trigger and capture the event.
         $sink = $this->redirectEvents();
-        $this->assign->view('removesubmissionconfirm');
+        $this->assign->remove_submission($this->user->id);
         $events = $sink->get_events();
         $event = reset($events);
 

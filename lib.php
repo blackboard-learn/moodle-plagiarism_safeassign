@@ -2031,14 +2031,14 @@ SQL;
      */
     public function remove_submission($data) {
         global $DB;
-        $assignid = $data['other']['assignid'];
+        $assignid = $data['objectid'];
         $userid = $data['relateduserid'];
 
         // Check if the submission was already being synced with SafeAssign.
         $sql = "SELECT subm.id
                   FROM {assign_submission} as subm
                   JOIN {plagiarism_safeassign_subm} as sasubm ON subm.id = sasubm.submissionid
-                 WHERE subm.assignment = $assignid AND subm.userid = $userid";
+                 WHERE subm.id = $assignid AND subm.userid = $userid";
 
         $sasubmid = $DB->get_record_sql($sql, ['assignid' => $assignid, 'userid' => $userid]);
 
