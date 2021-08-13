@@ -910,7 +910,26 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     private function db_sanitycheck() {
         global $DB;
         if ($DB->count_records("plagiarism_safeassign_subm", array("hasfile" => 0, "hasonlinetext" => 0, "deprecated" => 0)) > 0) {
-            $sql = 'UPDATE {plagiarism_safeassign_subm} t
+            if ($DB->get_dbfamily() == 'postgres') {
+                $sql = 'WITH t1 as (SELECT s.id as id,
+                                   af.id IS NOT NULL as hasfile,
+                                   ao.id IS NOT NULL as hasonlinetext
+                              FROM {plagiarism_safeassign_subm} s
+                         LEFT JOIN {assignsubmission_file} af
+                                ON af.submission = s.submissionid
+                               AND af.assignment = s.assignmentid
+                         LEFT JOIN {assignsubmission_onlinetext} ao
+                                ON ao.submission = s.submissionid
+                               AND ao.assignment = s.assignmentid
+                             WHERE s.hasonlinetext = 0
+                               AND s.hasfile = 0
+                               AND s.deprecated = 0)
+                      UPDATE {plagiarism_safeassign_subm}
+                      SET hasfile = t1.hasfile::int, hasonlinetext = t1.hasonlinetext::int
+                     FROM t1
+                    WHERE t1.id = {plagiarism_safeassign_subm}.id';
+            } else {
+                $sql = 'UPDATE {plagiarism_safeassign_subm} t
                       JOIN
                            (SELECT s.id as id,
                                    af.id IS NOT NULL as hasfile,
@@ -928,6 +947,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                           ) as t1
                        ON t1.id = t.id
                       SET t.hasfile = t1.hasfile, t.hasonlinetext = t1.hasonlinetext';
+            }
 
             $DB->execute($sql);
         }
