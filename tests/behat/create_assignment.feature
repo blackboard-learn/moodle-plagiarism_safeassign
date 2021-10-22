@@ -40,20 +40,32 @@ Feature: Enable SafeAssign in an assignment
 
   Scenario: Enable an assignment with SafeAssign Plagiarism plugin
     Given I log in as "admin"
+      And the following "activity" exists:
+        | activity | assign |
+        | course   | C1     |
+        | section  | 1      |
+        | name     | Test Assignment |
       And I am on the course with shortname "C1"
      Then I turn editing mode on
-      And I add a "Assignment" to section "1"
+      And I follow "Test Assignment"
+      And I follow "Edit settings"
       And I should not see "SafeAssign Plagiarism plugin"
       And I press "Cancel"
+      And the following "activity" exists:
+        | activity | assign |
+        | course   | C1     |
+        | section  | 1      |
+        | name     | Assignment One |
+      And I am on the course with shortname "C1"
       And I turn editing mode off
      Then the following config values are set as admin:
         | enabled   | 1 | plagiarism_safeassign |
-      And I am on the course with shortname "C1"
      Then I turn editing mode on
-      And I add a "Assignment" to section "1"
+      And I follow "Assignment One"
+      And I follow "Edit settings"
       And I should see "SafeAssign Plagiarism plugin"
      Then I set the field "Assignment name" to "Assignment One"
-      And I set the field "Description" to "Assignmnet One"
+      And I set the field "Description" to "Assignment One"
       And navigation node "SafeAssign Plagiarism plugin" should be expandable
      Then I expand "SafeAssign Plagiarism plugin" node
       And I set the field "safeassign_enabled" to "1"
