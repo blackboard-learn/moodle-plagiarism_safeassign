@@ -66,7 +66,7 @@ $string['safeassign_enableplugin'] = 'Enable SafeAssign for {$a}';
 $string['safeassign_cachedefault'] = '<div class="form-defaultinfo text-muted">&nbsp Default value: 0</div> <br>';
 $string['safeassign_showid'] = 'Show Student ID';
 $string['safeassign_alloworganizations'] = 'Allow SafeAssignments in Organizations';
-$string['safeassign_referencedbactivity'] = '<a href="https://help.blackboard.com/Learn/Instructor/Assignments/SafeAssign#global_reference" target="_blank">Global Reference Database</a> Activity';
+$string['safeassign_referencedbactivity'] = '<a href="https://help.blackboard.com/Learn/Instructor/Assignments/SafeAssign" target="_blank">Global Reference Database</a> Activity';
 $string['safeassing_response_header'] = '<br>SafeAssign server response: <br>';
 $string['safeassign_instructor_credentials'] = 'Instructor Role Credentials: ';
 $string['safeassign_student_credentials'] = 'Student Role Credentials: ';
@@ -74,7 +74,7 @@ $string['safeassign_credentials_verified'] = 'Connection verified.';
 $string['safeassign_credentials_fail'] = 'Connection not verified. Check key, secret and url.';
 $string['credentials'] = 'Credentials and Service URL';
 $string['shareinfo'] = 'Share info with SafeAssign';
-$string['disclaimer'] = '<br>Submitting to the SafeAssign <a href="https://help.blackboard.com/Learn/Instructor/Assignments/SafeAssign#global_reference" target="_blank">Global Reference Database</a> allows papers from other institutions <br>
+$string['disclaimer'] = '<br>Submitting to the SafeAssign <a href="https://help.blackboard.com/Learn/Instructor/Assignments/SafeAssign" target="_blank">Global Reference Database</a> allows papers from other institutions <br>
                         to be checked against your students paper to protect the origin of their work.';
 $string['settings'] = 'SafeAssign Settings';
 $string['timezone_help'] = 'The timezone set in your Open LMS environment.';
@@ -110,7 +110,7 @@ $string['assignment_check_submissions_help'] = 'SafeAssign Originality Reports a
 SafeAssign has no technical limitations that preclude using it with other languages.
 See <a href="http://www.blackboard.com/docs/documentation.htm?DocID=191SafeAssign001en_US" target="_blank">Blackboard help</a> for more information.';
 $string['students_originality_report'] = 'Allow students to view originality report';
-$string['submissions_global_reference'] = 'Exclude submissions from <a href="https://help.blackboard.com/Learn/Instructor/Assignments/SafeAssign#global_reference" target="_blank">Global Reference Database</a>';
+$string['submissions_global_reference'] = 'Exclude submissions from <a href="https://help.blackboard.com/Learn/Instructor/Assignments/SafeAssign" target="_blank">Global Reference Database</a>';
 $string['submissions_global_reference_help'] = 'Submissions will still be processed by SafeAssign but won’t be registered in databases. This avoids files being marked as plagiarized when teachers allow re-submissions in a specific assignment.';
 // Disclosure agreement.
 $string['plagiarism_tools'] = 'Plagiarism Tools';
@@ -119,7 +119,7 @@ $string['files_accepted'] = 'SafeAssign accepts files in .doc, .docx, .docm, .pp
  (1) that you are submitting your paper to be used and stored as part of the SafeAssign&trade; services in accordance with the Blackboard <a href="http://www.blackboard.com/safeassign/tos.htm" target="_blank">Terms and Service</a> and <a href="http://blackboard.com/footer/privacy-policy.aspx" target="_blank">Blackboard Privacy Policy</a>;
  (2) that your institution may use your paper in accordance with your institution\'s policies; and
  (3) that your use of SafeAssign will be without recourse against Open LMS and its affiliates.';
-$string['agreement'] = 'I agree to submit my paper(s) to the <a href="https://help.blackboard.com/Learn/Instructor/Assignments/SafeAssign#global_reference" target="_blank">Global Reference Database</a>.';
+$string['agreement'] = 'I agree to submit my paper(s) to the <a href="https://help.blackboard.com/Learn/Instructor/Assignments/SafeAssign" target="_blank">Global Reference Database</a>.';
 $string['error_api_generic'] = 'There was an error processing your request';
 $string['error_api_unauthorized'] = 'There was an authentication error processing your request';
 $string['error_api_forbidden'] = 'There was an authorization error processing your request';
