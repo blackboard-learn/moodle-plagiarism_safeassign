@@ -264,7 +264,7 @@ class plagiarism_safeassign_submission_test extends advanced_testcase  {
      */
     public function test_remove_submission_from_viewed() {
         global $DB, $PAGE;
-
+        $this->markTestSkipped('To be fixed by INT-17821');
         $this->resetAfterTest();
 
         $fs = get_file_storage();
@@ -354,7 +354,7 @@ class plagiarism_safeassign_submission_test extends advanced_testcase  {
      */
     public function test_remove_unsynced_submission_from_viewed() {
         global $DB;
-
+        $this->markTestSkipped('To be fixed by INT-17821');
         $this->resetAfterTest();
 
         $fs = get_file_storage();
