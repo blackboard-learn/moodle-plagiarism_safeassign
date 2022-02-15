@@ -128,7 +128,11 @@ class plagiarism_safeassign_tasks_testcase extends plagiarism_safeassign_base_te
         $filerecord->timesubmitted = time();
         $filerecord->supported = 1;
         $filerecord->submissionid = $record->submissionid;
-        $filerecord->fileid = 1;
+        $fs = get_file_storage();
+        $usercontext = context_user::instance($this->user->id);
+        $textfile = $fs->get_file($usercontext->id, 'assignsubmission_text_as_file', 'submission_text_files', $record->submissionid,
+            '/', 'userid_' . $this->user->id . '_text_submissionid_' . $record->submissionid . '.html');
+        $filerecord->fileid = $textfile->get_id();
         $DB->insert_record('plagiarism_safeassign_files', $filerecord);
 
         // Get originality report basic data.
