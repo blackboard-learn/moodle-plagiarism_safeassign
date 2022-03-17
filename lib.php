@@ -1056,8 +1056,14 @@ SQL;
                 $assignmentcontext = context_module::instance($cm->id);
 
                 $unsyncsubmission->contextid = $assignmentcontext->id;
-                if ($this->sync_submission($unsyncsubmission)) {
-                    $count++;
+                try {
+                    if ($this->sync_submission($unsyncsubmission)) {
+                        $count++;
+                    }
+                } catch (Exception $exception) {
+                    $event = sync_content_log::create_log_message('error', null, true, $exception->getMessage());
+                    $event->trigger();
+                    continue;
                 }
             }
 
@@ -1143,6 +1149,7 @@ SQL;
      * Sends the submission info for the given assignment to the SafeAssign service.
      * @param stdClass $data
      * @return bool
+     * @throws Exception
      */
     public function sync_submission(stdClass $data) {
         global $DB, $CFG;
@@ -1192,7 +1199,9 @@ SQL;
         }
         $wrapper->globalcheck = ($globalcheck) ? true : false;
         $wrapper->grouppermission = true;
-
+        if (!isset($wrapper->files)) {
+            throw new Exception("The submission file userid_{$userid}_text_submissionid_{$submissionid} does not exist");
+        }
         $result = safeassign_api::create_submission($wrapper->userid, $wrapper->courseuuid,
             $wrapper->assignuuid, $wrapper->files, $wrapper->globalcheck, $wrapper->grouppermission);
         $responsedata = json_decode(rest_provider::instance()->lastresponse());
@@ -1290,16 +1299,20 @@ SQL;
 
         $config = $this->check_assignment_config($eventdata);
         if (get_config('plagiarism_safeassign', 'enabled') & !empty($config) && $config['safeassign_enabled']) {
-            $fs = get_file_storage();
-            $usercontext = context_user::instance($eventdata['userid']);
-            $oldfile = $fs->get_file($usercontext->id, 'assignsubmission_text_as_file', 'submission_text_files',
-                $eventdata['other']['submissionid'], '/',
-                'userid_' . $eventdata['userid'] . '_text_submissionid_' . $eventdata['other']['submissionid'] .'.html');
-            if ($oldfile) {
-                $oldfile->delete();
+            $sql = <<<SQL
+          SELECT ao.*, asub.userid
+            FROM {assignsubmission_onlinetext} ao
+            JOIN {assign_submission} asub ON ao.submission = asub.id
+           WHERE ao.id = :id
+SQL;
+            $assignsubmission = $DB->get_record_sql($sql, array('id' => $eventdata['objectid']));
+            $usercontext = context_user::instance($assignsubmission->userid);
+            // The files that were generated with the teacher's id due to ticket INT-17666 are deleted.
+            if ($eventdata['userid'] != $assignsubmission->userid) {
+                $this->delete_old_file($eventdata['userid'], $usercontext, $eventdata['other']['submissionid']);
             }
 
-            $assignsubmission = $DB->get_record('assignsubmission_onlinetext', array('id' => $eventdata['objectid']));
+            $this->delete_old_file($assignsubmission->userid, $usercontext, $eventdata['other']['submissionid']);
             if ($assignsubmission) {
                 $filecontent = $assignsubmission->onlinetext;
                 $onlinetexttype = $assignsubmission->onlineformat;
@@ -1320,12 +1333,30 @@ SQL;
                     'filearea' => 'submission_text_files',
                     'itemid' => $eventdata['other']['submissionid'],
                     'filepath' => '/',
-                    'filename' => 'userid_' . $eventdata['userid'] .
+                    'filename' => 'userid_' . $assignsubmission->userid .
                         '_text_submissionid_' . $eventdata['other']['submissionid'] .'.html',
-                    'userid' => $eventdata['userid']
+                    'userid' => $assignsubmission->userid
                 );
                 $fs->create_file_from_string($filerecord, $filecontent);
             }
+        }
+    }
+
+    /**
+     * Deletes the file created for the assigns configured as text-only.
+     *
+     * @param $userid
+     * @param context_user $usercontext
+     * @param $eventdata
+     * @return file_storage
+     */
+    private function delete_old_file($userid, context_user $usercontext, $submissionid) {
+        $fs = get_file_storage();
+        $oldfile = $fs->get_file($usercontext->id, 'assignsubmission_text_as_file', 'submission_text_files',
+            $submissionid, '/',
+            'userid_' . $userid . '_text_submissionid_' . $submissionid . '.html');
+        if ($oldfile) {
+            $oldfile->delete();
         }
     }
 

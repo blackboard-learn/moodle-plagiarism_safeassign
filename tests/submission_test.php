@@ -34,7 +34,7 @@ require_once($CFG->dirroot . '/plagiarism/safeassign/classes/observer.php');
  * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class plagiarism_safeassign_submission_test extends advanced_testcase  {
+class submission_test extends advanced_testcase  {
 
 
     /** @var stdClass $user A user to submit an assignment. */
@@ -92,6 +92,34 @@ class plagiarism_safeassign_submission_test extends advanced_testcase  {
         $record->name = 'safeassign_global_reference';
         $record->value = self::GLOBALCHECK;
         plagiarism_safeassign_coursemodule_edit_post_actions($record);
+    }
+
+    /**
+     * Test that the assessable_uploaded event is fired an a file wth student id is created
+     * when an online text submission is saved by a teacher.
+     */
+    public function test_onlinetext_submission_teacher() {
+        global $DB;
+        $this->resetAfterTest();
+
+        $this->set_teacher();
+        $data = new stdClass();
+        $data->onlinetext_editor = [
+            'itemid' => file_get_unused_draft_itemid(),
+            'text'   => 'Submission text',
+            'format' => FORMAT_PLAIN
+        ];
+
+        $plugin = $this->assign->get_submission_plugin_by_type('onlinetext');
+        $sink = $this->redirectEvents();
+        $plugin->save($this->submission, $data);
+        $events = $sink->get_events();
+        $this->assertCount(2, $events);
+        $event = $events[1];
+        plagiarism_safeassign_observer::assignsubmission_onlinetext_created($event);
+        $filename = "userid_{$this->user->id}_text_submissionid_{$this->submission->id}.html";
+        $files = $DB->get_records('files', ['filename' => $filename]);
+        $this->assertCount(1, $files);
     }
 
     /**
@@ -433,4 +461,24 @@ class plagiarism_safeassign_submission_test extends advanced_testcase  {
         $this->assertEquals($deprecated, $record->deprecated);
     }
 
+    /**
+     * @param moodle_database|null $DB
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    private function set_teacher(): void {
+        global $DB;
+        $teacher = $this->getDataGenerator()->create_and_enrol($this->course, 'editingteacher');
+        $roleid = $DB->get_field('role', 'id', ['shortname' => 'editingteacher'], MUST_EXIST);
+
+        assign_capability('mod/assign:editothersubmission', CAP_ALLOW,
+            $roleid, $this->assign->get_context()->id, true);
+        assign_capability('mod/assign:submit', CAP_ALLOW,
+            $roleid, $this->assign->get_context()->id, true);
+
+        $this->getDataGenerator()->enrol_user($teacher->id,
+            $this->course->id, $roleid);
+
+        $this->setUser($teacher->id);
+    }
 }
