@@ -55,6 +55,7 @@ Feature: Duplicate an assignment with SafeAssign parameters
 
   @javascript
   Scenario: Safeassign parameters should appear checked
+    Given I skip because "It will be reviewed on the INT-17941 ticket"
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I turn editing mode on

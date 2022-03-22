@@ -48,6 +48,22 @@ class backup_plagiarism_safeassign_plugin extends backup_plagiarism_plugin {
         $safeassignconfigs->add_child($safeassignconfig);
         $safeassignconfig->set_source_table('plagiarism_safeassign_config', array('cm' => backup::VAR_PARENTID));
 
+        // Add module files elements.
+        $safeassignfiles = new backup_nested_element('safeassign_files');
+        $safeassignfile = new backup_nested_element('safeassign_file', ['id'], [
+            'userid',
+            'uuid',
+            'reporturl',
+            'similarityscore',
+            'timesubmitted',
+            'supported',
+            'submissionid',
+            'fileid'
+        ]);
+        $pluginelement->add_child($safeassignfiles);
+        $safeassignfiles->add_child($safeassignfile);
+        $safeassignfile->set_source_table('plagiarism_safeassign_files', ['cm' => backup::VAR_PARENTID]);
+
         return $plugin;
     }
 

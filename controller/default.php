@@ -89,7 +89,7 @@ class plagiarism_safeassign_controller_default extends mr_controller {
         }
 
         // Review if the submission has the report generated.
-        $submission = $DB->get_record('plagiarism_safeassign_subm', ['uuid' => $uuid]);
+        $submission = $DB->get_record('plagiarism_safeassign_subm', ['uuid' => $uuid], '*', IGNORE_MULTIPLE);
         if (empty($submission->reportgenerated)) {
             $safeassign = new plagiarism_plugin_safeassign();
             $cmid = $safeassign->get_cmid($submission->assignmentid);

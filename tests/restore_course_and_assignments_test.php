@@ -131,6 +131,85 @@ class plagiarism_safeassign_restore_course_testcase extends plagiarism_safeassig
         $this->assertEquals(2, $saassignments);
     }
 
+    public function test_restore_scores_to_new_course() {
+        global $DB, $USER;
+        $this->resetAfterTest(true);
+        set_config('enabled', 1, 'plagiarism_safeassign');
+        $this->setAdminUser();
+        $this->create_test_data();
+
+        // Check that new course and assignment is in SafeAssign tables.
+        $sacourses = $DB->count_records('plagiarism_safeassign_course');
+        $saassignments = $DB->count_records('plagiarism_safeassign_assign');
+        $safiles = $DB->count_records('plagiarism_safeassign_files');
+        $sasubmissions = $DB->count_records('plagiarism_safeassign_subm');
+
+        $this->assertEquals(1, $sacourses);
+        $this->assertEquals(1, $saassignments);
+        $this->assertEquals(1, $sasubmissions);
+        $this->assertEquals(0, $safiles);
+
+        // Backup course.
+        $backup = $this->backup_course($this->course->id, $USER->id);
+
+        // Restore course to new course.
+        $course = $this->restore_course($backup['id'], 0, $USER->id);
+
+        // Simulate restoration of assignment activity.
+        $plugintype = 'plagiarism';
+        $pluginname = 'safeassign';
+        $info = new stdClass();
+        $info->modulename = 'assign';
+
+        $module = $DB->get_record('course_modules', array('course' => $course->id));
+        $info->moduleid = $module->id;
+
+        $task = new restore_assign_activity_task('name', $info);
+        $task->set_moduleid($module->id);
+
+        $step = new restore_module_structure_step('module_info', $backup['destination'], $task);
+
+        // Restore plagiarism object is created.
+        $restoreplag = new \restore_plagiarism_safeassign_plugin($plugintype, $pluginname, $step);
+        $files = new stdClass();
+        $files->cm = $this->cm->id;
+        $files->userid = $this->student->id;
+        $files->uuid = 'k93e61c6-be1f-6c49-5c86-76d8f04f3f2b';
+        $files->reporturl = 'restoring';
+        $files->similarityscore = '0.99';
+        $files->timesubmitted = time();
+        $files->supported = 1;
+        $files->submissionid = 100;
+        $files->fileid = 10001;
+        $restoreplag->process_safeassign_files($files);
+        $restoreplag->after_restore_module();
+
+        // Check that the new restored course and assignment is in SafeAssign tables.
+        $sacourses = $DB->count_records('plagiarism_safeassign_course');
+        $saassignments = $DB->count_records('plagiarism_safeassign_assign');
+        $safiles = $DB->count_records('plagiarism_safeassign_files');
+        $sasubmissions = $DB->count_records('plagiarism_safeassign_subm');
+        $this->assertEquals(2, $sacourses);
+        $this->assertEquals(2, $saassignments);
+        $this->assertEquals(2, $sasubmissions);
+        $this->assertEquals(1, $safiles);
+
+        // Testing files.
+        $params = ['uuid' => 'k93e61c6-be1f-6c49-5c86-76d8f04f3f2b', 'submissionid' => 100];
+        $safiles = $DB->get_record('plagiarism_safeassign_files', $params, '*', IGNORE_MULTIPLE);
+        $sasimilarityscore = $safiles->similarityscore;
+        $this->assertEquals('0.99', $sasimilarityscore);
+
+        // Testing submissions.
+        $params = ['uuid' => 'k93e61c6-be1f-6c49-5c86-76d8f04f3f2b', 'submissionid' => 100];
+        $sasubmissions = $DB->get_record('plagiarism_safeassign_subm', $params, '*', IGNORE_MULTIPLE);
+        $sahighscore = $sasubmissions->highscore;
+        $saavgscore = $sasubmissions->avgscore;
+        $this->assertEquals('0.99', $sahighscore);
+        $this->assertEquals('0.99', $saavgscore);
+
+    }
+
     /**
      * Backup a course and return its backup ID.
      *
@@ -188,9 +267,12 @@ class plagiarism_safeassign_restore_course_testcase extends plagiarism_safeassig
         global $DB;
         // Generate course.
         $this->teacher = $this->getDataGenerator()->create_user();
+        $this->student = $this->getDataGenerator()->create_user();
         $this->course = $this->getDataGenerator()->create_course();
         $teacherrole = $DB->get_record('role', array('shortname' => 'teacher'));
         $this->getDataGenerator()->enrol_user($this->teacher->id, $this->course->id, $teacherrole->id);
+        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
+        $this->getDataGenerator()->enrol_user($this->student->id, $this->course->id, $studentrole->id);
 
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_assign');
         $params['course'] = $this->course->id;
@@ -223,5 +305,23 @@ class plagiarism_safeassign_restore_course_testcase extends plagiarism_safeassig
         plagiarism_safeassign_coursemodule_edit_post_actions($data);
 
         $this->setAdminUser();
+
+        $submissions = new stdClass();
+        $submissions->uuid = 'k93e61c6-be1f-6c49-5c86-76d8f04f3f2b';
+        $submissions->globalcheck = 0;
+        $submissions->groupsubmission = 1;
+        $submissions->highscore = '0.99';
+        $submissions->avgscore = '0.99';
+        $submissions->submitted = 1;
+        $submissions->reportgenerated = 1;
+        $submissions->submissionid = 100;
+        $submissions->deprecated = 0;
+        $submissions->hasfile = 1;
+        $submissions->hasonlinetext = 0;
+        $submissions->timecreated = time();
+        $submissions->assignmentid = 99;
+        $submissions->deleted = 0;
+        $DB->insert_record('plagiarism_safeassign_subm', $submissions);
+
     }
 }
