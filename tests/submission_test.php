@@ -291,8 +291,7 @@ class submission_test extends advanced_testcase  {
      * Test to remove a synced submission from the grader.
      */
     public function test_remove_submission_from_viewed() {
-        global $DB, $PAGE;
-        $this->markTestSkipped('To be fixed by INT-17821');
+        global $DB;
         $this->resetAfterTest();
 
         $fs = get_file_storage();
@@ -340,7 +339,7 @@ class submission_test extends advanced_testcase  {
         $this->setUser($teacher->id);
         // Check submission status different from submitted. Should not update on SafeAssign.
         $this->submission->status = ASSIGN_SUBMISSION_STATUS_DRAFT;
-        $this->assign->testable_update_submission($this->submission, $this->user, true, false);
+        $this->assign->testable_update_submission($this->submission, $this->user->id, true, false);
 
         // Trigger and capture the event.
         $sink = $this->redirectEvents();
@@ -359,7 +358,7 @@ class submission_test extends advanced_testcase  {
 
         // Set submission as submitted to capture event and update submission.
         $this->submission->status = ASSIGN_SUBMISSION_STATUS_SUBMITTED;
-        $this->assign->testable_update_submission($this->submission, $this->user, true, false);
+        $this->assign->testable_update_submission($this->submission, $this->user->id, true, false);
 
         // Trigger and capture the event.
         $sink = $this->redirectEvents();
@@ -382,7 +381,6 @@ class submission_test extends advanced_testcase  {
      */
     public function test_remove_unsynced_submission_from_viewed() {
         global $DB;
-        $this->markTestSkipped('To be fixed by INT-17821');
         $this->resetAfterTest();
 
         $fs = get_file_storage();
@@ -429,7 +427,7 @@ class submission_test extends advanced_testcase  {
 
         $this->setUser($teacher->id);
         $this->submission->status = ASSIGN_SUBMISSION_STATUS_SUBMITTED;
-        $this->assign->testable_update_submission($this->submission, $this->user, true, false);
+        $this->assign->testable_update_submission($this->submission, $this->user->id, true, false);
         // Trigger and capture the event.
         $sink = $this->redirectEvents();
         $this->assign->remove_submission($this->user->id);
