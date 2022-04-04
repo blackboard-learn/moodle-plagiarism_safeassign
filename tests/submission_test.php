@@ -21,7 +21,7 @@
  * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
+namespace plagiarism_safeassign;
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -34,7 +34,7 @@ require_once($CFG->dirroot . '/plagiarism/safeassign/classes/observer.php');
  * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class submission_test extends advanced_testcase  {
+class submission_test extends \advanced_testcase {
 
 
     /** @var stdClass $user A user to submit an assignment. */
@@ -74,14 +74,14 @@ class submission_test extends advanced_testcase  {
         $params['course'] = $this->course->id;
         $instance = $generator->create_instance($params);
         $this->cm = get_coursemodule_from_instance('assign', $instance->id);
-        $this->context = context_module::instance($this->cm->id);
-        $this->assign = new testable_assign($this->context, $this->cm, $this->course);
+        $this->context = \context_module::instance($this->cm->id);
+        $this->assign = new \testable_assign($this->context, $this->cm, $this->course);
         $this->setUser($this->user->id);
         $this->submission = $this->assign->get_user_submission($this->user->id, true);
         // Enable SafeAssign in the platform.
         set_config('enabled', 1, 'plagiarism_safeassign');
         // Enable SafeAssign in the assignment.
-        $record = new stdClass();
+        $record = new \stdClass();
         $record->course = $this->course->id;
         $record->instance = $instance->id;
         $record->coursemodule = $this->cm->id;
@@ -103,7 +103,7 @@ class submission_test extends advanced_testcase  {
         $this->resetAfterTest();
 
         $this->set_teacher();
-        $data = new stdClass();
+        $data = new \stdClass();
         $data->onlinetext_editor = [
             'itemid' => file_get_unused_draft_itemid(),
             'text'   => 'Submission text',
@@ -116,7 +116,7 @@ class submission_test extends advanced_testcase  {
         $events = $sink->get_events();
         $this->assertCount(2, $events);
         $event = $events[1];
-        plagiarism_safeassign_observer::assignsubmission_onlinetext_created($event);
+        \plagiarism_safeassign_observer::assignsubmission_onlinetext_created($event);
         $filename = "userid_{$this->user->id}_text_submissionid_{$this->submission->id}.html";
         $files = $DB->get_records('files', ['filename' => $filename]);
         $this->assertCount(1, $files);
@@ -130,7 +130,7 @@ class submission_test extends advanced_testcase  {
 
         $this->resetAfterTest();
 
-        $this->data = new stdClass();
+        $this->data = new \stdClass();
         $this->data->onlinetext_editor = array(
             'itemid' => file_get_unused_draft_itemid(),
             'text'   => 'Submission text',
@@ -144,7 +144,7 @@ class submission_test extends advanced_testcase  {
         $this->assertCount(2, $events);
         $event = $events[1];
         // Submission is processed by the event observer class.
-        plagiarism_safeassign_observer::assignsubmission_onlinetext_created($event);
+        \plagiarism_safeassign_observer::assignsubmission_onlinetext_created($event);
         $record = $DB->get_record('plagiarism_safeassign_subm', array());
         $this->evaluate_safeassign_subm_recor($record, 0);
         // Simulate a resubmission.
@@ -154,10 +154,10 @@ class submission_test extends advanced_testcase  {
         $temporal['timecreated'] = $temporal['timecreated'] + 1;
         $reflection->setValue($event, $temporal);
         $reflection->setAccessible(false);
-        plagiarism_safeassign_observer::assignsubmission_onlinetext_created($event);
+        \plagiarism_safeassign_observer::assignsubmission_onlinetext_created($event);
         // Test file creation for text submission.
         $fs = get_file_storage();
-        $usercontext = context_user::instance($this->user->id);
+        $usercontext = \context_user::instance($this->user->id);
         $file = $fs->get_file($usercontext->id, 'assignsubmission_text_as_file', 'submission_text_files',
             $this->submission->id, '/', 'userid_' . $this->user->id . '_text_submissionid_' . $this->submission->id .'.txt');
         $this->assertNotNull($file);
@@ -174,7 +174,7 @@ class submission_test extends advanced_testcase  {
         }
         // Extending this scenario to test that online text submissions done by instructors are marked as deprecated.
         // Insert user data in SafeAssign instructors table.
-        $instructorrecord = new stdClass();
+        $instructorrecord = new \stdClass();
         $instructorrecord->instructorid = $this->user->id;
         $instructorrecord->courseid = $this->course->id;
         $instructorrecord->synced = 0;
@@ -188,7 +188,7 @@ class submission_test extends advanced_testcase  {
         $temporal2['timecreated'] = $temporal['timecreated'] + 2;
         $reflection->setValue($event, $temporal2);
         $reflection->setAccessible(false);
-        plagiarism_safeassign_observer::assignsubmission_onlinetext_created($event);
+        \plagiarism_safeassign_observer::assignsubmission_onlinetext_created($event);
 
         $records = $DB->get_records('plagiarism_safeassign_subm');
         $this->assertEquals(3, count($records));
@@ -229,7 +229,7 @@ class submission_test extends advanced_testcase  {
         $this->files = $fs->get_area_files($this->context->id, 'assignsubmission_file', ASSIGNSUBMISSION_FILE_FILEAREA,
             $this->submission->id, 'id', false);
 
-        $data = new stdClass();
+        $data = new \stdClass();
         $plugin = $this->assign->get_submission_plugin_by_type('file');
         $sink = $this->redirectEvents();
         $plugin->save($this->submission, $data);
@@ -237,7 +237,7 @@ class submission_test extends advanced_testcase  {
         $event = reset($events);
 
         // Submission is processed by the event observer class.
-        plagiarism_safeassign_observer::assignsubmission_file_uploaded($event);
+        \plagiarism_safeassign_observer::assignsubmission_file_uploaded($event);
         $record = $DB->get_record('plagiarism_safeassign_subm', array());
         $this->evaluate_safeassign_subm_recor($record, 0);
         // Simulate a resubmission.
@@ -247,7 +247,7 @@ class submission_test extends advanced_testcase  {
         $temporal['timecreated'] = $temporal['timecreated'] + 1;
         $reflection->setValue($event, $temporal);
         $reflection->setAccessible(false);
-        plagiarism_safeassign_observer::assignsubmission_file_uploaded($event);
+        \plagiarism_safeassign_observer::assignsubmission_file_uploaded($event);
         $records = $DB->get_records('plagiarism_safeassign_subm');
         $this->assertEquals(2, count($records));
         // The record with the highest id should be not deleted.
@@ -262,7 +262,7 @@ class submission_test extends advanced_testcase  {
 
         // Extending this scenario to test that submissions done by instructors are marked as deprecated.
         // Insert user data in SafeAssign instructors table.
-        $instructorrecord = new stdClass();
+        $instructorrecord = new \stdClass();
         $instructorrecord->instructorid = $this->user->id;
         $instructorrecord->courseid = $this->course->id;
         $instructorrecord->synced = 0;
@@ -276,7 +276,7 @@ class submission_test extends advanced_testcase  {
         $temporal2['timecreated'] = $temporal['timecreated'] + 2;
         $reflection->setValue($event, $temporal2);
         $reflection->setAccessible(false);
-        plagiarism_safeassign_observer::assignsubmission_file_uploaded($event);
+        \plagiarism_safeassign_observer::assignsubmission_file_uploaded($event);
 
         $records = $DB->get_records('plagiarism_safeassign_subm');
         $this->assertEquals(3, count($records));
@@ -316,7 +316,7 @@ class submission_test extends advanced_testcase  {
         $this->files = $fs->get_area_files($this->context->id, 'assignsubmission_file', ASSIGNSUBMISSION_FILE_FILEAREA,
             $this->submission->id, 'id', false);
 
-        $data = new stdClass();
+        $data = new \stdClass();
         $plugin = $this->assign->get_submission_plugin_by_type('file');
         $sink = $this->redirectEvents();
         $plugin->save($this->submission, $data);
@@ -324,7 +324,7 @@ class submission_test extends advanced_testcase  {
         $event = reset($events);
 
         // Submission is processed by the event observer class.
-        plagiarism_safeassign_observer::assignsubmission_file_uploaded($event);
+        \plagiarism_safeassign_observer::assignsubmission_file_uploaded($event);
         $teacher = $this->getDataGenerator()->create_and_enrol($this->course, 'editingteacher');
         $roleid = $DB->get_field('role', 'id', ['shortname' => 'editingteacher'], MUST_EXIST);
 
@@ -351,7 +351,7 @@ class submission_test extends advanced_testcase  {
         $DB->set_field("plagiarism_safeassign_subm", 'uuid', '1234567890', ['submissionid' => $this->submission->id]);
         $record = $DB->get_record('plagiarism_safeassign_subm', ['submissionid' => $this->submission->id]);
         $this->assertEquals(0, $record->deprecated);
-        plagiarism_safeassign_observer::submission_removed($event);
+        \plagiarism_safeassign_observer::submission_removed($event);
         $record = $DB->get_record('plagiarism_safeassign_subm', ['submissionid' => $this->submission->id]);
         // The submission is not altered.
         $this->assertEquals(0, $record->deprecated);
@@ -370,7 +370,7 @@ class submission_test extends advanced_testcase  {
         $DB->set_field("plagiarism_safeassign_subm", 'uuid', '1234567890', ['submissionid' => $this->submission->id]);
         $record = $DB->get_record('plagiarism_safeassign_subm', ['submissionid' => $this->submission->id]);
         $this->assertEquals(0, $record->deprecated);
-        plagiarism_safeassign_observer::submission_removed($event);
+        \plagiarism_safeassign_observer::submission_removed($event);
         $record = $DB->get_record('plagiarism_safeassign_subm', ['submissionid' => $this->submission->id]);
         // The submission is deprecated.
         $this->assertEquals(1, $record->deprecated);
@@ -405,7 +405,7 @@ class submission_test extends advanced_testcase  {
         $this->files = $fs->get_area_files($this->context->id, 'assignsubmission_file', ASSIGNSUBMISSION_FILE_FILEAREA,
             $this->submission->id, 'id', false);
 
-        $data = new stdClass();
+        $data = new \stdClass();
         $plugin = $this->assign->get_submission_plugin_by_type('file');
         $sink = $this->redirectEvents();
         $plugin->save($this->submission, $data);
@@ -413,7 +413,7 @@ class submission_test extends advanced_testcase  {
         $event = reset($events);
 
         // Submission is processed by the event observer class.
-        plagiarism_safeassign_observer::assignsubmission_file_uploaded($event);
+        \plagiarism_safeassign_observer::assignsubmission_file_uploaded($event);
         $teacher = $this->getDataGenerator()->create_and_enrol($this->course, 'editingteacher');
         $roleid = $DB->get_field('role', 'id', ['shortname' => 'editingteacher'], MUST_EXIST);
 
@@ -438,7 +438,7 @@ class submission_test extends advanced_testcase  {
         // Make sure that the submission has not been synced.
         $this->assertEquals("", $record->uuid);
         $this->assertEquals(0, $record->deprecated);
-        plagiarism_safeassign_observer::submission_removed($event);
+        \plagiarism_safeassign_observer::submission_removed($event);
         $record = $DB->get_record('plagiarism_safeassign_subm', ['submissionid' => $this->submission->id]);
         $this->assertEquals(1, $record->deprecated);
     }

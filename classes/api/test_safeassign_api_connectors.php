@@ -24,7 +24,6 @@
  */
 
 namespace plagiarism_safeassign\api;
-defined('MOODLE_INTERNAL') || die();
 use stdClass;
 use testing_data_generator;
 

@@ -26,8 +26,6 @@ namespace plagiarism_safeassign\task;
 use plagiarism_safeassign\event\score_sync_fail;
 use plagiarism_safeassign\event\serv_unavailable_log;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Class get_scores
  * @copyright  Copyright (c) 2017 Open LMS (https://www.openlms.net)

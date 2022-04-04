@@ -22,9 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-if (!defined('MOODLE_INTERNAL')) {
-    die('Direct access to this script is forbidden.'); // It must be included from a Moodle page.
-}
+defined('MOODLE_INTERNAL') || die();
 
 define('SAFEASSIGN_SUBMISSION_MAX_SIZE', 10000000);
 // Get global class.
@@ -66,7 +64,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
      *
      * @return array|bool - false if not enabled, or return an array of relevant settings.
      */
-    static public function get_settings() {
+    public static function get_settings() {
         static $plagiarismsettings;
         if (!empty($plagiarismsettings) || $plagiarismsettings === false) {
             return $plagiarismsettings;

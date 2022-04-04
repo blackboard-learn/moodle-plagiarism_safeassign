@@ -27,8 +27,6 @@ namespace plagiarism_safeassign\event;
 
 use core\event\base;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Class serv_unavailable_log
  *

@@ -26,8 +26,6 @@ namespace plagiarism_safeassign\task;
 use plagiarism_safeassign\event\license_log;
 use plagiarism_safeassign\event\serv_unavailable_log;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Class accept_license
  * @copyright  Copyright (c) 2018 Open LMS (https://www.openlms.net)

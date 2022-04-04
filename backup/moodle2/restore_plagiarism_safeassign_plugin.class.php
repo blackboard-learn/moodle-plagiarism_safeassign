@@ -21,9 +21,6 @@
  * @copyright Copyright (c) 2017 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
-
 use plagiarism_safeassign\event\sync_content_log;
 
 /**

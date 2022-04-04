@@ -22,7 +22,7 @@
  * @copyright  Copyright (c) 2018 Open LMS (https://www.openlms.net)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
+namespace plagiarism_safeassign;
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once(__DIR__.'/base.php');
@@ -36,7 +36,7 @@ require_once($CFG->dirroot . '/plagiarism/safeassign/tests/safeassign_api_test.p
  * @copyright  Copyright (c) 2018 Open LMS (https://www.openlms.net)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class plagiarism_safeassign_sanity_checks_testcase extends plagiarism_safeassign_base_testcase {
+class db_sanity_checks_test extends plagiarism_safeassign_base_testcase {
 
     public function setUp(): void {
         global $DB;
@@ -63,9 +63,9 @@ class plagiarism_safeassign_sanity_checks_testcase extends plagiarism_safeassign
         $instance = $generator->create_instance($params);
         $this->assigninstance = $instance;
         $this->cm = get_coursemodule_from_instance('assign', $instance->id);
-        $context = context_module::instance($this->cm->id);
+        $context = \context_module::instance($this->cm->id);
 
-        $assign = new assign($context, $this->cm, $this->course);
+        $assign = new \assign($context, $this->cm, $this->course);
 
         $studentrole = $DB->get_record('role', array('shortname' => 'student'));
         $this->students = [];
@@ -126,7 +126,7 @@ class plagiarism_safeassign_sanity_checks_testcase extends plagiarism_safeassign
             $files = $fs->get_area_files($context->id, 'assignsubmission_file', ASSIGNSUBMISSION_FILE_FILEAREA,
                 $submission->id, 'id', false);
 
-            $data = new stdClass();
+            $data = new \stdClass();
             $plugin = $assign->get_submission_plugin_by_type('file');
             $plugin->save($submission, $data);
         }
@@ -166,7 +166,7 @@ class plagiarism_safeassign_sanity_checks_testcase extends plagiarism_safeassign
         $this->assertEquals(3, $corruptrecords);
 
         // Getting unsynced submissions. This process will recover records to correct values.
-        $plagiarismplugin = new plagiarism_plugin_safeassign();
+        $plagiarismplugin = new \plagiarism_plugin_safeassign();
         $plagiarismplugin->get_unsynced_submissions();
 
         $recoverrecords = $DB->get_records("plagiarism_safeassign_subm");
@@ -181,27 +181,27 @@ class plagiarism_safeassign_sanity_checks_testcase extends plagiarism_safeassign
      */
     private function set_safeassign_records() {
         global $DB;
-        $record = new stdClass();
+        $record = new \stdClass();
         $record->uuid = null;
         $record->courseid = $this->course->id;
         $record->instructorid = $this->teacher->id;
         $DB->insert_record('plagiarism_safeassign_course', $record);
 
-        $record2 = new stdClass();
+        $record2 = new \stdClass();
         $record2->uuid = null;
         $record2->assignmentid = $this->assigninstance->id;
         $record2->courseid = $this->course->id;
         $DB->insert_record('plagiarism_safeassign_assign', $record2);
 
         // Turn on SafeAssign for the test assignment.
-        $enablesafeassign = new stdClass();
+        $enablesafeassign = new \stdClass();
         $enablesafeassign->cm = $this->cm->id;
         $enablesafeassign->name = 'safeassign_enabled';
         $enablesafeassign->value = 1;
         $DB->insert_record('plagiarism_safeassign_config', $enablesafeassign);
 
         for ($i = 0; $i < count($this->students); $i++) {
-            $record = new stdClass();
+            $record = new \stdClass();
             $record->uuid = null;
             $record->globalcheck = 1;
             $record->groupsubmission = 1;

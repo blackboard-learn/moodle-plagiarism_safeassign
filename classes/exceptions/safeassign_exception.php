@@ -24,8 +24,6 @@
 
 namespace plagiarism_safeassign\api;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Class safeassign_exception
  *

@@ -28,8 +28,6 @@ namespace plagiarism_safeassign\event;
 use core\event\base;
 use plagiarism_safeassign\api\error_handler;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Class score_sync_fail
  *

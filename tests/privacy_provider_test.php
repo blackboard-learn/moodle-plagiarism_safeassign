@@ -20,7 +20,7 @@
  * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
+namespace plagiarism_safeassign;
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -42,7 +42,7 @@ use plagiarism_safeassign\privacy\provider;
  * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase {
+class privacy_provider_test extends provider_testcase {
 
     public function setUp(): void {
         $this->resetAfterTest(true);
@@ -64,16 +64,16 @@ class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase 
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_assign');
         $instance = $generator->create_instance(array('course' => $course->id));
         $cm = get_coursemodule_from_instance('assign', $instance->id);
-        $context = context_module::instance($cm->id);
+        $context = \context_module::instance($cm->id);
 
-        $assign = new testable_assign($context, $cm, $course);
+        $assign = new \testable_assign($context, $cm, $course);
         // Create an activity with SafeAssign enabled.
-        $data = new stdClass();
+        $data = new \stdClass();
         $data->coursemodule = $cm->id;
         $data->safeassign_enabled = 1;
         $data->course = $course->id;
         $data->instance = $instance->id;
-        $safeassign = new plagiarism_plugin_safeassign();
+        $safeassign = new \plagiarism_plugin_safeassign();
         plagiarism_safeassign_coursemodule_edit_post_actions($data);
 
         return $assign;
@@ -82,7 +82,7 @@ class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase 
     private function make_onlinetext_submission($student, $assign) {
         global $DB;
 
-        $data = new stdClass();
+        $data = new \stdClass();
         $data->onlinetext_editor = array(
             'itemid' => file_get_unused_draft_itemid(),
             'text'   => 'Submission text',
@@ -99,12 +99,12 @@ class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase 
         $sink->clear();
         $event = $events[1];
         // Submission is processed by the event observer class.
-        plagiarism_safeassign_observer::assignsubmission_onlinetext_created($event);
+        \plagiarism_safeassign_observer::assignsubmission_onlinetext_created($event);
 
         $filename = 'userid_' . $student->id . '_text_submissionid_' . $submission->id . '.html';
         $fi = $DB->get_record('files', array('filename' => $filename));
 
-        $record = new stdClass();
+        $record = new \stdClass();
         $record->cm = $context->instanceid;
         $record->userid = $student->id;
         $record->reporturl = '';
@@ -136,7 +136,7 @@ class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase 
 
         $fi = $fs->create_file_from_string($dummy, 'Content of ' . $dummy->filename);
 
-        $data = new stdClass();
+        $data = new \stdClass();
         $plugin = $assign->get_submission_plugin_by_type('file');
         $sink = $this->redirectEvents();
         $plugin->save($submission, $data);
@@ -144,9 +144,9 @@ class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase 
         $event = reset($events);
         $this->setUser($student->id);
         // Submission is processed by the event observer class.
-        plagiarism_safeassign_observer::assignsubmission_file_uploaded($event);
+        \plagiarism_safeassign_observer::assignsubmission_file_uploaded($event);
 
-        $record = new stdClass();
+        $record = new \stdClass();
         $record->cm = $context->instanceid;
         $record->userid = $student->id;
         $record->reporturl = '';
@@ -192,7 +192,7 @@ class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase 
         $teacher1 = $this->getDataGenerator()->create_user();
         $teacher2 = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
-        $context = context_course::instance($course->id);
+        $context = \context_course::instance($course->id);
         $this->make_teacher_enrolment($teacher1, $course);
         $this->make_teacher_enrolment($teacher2, $course);
         $this->create_assignment($course);
@@ -205,7 +205,7 @@ class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase 
         $this->assertCount(3, $userlist->get_userids());
 
         $course2 = $this->getDataGenerator()->create_course();
-        $context2 = context_course::instance($course2->id);
+        $context2 = \context_course::instance($course2->id);
 
         $userlist2 = new \core_privacy\local\request\userlist($context2, 'core_course');
         provider::get_users_in_context($userlist2);
@@ -256,7 +256,7 @@ class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase 
         $teacher1 = $this->getDataGenerator()->create_user();
         $teacher2 = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
-        $context = context_course::instance($course->id);
+        $context = \context_course::instance($course->id);
         $this->make_teacher_enrolment($teacher1, $course);
         $this->make_teacher_enrolment($teacher2, $course);
         $this->create_assignment($course);
@@ -305,7 +305,7 @@ class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase 
         // Simulate delete_instructors task.
         $DB->set_field('plagiarism_safeassign_instr', 'deleted', 1, ['deleted' => 0]);
 
-        $safeassign = new plagiarism_plugin_safeassign();
+        $safeassign = new \plagiarism_plugin_safeassign();
         $safeassign->delete_instructors_records();
 
         $this->assertEquals(0, $DB->count_records('plagiarism_safeassign_instr', array('instructorid' => $teacher1->id,
@@ -346,7 +346,7 @@ class plagiarism_safeassign_privacy_provider_testcase extends provider_testcase 
         // Simulate delete_instructors task.
         $DB->set_field('plagiarism_safeassign_instr', 'deleted', 1, ['deleted' => 0]);
 
-        $safeassign = new plagiarism_plugin_safeassign();
+        $safeassign = new \plagiarism_plugin_safeassign();
         $safeassign->delete_instructors_records();
 
         $this->assertEquals(0, $DB->count_records('plagiarism_safeassign_instr', array('instructorid' => $teacher->id,

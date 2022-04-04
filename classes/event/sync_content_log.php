@@ -26,8 +26,6 @@
 namespace plagiarism_safeassign\event;
 use plagiarism_safeassign\api\error_handler;
 use core\event\base;
-defined('MOODLE_INTERNAL') || die();
-
 
 /**
  * Class safeassign_log_fail.

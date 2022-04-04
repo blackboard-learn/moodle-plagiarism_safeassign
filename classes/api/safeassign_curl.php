@@ -24,8 +24,6 @@
 
 namespace plagiarism_safeassign\api;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Decorator class to create a PUT call.
  * @package plagiarism_safeassign

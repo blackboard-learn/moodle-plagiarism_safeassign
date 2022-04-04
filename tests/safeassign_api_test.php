@@ -20,7 +20,7 @@
  * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
+namespace plagiarism_safeassign;
 defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__.'/base.php');
@@ -35,7 +35,7 @@ use plagiarism_safeassign\api\error_handler;
  * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassign_base_testcase {
+class safeassign_api_test extends plagiarism_safeassign_base_testcase {
 
     /**
      * @var stdClass $user
@@ -194,7 +194,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
      * @return stdClass
      */
     private function create_assignment() {
-        $assignment = new stdClass();
+        $assignment = new \stdClass();
         $assignment->id = "1234567890";
         $assignment->title = "Test assignment for creation";
 
@@ -761,7 +761,7 @@ class plagiarism_safeassign_safeassign_api_testcase extends plagiarism_safeassig
         $getreporturl = $this->create_get_originality_report_url($submissionuuid);
         testhelper::push_pair($getreporturl, 'get-originality-report-basic-data-fail.json', 404);
         $result = safeassign_api::get_originality_report($this->user->id, $submissionuuid);
-        $domdoc = new DOMDocument();
+        $domdoc = new \DOMDocument();
         $domdoc->loadHTML(rest_provider::instance()->lastresponse(), LIBXML_HTML_NODEFDTD | LIBXML_HTML_NOIMPLIED);
         $this->assertFalse($result);
 

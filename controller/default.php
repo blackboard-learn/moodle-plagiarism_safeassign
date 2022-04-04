@@ -22,8 +22,6 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') or die('Direct access to this script is forbidden.');
-
 use plagiarism_safeassign\api\safeassign_api;
 use plagiarism_safeassign\api\rest_provider;
 use plagiarism_safeassign\api\fixture_helper;

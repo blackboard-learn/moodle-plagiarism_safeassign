@@ -20,9 +20,7 @@
  * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
-
+namespace plagiarism_safeassign;
 use plagiarism_safeassign\api\rest_provider;
 use plagiarism_safeassign\api\testhelper;
 
@@ -31,7 +29,7 @@ use plagiarism_safeassign\api\testhelper;
  * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-abstract class plagiarism_safeassign_base_testcase extends advanced_testcase {
+abstract class plagiarism_safeassign_base_testcase extends \advanced_testcase {
     /**
      * @var string PLUGIN
      */

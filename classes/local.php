@@ -24,8 +24,6 @@
 
 namespace plagiarism_safeassign;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Class local
  * @package plagiarism_safeassign

@@ -21,10 +21,7 @@
  * @copyright Copyright (c) 2017 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 namespace plagiarism_safeassign\api;
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Class error_handler

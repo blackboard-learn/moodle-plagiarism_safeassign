@@ -25,8 +25,6 @@
 
 namespace plagiarism_safeassign\api;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Class jsonerror_exception
  *

@@ -21,7 +21,7 @@
  * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
+namespace plagiarism_safeassign;
 defined('MOODLE_INTERNAL') || die();
 global $CFG, $DB;
 
@@ -38,7 +38,7 @@ use plagiarism_safeassign\api\test_safeassign_api_connectors;
  * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class plagiarism_safeassign_license_testcase extends plagiarism_safeassign_base_testcase {
+class accept_license_test extends plagiarism_safeassign_base_testcase {
 
     /**
      * @var stdClass $user
@@ -77,7 +77,7 @@ class plagiarism_safeassign_license_testcase extends plagiarism_safeassign_base_
         safeassign_api::login($this->user->id);
         $acceptlicenseurl = test_safeassign_api_connectors::create_accept_license_url();
         testhelper::push_pair($acceptlicenseurl, 'empty-file.json');
-        $safeassign = new plagiarism_plugin_safeassign();
+        $safeassign = new \plagiarism_plugin_safeassign();
         $safeassign->accept_safeassign_license();
 
         $licstatus = get_config('plagiarism_safeassign', 'safeassign_license_agreement_status');

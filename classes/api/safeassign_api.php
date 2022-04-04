@@ -26,8 +26,6 @@ namespace plagiarism_safeassign\api;
 
 use plagiarism_safeassign\local;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Class safeassign_api
  *

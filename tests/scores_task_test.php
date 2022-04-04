@@ -21,7 +21,7 @@
  * @copyright Copyright (c) 2017 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
+namespace plagiarism_safeassign;
 defined('MOODLE_INTERNAL') || die();
 global $CFG, $DB;
 
@@ -39,7 +39,7 @@ use plagiarism_safeassign\api\rest_provider;
  * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class plagiarism_safeassign_tasks_testcase extends plagiarism_safeassign_base_testcase {
+class scores_task_test extends plagiarism_safeassign_base_testcase {
 
     /**
      * @var stdClass $user
@@ -56,8 +56,8 @@ class plagiarism_safeassign_tasks_testcase extends plagiarism_safeassign_base_te
         $params['course'] = $this->course->id;
         $this->moduleinstance = $generator->create_instance($params);
         $this->cm = get_coursemodule_from_instance('assign', $this->moduleinstance->id);
-        $this->context = context_module::instance($this->cm->id);
-        $this->assign = new testable_assign($this->context, $this->cm, $this->course);
+        $this->context = \context_module::instance($this->cm->id);
+        $this->assign = new \testable_assign($this->context, $this->cm, $this->course);
         $this->setUser($this->user->id);
         $this->submission = $this->assign->get_user_submission($this->user->id, true);
     }
@@ -82,7 +82,7 @@ class plagiarism_safeassign_tasks_testcase extends plagiarism_safeassign_base_te
         $resultoflogin = safeassign_api::login($this->user->id);
 
         // Enable SafeAssign in the assignment.
-        $record = new stdClass();
+        $record = new \stdClass();
         $record->course = $this->course->id;
         $record->instance = $this->moduleinstance->id;
         $record->coursemodule = $this->cm->id;
@@ -94,7 +94,7 @@ class plagiarism_safeassign_tasks_testcase extends plagiarism_safeassign_base_te
         $record->value = 0;
         plagiarism_safeassign_coursemodule_edit_post_actions($record);
 
-        $this->data = new stdClass();
+        $this->data = new \stdClass();
         $this->data->onlinetext_editor = array(
             'itemid' => file_get_unused_draft_itemid(),
             'text' => 'Submission text',
@@ -109,7 +109,7 @@ class plagiarism_safeassign_tasks_testcase extends plagiarism_safeassign_base_te
         $event = $events[1];
 
         // Submission is processed by the event observer class.
-        plagiarism_safeassign_observer::assignsubmission_onlinetext_created($event);
+        \plagiarism_safeassign_observer::assignsubmission_onlinetext_created($event);
         $record = $DB->get_record('plagiarism_safeassign_subm', array());
 
         // Simulate submission's creation on SafeAssign side.
@@ -119,7 +119,7 @@ class plagiarism_safeassign_tasks_testcase extends plagiarism_safeassign_base_te
         $DB->update_record('plagiarism_safeassign_subm', $record);
 
         // Simulate file sync.
-        $filerecord = new stdClass();
+        $filerecord = new \stdClass();
         $filerecord->cm = $this->cm->id;
         $filerecord->userid = $this->user->id;
         $filerecord->uuid = "k93e61c6-be1f-6c49-5c86-76d8f04f3f2b";
@@ -129,7 +129,7 @@ class plagiarism_safeassign_tasks_testcase extends plagiarism_safeassign_base_te
         $filerecord->supported = 1;
         $filerecord->submissionid = $record->submissionid;
         $fs = get_file_storage();
-        $usercontext = context_user::instance($this->user->id);
+        $usercontext = \context_user::instance($this->user->id);
         $textfile = $fs->get_file($usercontext->id, 'assignsubmission_text_as_file', 'submission_text_files', $record->submissionid,
             '/', 'userid_' . $this->user->id . '_text_submissionid_' . $record->submissionid . '.html');
         $filerecord->fileid = $textfile->get_id();
@@ -141,7 +141,7 @@ class plagiarism_safeassign_tasks_testcase extends plagiarism_safeassign_base_te
 
         testhelper::push_pair($getreporturl, 'get-originality-report-basic-data-ok.json');
 
-        $safeassign = new plagiarism_plugin_safeassign();
+        $safeassign = new \plagiarism_plugin_safeassign();
         $safeassign->safeassign_get_scores();
 
         $record = $DB->get_record('plagiarism_safeassign_subm', array());

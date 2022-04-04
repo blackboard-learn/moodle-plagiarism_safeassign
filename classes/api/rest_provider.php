@@ -24,8 +24,6 @@
 
 namespace plagiarism_safeassign\api;
 
-defined('MOODLE_INTERNAL') || die();
-
 use plagiarism_safeassign\local;
 
 /**
@@ -561,7 +559,7 @@ class rest_provider {
      * @throws \moodle_exception
      */
     public function print_error() {
-        print_error($this->errorstring, self::PLUGIN, '', $this->errorinfo());
+        throw new \moodle_exception($this->errorstring, self::PLUGIN, '', $this->errorinfo());
     }
 
 

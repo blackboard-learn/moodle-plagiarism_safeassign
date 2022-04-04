@@ -20,7 +20,7 @@
  * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
+namespace plagiarism_safeassign;
 defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__.'/base.php');
@@ -37,7 +37,7 @@ use plagiarism_safeassign\api\test_safeassign_api_connectors;
  * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class plagiarism_safeassign_safeassign_api_testcase_with_handling_class extends plagiarism_safeassign_base_testcase {
+class safeassign_api_test_with_handling_class extends plagiarism_safeassign_base_testcase {
     /**
      * @var stdClass the user to be used to login to SafeAssign
      */
@@ -456,7 +456,7 @@ class plagiarism_safeassign_safeassign_api_testcase_with_handling_class extends 
         $getreporturl = test_safeassign_api_connectors::create_get_originality_report_url($submissionuuid);
         testhelper::push_pair($getreporturl, 'get-originality-report-basic-data-fail.json', 404);
         $result = safeassign_api::get_originality_report($this->user->id, $submissionuuid);
-        $domdoc = new DOMDocument();
+        $domdoc = new \DOMDocument();
         $domdoc->loadHTML(rest_provider::instance()->lastresponse(), LIBXML_HTML_NODEFDTD | LIBXML_HTML_NOIMPLIED);
         $this->assertFalse($result);
 
@@ -862,7 +862,7 @@ class plagiarism_safeassign_safeassign_api_testcase_with_handling_class extends 
         $this->assertEquals($countersubm, $nonvalid);
 
         // Getting unsynced submissions.
-        $plagiarismplugin = new plagiarism_plugin_safeassign();
+        $plagiarismplugin = new \plagiarism_plugin_safeassign();
         $plagiarismplugin->get_unsynced_submissions();
 
         // Check that all submissions have valid assignment id.

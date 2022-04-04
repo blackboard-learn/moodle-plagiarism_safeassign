@@ -21,7 +21,7 @@
  * @copyright Copyright (c) 2017 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
+namespace plagiarism_safeassign;
 defined('MOODLE_INTERNAL') || die();
 global $CFG, $DB;
 
@@ -35,7 +35,7 @@ require_once($CFG->dirroot . '/mod/assign/tests/base_test.php');
  * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class plagiarism_safeassign_testcase extends advanced_testcase {
+class lib_test extends \advanced_testcase {
 
     /**
      * @var $user
@@ -75,12 +75,12 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $cm = get_coursemodule_from_instance('assign', $instance->id);
 
         // Create an activity with SafeAssign enabled.
-        $data = new stdClass();
+        $data = new \stdClass();
         $data->coursemodule = $cm->id;
         $data->safeassign_enabled = 1;
         $data->course = $course1->id;
         $data->instance = $instance->id;
-        $safeassign = new plagiarism_plugin_safeassign();
+        $safeassign = new \plagiarism_plugin_safeassign();
         plagiarism_safeassign_coursemodule_edit_post_actions($data);
         $confirmdbassign = $DB->get_record('plagiarism_safeassign_assign', array('assignmentid' => $instance->id));
         $confirmdbcourse = $DB->get_record('plagiarism_safeassign_course', array('courseid' => $course1->id));
@@ -99,7 +99,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $instance2 = $generator->create_instance(array('course' => $course1->id));
         $cm2 = get_coursemodule_from_instance('assign', $instance2->id);
 
-        $data = new stdClass();
+        $data = new \stdClass();
         $data->coursemodule = $cm2->id;
         $data->safeassign_enabled = 0;
         $data->course = $course1->id;
@@ -125,7 +125,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $instance3 = $generator->create_instance(array('course' => $course2->id));
         $cm3 = get_coursemodule_from_instance('assign', $instance3->id);
 
-        $data = new stdClass();
+        $data = new \stdClass();
         $data->coursemodule = $cm3->id;
         $data->safeassign_enabled = 1;
         $data->course = $course2->id;
@@ -161,12 +161,12 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $cm = get_coursemodule_from_instance('assign', $instance->id);
 
         // Create an activity with SafeAssign enabled.
-        $data = new stdClass();
+        $data = new \stdClass();
         $data->coursemodule = $cm->id;
         $data->safeassign_enabled = 0;
         $data->course = $course3->id;
         $data->instance = $instance->id;
-        $safeassign = new plagiarism_plugin_safeassign();
+        $safeassign = new \plagiarism_plugin_safeassign();
         plagiarism_safeassign_coursemodule_edit_post_actions($data);
 
         // Test that the editing instructor has not been added to the instructors table.
@@ -195,12 +195,12 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $cm = get_coursemodule_from_instance('assign', $instance->id);
 
         // Create an activity with SafeAssign enabled.
-        $data = new stdClass();
+        $data = new \stdClass();
         $data->coursemodule = $cm->id;
         $data->safeassign_enabled = 1;
         $data->course = $course1->id;
         $data->instance = $instance->id;
-        $safeassign = new plagiarism_plugin_safeassign();
+        $safeassign = new \plagiarism_plugin_safeassign();
         plagiarism_safeassign_coursemodule_edit_post_actions($data);
         $this->assertCount(2, $DB->get_records('plagiarism_safeassign_instr'));
         $this->admin2 = self::getDataGenerator()->create_user();
@@ -216,7 +216,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
 
         set_config('siteadmins', implode(',', $admins));
         $CFG->siteadmins = implode(',', $admins);
-        $safeassign = new plagiarism_plugin_safeassign();
+        $safeassign = new \plagiarism_plugin_safeassign();
         $safeassign->set_siteadmins();
         $this->assertCount(3, $DB->get_records('plagiarism_safeassign_instr'));
 
@@ -243,12 +243,12 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $cm = get_coursemodule_from_instance('assign', $instance->id);
 
         // Create an activity with SafeAssign enabled.
-        $data = new stdClass();
+        $data = new \stdClass();
         $data->coursemodule = $cm->id;
         $data->safeassign_enabled = 1;
         $data->course = $course1->id;
         $data->instance = $instance->id;
-        $safeassign = new plagiarism_plugin_safeassign();
+        $safeassign = new \plagiarism_plugin_safeassign();
         plagiarism_safeassign_coursemodule_edit_post_actions($data);
         // Teacher and admin should be there.
         $this->assertCount(2, $DB->get_records('plagiarism_safeassign_instr'));
@@ -264,7 +264,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $syncedroles = get_config('plagiarism_safeassign', 'safeassign_synced_roles');
         $safeassign->set_additional_role_users($additionalroles, $syncedroles);
 
-        $systemcontext = context_system::instance();
+        $systemcontext = \context_system::instance();
         // Still have 2 users since enrolments at site level have not been created.
         $this->assertCount(2, $DB->get_records('plagiarism_safeassign_instr'));
         $deanuser = $this->getDataGenerator()->create_user();
@@ -297,7 +297,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $this->assertCount(5, $DB->get_records('plagiarism_safeassign_instr'));
         $this->assertTrue($DB->record_exists('plagiarism_safeassign_instr',
             array('instructorid' => $deanuser2->id, 'courseid' => $course1->id)));
-        $course1context = context_course::instance($course1->id);
+        $course1context = \context_course::instance($course1->id);
         role_unassign($editingteacherrole->id, $deanuser2->id, $course1context->id);
         $this->assertCount(4, $DB->get_records('plagiarism_safeassign_instr'));
         $this->assertFalse($DB->record_exists('plagiarism_safeassign_instr',
@@ -336,12 +336,12 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
 
         $newdean = $DB->get_record('role', array('shortname' => 'newdean', 'archetype' => 'editingteacher'));
 
-        $data = new stdClass();
+        $data = new \stdClass();
         $data->coursemodule = $cm2->id;
         $data->safeassign_enabled = 1;
         $data->course = $course2->id;
         $data->instance = $instance2->id;
-        $safeassign = new plagiarism_plugin_safeassign();
+        $safeassign = new \plagiarism_plugin_safeassign();
         plagiarism_safeassign_coursemodule_edit_post_actions($data);
         $this->assertCount(5, $DB->get_records('plagiarism_safeassign_instr'));
         set_config('safeassign_additional_roles', $newdean->id, 'plagiarism_safeassign');
@@ -369,7 +369,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $params['course'] = $this->course->id;
         $instance = $generator->create_instance($params);
         $this->cm = get_coursemodule_from_instance('assign', $instance->id);
-        $this->context = context_module::instance($this->cm->id);
+        $this->context = \context_module::instance($this->cm->id);
         $this->setUser($this->user->id);
         $fs = get_file_storage();
         $dummy = (object) array(
@@ -407,7 +407,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
      */
     public function insert_files_for_testing($cm, $userid, $reporturl, $score, $time, $subid, $fileid) {
         global $DB;
-        $file = new stdClass();
+        $file = new \stdClass();
         $file->cm = $cm;
         $file->userid = $userid;
         $file->reporturl = $reporturl;
@@ -429,7 +429,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
      */
     public function insert_submission_for_testing($submitted, $report, $subid, $deprecated) {
         global $DB;
-        $submission = new stdClass();
+        $submission = new \stdClass();
         $submission->globalcheck = '1';
         $submission->groupsubmission = '0';
         $submission->highscore = 1.00;
@@ -453,7 +453,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $file = $linkarray['file'];
         $this->insert_submission_for_testing(1, 1, 1111111, 0);
         $this->insert_files_for_testing(000, 111, 'http://fakeurl1.com', 0.99, 1502484564, 1111111, $file->get_id());
-        $lib = new plagiarism_plugin_safeassign();
+        $lib = new \plagiarism_plugin_safeassign();
         $results = $lib->get_file_results(000, 111, $file->get_id());
         $this->assertequals(1, $results['analyzed']);
         $this->assertequals(0.99, $results['score']);
@@ -470,7 +470,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $file = $linkarray['file'];
         $this->insert_submission_for_testing(1, 0, 2222222, 0);
         $this->insert_files_for_testing(000, 222, '', null, 1502484564, 2222222, $file->get_id());
-        $lib = new plagiarism_plugin_safeassign();
+        $lib = new \plagiarism_plugin_safeassign();
         $results = $lib->get_file_results(000, 222, $file->get_id());
         $this->assertequals(0, $results['analyzed']);
         $this->assertequals('', $results['score']);
@@ -485,7 +485,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $this->resetAfterTest(true);
         $linkarray = $this->create_submitted_file_object(333, 000, 3333333);
         $file = $linkarray['file'];
-        $lib = new plagiarism_plugin_safeassign();
+        $lib = new \plagiarism_plugin_safeassign();
         $results = $lib->get_file_results(000, 333, $file->get_id());
         $this->assertequals(0, $results['analyzed']);
         $this->assertequals('', $results['score']);
@@ -499,7 +499,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
     public function test_get_submission_results() {
         $this->resetAfterTest(true);
         $testobject = $this->insert_submission_for_testing(1, 1, 11111, 0);
-        $lib = new plagiarism_plugin_safeassign();
+        $lib = new \plagiarism_plugin_safeassign();
         $result = $lib->get_submission_results(11111);
         $this->assertEquals($testobject->globalcheck, $result->globalcheck);
         $this->assertEquals($testobject->groupsubmission, $result->groupsubmission);
@@ -517,7 +517,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
      */
     public function test_get_submission_results_nosubmission() {
         $this->resetAfterTest(true);
-        $lib = new plagiarism_plugin_safeassign();
+        $lib = new \plagiarism_plugin_safeassign();
         $result = $lib->get_submission_results(22222);
         $this->assertFalse($result);
     }
@@ -531,7 +531,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $testobject = $this->insert_submission_for_testing(1, 1, 11111, 0);
         $uuid = $testobject->uuid;
 
-        $lib = new plagiarism_plugin_safeassign();
+        $lib = new \plagiarism_plugin_safeassign();
         $lib->resubmit_acknowlegment($uuid);
 
         $result = $lib->get_submission_results(11111);
@@ -545,7 +545,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         global $DB;
         $this->resetAfterTest(true);
 
-        $lib = new plagiarism_plugin_safeassign();
+        $lib = new \plagiarism_plugin_safeassign();
         $lib->new_safeassign_license_notification();
 
         $adminids = get_config(null, 'siteadmins');
@@ -580,7 +580,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $cm = get_coursemodule_from_instance('assign', $instance->id);
         // Enable SafeAssign for this particular activity.
         $this->setAdminUser();
-        $assignconf = new stdClass();
+        $assignconf = new \stdClass();
         $assignconf->course = $course1->id;
         $assignconf->instance = $instance->id;
         $assignconf->coursemodule = $cm->id;
@@ -592,7 +592,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $assignconf->value = 0;
         plagiarism_safeassign_coursemodule_edit_post_actions($assignconf);
 
-        $lib = new plagiarism_plugin_safeassign();
+        $lib = new \plagiarism_plugin_safeassign();
         $result = $lib->print_disclosure($cm->id);
         $findneedle = strpos($result, 'disclosure example for testing.');
         $this->assertNotFalse($findneedle);
@@ -613,7 +613,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
 
         $bits = 3;
         $max = (1 << $bits);
-        $lib = new plagiarism_plugin_safeassign();
+        $lib = new \plagiarism_plugin_safeassign();
 
         for ($i = 0; $i < $max; $i++) {
             $numbercombinations = str_pad(decbin($i), $bits, '0', STR_PAD_LEFT);
@@ -646,7 +646,7 @@ class plagiarism_safeassign_testcase extends advanced_testcase {
         $this->insert_submission_for_testing(0, 0, 333, 0);
         $notdeprecatedsubm = $DB->count_records('plagiarism_safeassign_subm', array('deprecated' => 0));
         $this->assertEquals(3, $notdeprecatedsubm);
-        $lib = new plagiarism_plugin_safeassign();
+        $lib = new \plagiarism_plugin_safeassign();
         $lib->mark_submission_deprecated(222);
         $this->assertEquals(2, $DB->count_records('plagiarism_safeassign_subm', array('deprecated' => 0)));
         $deprecatedrecord = $DB->get_record('plagiarism_safeassign_subm', array('submissionid' => 222));

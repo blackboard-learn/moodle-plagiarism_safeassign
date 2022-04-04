@@ -22,7 +22,7 @@
  * @copyright  Copyright (c) 2018 Open LMS (https://www.openlms.net)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
+namespace plagiarism_safeassign;
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once(__DIR__.'/base.php');
@@ -36,7 +36,7 @@ require_once($CFG->dirroot . '/plagiarism/safeassign/backup/moodle2/restore_plag
  * @copyright  Copyright (c) 2017 Open LMS (https://www.openlms.net)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class plagiarism_safeassign_restore_course_testcase extends plagiarism_safeassign_base_testcase {
+class restore_course_and_assignments_test extends plagiarism_safeassign_base_testcase {
 
     /** @var stdClass $course New course created to hold the assignment activity. */
     private $course;
@@ -66,17 +66,17 @@ class plagiarism_safeassign_restore_course_testcase extends plagiarism_safeassig
         // Simulate restoration of assignment activity.
         $plugintype = 'plagiarism';
         $pluginname = 'safeassign';
-        $info = new stdClass();
+        $info = new \stdClass();
         $info->modulename = 'assign';
 
         $module = $DB->get_record_select('course_modules',
             'course = ? AND id <> ?', array('course' => $course->id, $this->cm->id));
         $info->moduleid = $module->id;
 
-        $task = new restore_assign_activity_task('name', $info);
+        $task = new \restore_assign_activity_task('name', $info);
         $task->set_moduleid($module->id);
 
-        $step = new restore_module_structure_step('module_info', $backup['destination'], $task);
+        $step = new \restore_module_structure_step('module_info', $backup['destination'], $task);
 
         $restoreplag = new \restore_plagiarism_safeassign_plugin($plugintype, $pluginname, $step);
         $restoreplag->after_restore_module();
@@ -110,16 +110,16 @@ class plagiarism_safeassign_restore_course_testcase extends plagiarism_safeassig
         // Simulate restoration of assignment activity.
         $plugintype = 'plagiarism';
         $pluginname = 'safeassign';
-        $info = new stdClass();
+        $info = new \stdClass();
         $info->modulename = 'assign';
 
         $module = $DB->get_record('course_modules', array('course' => $course->id));
         $info->moduleid = $module->id;
 
-        $task = new restore_assign_activity_task('name', $info);
+        $task = new \restore_assign_activity_task('name', $info);
         $task->set_moduleid($module->id);
 
-        $step = new restore_module_structure_step('module_info', $backup['destination'], $task);
+        $step = new \restore_module_structure_step('module_info', $backup['destination'], $task);
 
         $restoreplag = new \restore_plagiarism_safeassign_plugin($plugintype, $pluginname, $step);
         $restoreplag->after_restore_module();
@@ -158,20 +158,20 @@ class plagiarism_safeassign_restore_course_testcase extends plagiarism_safeassig
         // Simulate restoration of assignment activity.
         $plugintype = 'plagiarism';
         $pluginname = 'safeassign';
-        $info = new stdClass();
+        $info = new \stdClass();
         $info->modulename = 'assign';
 
         $module = $DB->get_record('course_modules', array('course' => $course->id));
         $info->moduleid = $module->id;
 
-        $task = new restore_assign_activity_task('name', $info);
+        $task = new \restore_assign_activity_task('name', $info);
         $task->set_moduleid($module->id);
 
-        $step = new restore_module_structure_step('module_info', $backup['destination'], $task);
+        $step = new \restore_module_structure_step('module_info', $backup['destination'], $task);
 
         // Restore plagiarism object is created.
         $restoreplag = new \restore_plagiarism_safeassign_plugin($plugintype, $pluginname, $step);
-        $files = new stdClass();
+        $files = new \stdClass();
         $files->cm = $this->cm->id;
         $files->userid = $this->student->id;
         $files->uuid = 'k93e61c6-be1f-6c49-5c86-76d8f04f3f2b';
@@ -221,8 +221,8 @@ class plagiarism_safeassign_restore_course_testcase extends plagiarism_safeassig
         globaL $CFG;
         $packer = get_file_packer('application/vnd.moodle.backup');
 
-        $bc = new backup_controller(backup::TYPE_1COURSE, $courseid, backup::FORMAT_MOODLE, backup::INTERACTIVE_NO,
-            backup::MODE_GENERAL, $userid);
+        $bc = new \backup_controller(\backup::TYPE_1COURSE, $courseid, \backup::FORMAT_MOODLE, \backup::INTERACTIVE_NO,
+            \backup::MODE_GENERAL, $userid);
         $bc->execute_plan();
 
         $results = $bc->get_results();
@@ -244,15 +244,15 @@ class plagiarism_safeassign_restore_course_testcase extends plagiarism_safeassig
     protected function restore_course($backupid, $courseid, $userid) {
         global $DB;
 
-        $target = backup::TARGET_CURRENT_ADDING;
+        $target = \backup::TARGET_CURRENT_ADDING;
         if (!$courseid) {
-            $target = backup::TARGET_NEW_COURSE;
+            $target = \backup::TARGET_NEW_COURSE;
             $categoryid = $DB->get_field_sql("SELECT MIN(id) FROM {course_categories}");
-            $courseid = restore_dbops::create_new_course('Tmp', 'tmp', $categoryid);
+            $courseid = \restore_dbops::create_new_course('Tmp', 'tmp', $categoryid);
         }
 
-        $rc = new restore_controller($backupid, $courseid, backup::INTERACTIVE_NO, backup::MODE_GENERAL, $userid, $target);
-        $target == backup::TARGET_NEW_COURSE ?: $rc->get_plan()->get_setting('overwrite_conf')->set_value(true);
+        $rc = new \restore_controller($backupid, $courseid, \backup::INTERACTIVE_NO, \backup::MODE_GENERAL, $userid, $target);
+        $target == \backup::TARGET_NEW_COURSE ?: $rc->get_plan()->get_setting('overwrite_conf')->set_value(true);
         $this->assertTrue($rc->execute_precheck());
         $rc->execute_plan();
 
@@ -278,11 +278,11 @@ class plagiarism_safeassign_restore_course_testcase extends plagiarism_safeassig
         $params['course'] = $this->course->id;
         $this->instance = $generator->create_instance($params);
         $this->cm = get_coursemodule_from_instance('assign', $this->instance->id);
-        $this->context = context_module::instance($this->cm->id);
-        $this->assign = new testable_assign($this->context, $this->cm, $this->course);
+        $this->context = \context_module::instance($this->cm->id);
+        $this->assign = new \testable_assign($this->context, $this->cm, $this->course);
 
         // Enable SafeAssign in the assignment.
-        $record = new stdClass();
+        $record = new \stdClass();
         $record->course = $this->course->id;
         $record->instance = $this->instance->id;
         $record->coursemodule = $this->cm->id;
@@ -296,17 +296,17 @@ class plagiarism_safeassign_restore_course_testcase extends plagiarism_safeassig
 
         $this->setUser($this->teacher);
 
-        $data = new stdClass();
+        $data = new \stdClass();
         $data->coursemodule = $this->cm->id;
         $data->safeassign_enabled = 1;
         $data->course = $this->course->id;
         $data->instance = $this->instance->id;
-        $safeassign = new plagiarism_plugin_safeassign();
+        $safeassign = new \plagiarism_plugin_safeassign();
         plagiarism_safeassign_coursemodule_edit_post_actions($data);
 
         $this->setAdminUser();
 
-        $submissions = new stdClass();
+        $submissions = new \stdClass();
         $submissions->uuid = 'k93e61c6-be1f-6c49-5c86-76d8f04f3f2b';
         $submissions->globalcheck = 0;
         $submissions->groupsubmission = 1;
