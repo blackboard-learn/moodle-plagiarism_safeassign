@@ -104,10 +104,10 @@ Feature: SafeAssign displays the submission processing message only when there i
     And I am on "Course 1" course homepage
     And I follow "Assignment One"
     And I navigate to "View all submissions" in current page administration
-    And I should see "Draft (not submitted)" in the "//tr[@id='mod_assign_grading_r0']//div[@class='submissionstatusdraft']" "xpath_element"
-    And I should not see "SafeAssign Originality Report in progress..." in the "//tr[@id='mod_assign_grading_r0']//td[@class='cell c8']" "xpath_element"
-    And I should see "Draft (not submitted)" in the "//tr[@id='mod_assign_grading_r1']//div[@class='submissionstatusdraft']" "xpath_element"
-    And I should not see "SafeAssign Originality Report in progress..." in the "//tr[@id='mod_assign_grading_r1']//td[@class='cell c8']" "xpath_element"
+    And I should see "Draft (not submitted)" in the "(//tr[contains(@id,'mod_assign_grading')])[1]//div[@class='submissionstatusdraft']" "xpath_element"
+    And I should not see "SafeAssign Originality Report in progress..." in the "(//tr[contains(@id,'mod_assign_grading')])[1]//td[@class='cell c8']" "xpath_element"
+    And I should see "Draft (not submitted)" in the "(//tr[contains(@id,'mod_assign_grading')])[2]//div[@class='submissionstatusdraft']" "xpath_element"
+    And I should not see "SafeAssign Originality Report in progress..." in the "(//tr[contains(@id,'mod_assign_grading')])[2]//td[@class='cell c8']" "xpath_element"
     Then I log out
     Given I log in as "student1"
     And I am on "Course 1" course homepage
@@ -127,15 +127,15 @@ Feature: SafeAssign displays the submission processing message only when there i
     And I am on "Course 1" course homepage
     And I follow "Assignment One"
     And I navigate to "View all submissions" in current page administration
-    And I should see "Submitted for grading" in the "//tr[@id='mod_assign_grading_r0']//div[@class='submissionstatussubmitted']" "xpath_element"
-    And I should see "SafeAssign Originality Report in progress..." in the "//tr[@id='mod_assign_grading_r0']//td[@class='cell c8']" "xpath_element"
-    And I should see "Submitted for grading" in the "//tr[@id='mod_assign_grading_r1']//div[@class='submissionstatussubmitted']" "xpath_element"
-    And I should see "SafeAssign Originality Report in progress..." in the "//tr[@id='mod_assign_grading_r1']//td[@class='cell c8']" "xpath_element"
+    And I should see "Submitted for grading" in the "(//tr[contains(@id,'mod_assign_grading')])[1]//div[@class='submissionstatussubmitted']" "xpath_element"
+    And I should see "SafeAssign Originality Report in progress..." in the "(//tr[contains(@id,'mod_assign_grading')])[1]//td[@class='cell c8']" "xpath_element"
+    And I should see "Submitted for grading" in the "(//tr[contains(@id,'mod_assign_grading')])[2]//div[@class='submissionstatussubmitted']" "xpath_element"
+    And I should see "SafeAssign Originality Report in progress..." in the "(//tr[contains(@id,'mod_assign_grading')])[2]//td[@class='cell c8']" "xpath_element"
     Then I am on "Course 1" course homepage
     And I follow "Assignment Two"
     And I navigate to "View all submissions" in current page administration
-    And I should see "Submitted for grading" in the "//tr[@id='mod_assign_grading_r0']//div[@class='submissionstatussubmitted']" "xpath_element"
-    And I should see "SafeAssign Originality Report in progress..." in the "//tr[@id='mod_assign_grading_r0']//td[@class='cell c8']" "xpath_element"
-    And I should see "Submitted for grading" in the "//tr[@id='mod_assign_grading_r1']//div[@class='submissionstatussubmitted']" "xpath_element"
-    And I should see "SafeAssign Originality Report in progress..." in the "//tr[@id='mod_assign_grading_r1']//td[@class='cell c8']" "xpath_element"
+    And I should see "Submitted for grading" in the "(//tr[contains(@id,'mod_assign_grading')])[1]//div[@class='submissionstatussubmitted']" "xpath_element"
+    And I should see "SafeAssign Originality Report in progress..." in the "(//tr[contains(@id,'mod_assign_grading')])[1]//td[@class='cell c8']" "xpath_element"
+    And I should see "Submitted for grading" in the "(//tr[contains(@id,'mod_assign_grading')])[2]//div[@class='submissionstatussubmitted']" "xpath_element"
+    And I should see "SafeAssign Originality Report in progress..." in the "(//tr[contains(@id,'mod_assign_grading')])[2]//td[@class='cell c8']" "xpath_element"
 
