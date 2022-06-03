@@ -182,6 +182,9 @@ class restore_course_and_assignments_test extends plagiarism_safeassign_base_tes
         $files->submissionid = 100;
         $files->fileid = 10001;
         $restoreplag->process_safeassign_files($files);
+
+        $files->cm++;
+        $this->add_records_file_table($files);
         $restoreplag->after_restore_module();
 
         // Check that the new restored course and assignment is in SafeAssign tables.
@@ -192,7 +195,7 @@ class restore_course_and_assignments_test extends plagiarism_safeassign_base_tes
         $this->assertEquals(2, $sacourses);
         $this->assertEquals(2, $saassignments);
         $this->assertEquals(2, $sasubmissions);
-        $this->assertEquals(1, $safiles);
+        $this->assertEquals(2, $safiles);
 
         // Testing files.
         $params = ['uuid' => 'k93e61c6-be1f-6c49-5c86-76d8f04f3f2b', 'submissionid' => 100];
@@ -210,6 +213,11 @@ class restore_course_and_assignments_test extends plagiarism_safeassign_base_tes
 
     }
 
+    protected function add_records_file_table($record) {
+        global $DB;
+        $DB->insert_record('plagiarism_safeassign_files', $record);
+    }
+
     /**
      * Backup a course and return its backup ID.
      *
@@ -218,7 +226,7 @@ class restore_course_and_assignments_test extends plagiarism_safeassign_base_tes
      * @return string
      */
     protected function backup_course($courseid, $userid) {
-        globaL $CFG;
+        global $CFG;
         $packer = get_file_packer('application/vnd.moodle.backup');
 
         $bc = new \backup_controller(\backup::TYPE_1COURSE, $courseid, \backup::FORMAT_MOODLE, \backup::INTERACTIVE_NO,

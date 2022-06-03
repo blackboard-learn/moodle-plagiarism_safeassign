@@ -37,6 +37,9 @@ class backup_plagiarism_safeassign_plugin extends backup_plagiarism_plugin {
     protected function define_module_plugin_structure() {
         $plugin = $this->get_plugin_element();
         $pluginelement = new backup_nested_element($this->get_recommended_name());
+
+        $userinfo = $this->get_setting_value('userinfo');
+        $anonymize = $this->get_setting_value('anonymize');
         $plugin->add_child($pluginelement);
 
         // Add module config elements.
@@ -60,7 +63,9 @@ class backup_plagiarism_safeassign_plugin extends backup_plagiarism_plugin {
         ]);
         $pluginelement->add_child($safeassignfiles);
         $safeassignfiles->add_child($safeassignfile);
-        $safeassignfile->set_source_table('plagiarism_safeassign_files', ['cm' => backup::VAR_PARENTID]);
+        if ($userinfo && !$anonymize) {
+            $safeassignfile->set_source_table('plagiarism_safeassign_files', ['cm' => backup::VAR_PARENTID]);
+        }
 
         return $plugin;
     }

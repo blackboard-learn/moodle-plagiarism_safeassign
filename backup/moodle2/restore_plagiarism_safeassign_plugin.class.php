@@ -105,7 +105,11 @@ class restore_plagiarism_safeassign_plugin extends restore_plagiarism_plugin {
             }
 
             // We check for records created in restoring step.
-            $files = $DB->get_records('plagiarism_safeassign_files', ['reporturl' => 'restoring']);
+            $moduleid = $this->get_task()->get_moduleid();
+            $files = $DB->get_records('plagiarism_safeassign_files', [
+                'reporturl' => 'restoring',
+                'cm' => $moduleid
+            ]);
             foreach ($files as $file) {
                 // We need to search for the submission id created for the new/restored course.
                 $submission = $this->get_proper_submission($cm->instance, $file->userid);
@@ -151,6 +155,13 @@ class restore_plagiarism_safeassign_plugin extends restore_plagiarism_plugin {
         $runningphpunittest = defined('PHPUNIT_TEST') && PHPUNIT_TEST;
         $runningbehattest = defined('BEHAT_SITE_RUNNING') && BEHAT_SITE_RUNNING;
         $duringtesting = $runningphpunittest || $runningbehattest;
+
+        if (empty($duringtesting)) {
+            $userinfo = $this->get_setting_value('userinfo');
+            if (!$userinfo) {
+                return;
+            }
+        }
 
         if (!empty($duringtesting) || $this->task->is_samesite()) {
             $data = (object)$data;
