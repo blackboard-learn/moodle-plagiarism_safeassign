@@ -55,7 +55,6 @@ Feature: Duplicate an assignment with SafeAssign parameters
 
   @javascript
   Scenario: Safeassign parameters should appear checked
-    Given I skip because "It will be reviewed on the INT-17941 ticket"
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I turn editing mode on
@@ -64,6 +63,7 @@ Feature: Duplicate an assignment with SafeAssign parameters
     And I turn editing mode off
     When I follow duplicate "1" of assignment "Assignment One"
     And I navigate to "Edit settings" in current page administration
+    And I follow "SafeAssign Plagiarism plugin"
     Then the field "safeassign_enabled" matches value "1"
     Then the field "safeassign_originality_report" matches value "1"
     Then the field "safeassign_global_reference" matches value "1"
@@ -81,6 +81,7 @@ Feature: Duplicate an assignment with SafeAssign parameters
     And I turn editing mode off
     When I follow duplicate "1" of assignment "Assignment One"
     And I navigate to "Edit settings" in current page administration
+    And I follow "SafeAssign Plagiarism plugin"
     Then the field "safeassign_enabled" matches value "1"
     Then the field "safeassign_originality_report" matches value "0"
     Then the field "safeassign_global_reference" matches value "1"
@@ -98,6 +99,7 @@ Feature: Duplicate an assignment with SafeAssign parameters
     And I turn editing mode off
     When I follow duplicate "1" of assignment "Assignment One"
     And I navigate to "Edit settings" in current page administration
+    And I follow "SafeAssign Plagiarism plugin"
     Then the field "safeassign_enabled" matches value "1"
     Then the field "safeassign_originality_report" matches value "0"
     Then the field "safeassign_global_reference" matches value "0"
@@ -115,6 +117,7 @@ Feature: Duplicate an assignment with SafeAssign parameters
     And I turn editing mode off
     When I follow duplicate "1" of assignment "Assignment One"
     And I navigate to "Edit settings" in current page administration
+    And I follow "SafeAssign Plagiarism plugin"
     Then the field "safeassign_enabled" matches value "0"
     Then the field "safeassign_originality_report" matches value "0"
     Then the field "safeassign_global_reference" matches value "0"
