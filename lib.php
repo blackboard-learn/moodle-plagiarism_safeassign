@@ -1208,7 +1208,7 @@ SQL;
                 'uuid' => null, 'submitted' => 0, 'deprecated' => 0));
             $record->submitted = 1;
             $this->sync_submission_files($submissionid, $responsedata, $wrapper->filenames,
-                $wrapper->userid, $courseid);
+                $wrapper->userid, $courseid, $contextid);
             if (!empty($responsedata->submissions[0])) {
                 $record->uuid = $responsedata->submissions[0]->submission_uuid;
             }
@@ -1240,8 +1240,9 @@ SQL;
      * @param array $filenames
      * @param int $userid
      * @param int $courseid
+     * @param int $contextid
      */
-    public function sync_submission_files($submissionid, stdClass $responsedata, array $filenames, $userid, $courseid) {
+    public function sync_submission_files($submissionid, stdClass $responsedata, array $filenames, $userid, $courseid, $contextid) {
         global $DB;
         $sql = "SELECT TRIM(f.filename), f.id AS fileid, cm.id AS cmid
                   FROM {files} f
@@ -1249,10 +1250,12 @@ SQL;
                   JOIN {course_modules} cm ON cm.instance = sub.assignment
                   JOIN {modules} m ON m.id = cm.module AND m.name = ?
                  WHERE f.filearea IN (?,?)
+                   AND f.component IN (?,?)
                    AND f.itemid = ?
                    AND cm.course = ?
+                   AND f.contextid = ?
                    AND f.filename ";
-        $params = array('assign', 'submission_files', 'submission_text_files', $submissionid, $courseid);
+        $params = array('assign', 'submission_files', 'submission_text_files', 'assignsubmission_file', 'assignsubmission_text_as_file', $submissionid, $courseid, $contextid);
         list($sqlin, $params2) = $DB->get_in_or_equal($filenames);
         $sentfiles = $DB->get_records_sql($sql . $sqlin, array_merge($params, $params2));
         if ($sentfiles) {
