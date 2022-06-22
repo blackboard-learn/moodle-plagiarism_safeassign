@@ -1249,10 +1249,12 @@ SQL;
                   JOIN {course_modules} cm ON cm.instance = sub.assignment
                   JOIN {modules} m ON m.id = cm.module AND m.name = ?
                  WHERE f.filearea IN (?,?)
+                   AND f.component IN (?,?)
                    AND f.itemid = ?
                    AND cm.course = ?
                    AND f.filename ";
-        $params = array('assign', 'submission_files', 'submission_text_files', $submissionid, $courseid);
+        $params = array('assign', 'submission_files', 'submission_text_files',
+            'assignsubmission_file', 'assignsubmission_text_as_file', $submissionid, $courseid);
         list($sqlin, $params2) = $DB->get_in_or_equal($filenames);
         $sentfiles = $DB->get_records_sql($sql . $sqlin, array_merge($params, $params2));
         if ($sentfiles) {
