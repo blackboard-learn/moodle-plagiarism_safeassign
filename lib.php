@@ -1084,7 +1084,7 @@ SQL;
         $files = array();
         $filenames = array();
         $filepaths = array();
-
+        $fileids = [];
         $sql = "SELECT id, filearea, filepath, filename
                   FROM {files} mrfile
                  WHERE itemid = :submissionid
@@ -1126,9 +1126,10 @@ SQL;
             }
             $files[] = $fileobj;
             $filenames[] = $file->filename;
+            $fileids[] = $fileobj->get_id();
         }
 
-        return array("files" => $files, "filenames" => $filenames);
+        return array("files" => $files, "filenames" => $filenames, 'fileids' => $fileids);
     }
 
     /**
@@ -1167,6 +1168,7 @@ SQL;
         $wrapper->userid = $userid;
         $wrapper->courseuuid = $courseuuid;
         $wrapper->assignuuid = $assignuuid;
+        $wrapper->fileids = [];
 
         if ($hasfile) {
             $unsyncedfiles = self::get_unsynced_files($submissionid, $contextid);
@@ -1177,6 +1179,7 @@ SQL;
 
             $wrapper->files = $unsyncedfiles['files'];
             $wrapper->filenames = $unsyncedfiles['filenames'];
+            $wrapper->fileids = $unsyncedfiles['fileids'];
         }
         if ($hasonlinetext) {
             $fs = get_file_storage();
@@ -1193,6 +1196,7 @@ SQL;
             if ($textfile) {
                 $wrapper->files[] = $textfile;
                 $wrapper->filenames[] = $textfile->get_filename();
+                $wrapper->fileids[] = $textfile->get_id();
             }
         }
         $wrapper->globalcheck = ($globalcheck) ? true : false;
@@ -1207,8 +1211,8 @@ SQL;
             $record = $DB->get_record('plagiarism_safeassign_subm', array('submissionid' => $submissionid,
                 'uuid' => null, 'submitted' => 0, 'deprecated' => 0));
             $record->submitted = 1;
-            $this->sync_submission_files($submissionid, $responsedata, $wrapper->filenames,
-                $wrapper->userid, $courseid);
+            $this->sync_submission_files($submissionid, $responsedata,
+                $wrapper->userid, $wrapper->fileids);
             if (!empty($responsedata->submissions[0])) {
                 $record->uuid = $responsedata->submissions[0]->submission_uuid;
             }
@@ -1241,22 +1245,19 @@ SQL;
      * @param int $userid
      * @param int $courseid
      */
-    public function sync_submission_files($submissionid, stdClass $responsedata, array $filenames, $userid, $courseid) {
+    public function sync_submission_files($submissionid, stdClass $responsedata, $userid, $fileids) {
         global $DB;
+
+        $params = array('assign');
+        list($sqlin, $params2) = $DB->get_in_or_equal($fileids);
+
         $sql = "SELECT TRIM(f.filename), f.id AS fileid, cm.id AS cmid
                   FROM {files} f
                   JOIN {assign_submission} sub ON sub.id = f.itemid
                   JOIN {course_modules} cm ON cm.instance = sub.assignment
                   JOIN {modules} m ON m.id = cm.module AND m.name = ?
-                 WHERE f.filearea IN (?,?)
-                   AND f.component IN (?,?)
-                   AND f.itemid = ?
-                   AND cm.course = ?
-                   AND f.filename ";
-        $params = array('assign', 'submission_files', 'submission_text_files',
-            'assignsubmission_file', 'assignsubmission_text_as_file', $submissionid, $courseid);
-        list($sqlin, $params2) = $DB->get_in_or_equal($filenames);
-        $sentfiles = $DB->get_records_sql($sql . $sqlin, array_merge($params, $params2));
+                 WHERE f.id {$sqlin}";
+        $sentfiles = $DB->get_records_sql($sql, array_merge($params, $params2));
         if ($sentfiles) {
             $record = new stdClass();
             $record->userid = $userid;
