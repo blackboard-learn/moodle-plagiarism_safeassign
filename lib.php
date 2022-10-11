@@ -691,7 +691,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                 if (!empty($CFG->plagiarism_safeassign_debugging)) {
                     $params['User ID'] = $userid;
                     $params['Submission UUID'] = $submissionuuid;
-                    $params['Url'] = $baseurl . '/api/v1/submissions/' . $submissionuuid . '/report/metadata';
+                    $params['Url'] = $baseurl . safeassign_api::APIVER . 'submissions/' . $submissionuuid . '/report/metadata';
                 }
                 $event = score_sync_fail::create_from_error_handler($submission->id, false, 'api_error', $params);
                 $event->trigger();
@@ -772,7 +772,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                     if (!empty($CFG->plagiarism_safeassign_debugging)) {
                         $params['Instructor Id'] = $course->instructorid;
                         $params['Course ID'] = $course->courseid;
-                        $params['Url'] = $baseurl . '/api/v1/courses';
+                        $params['Url'] = $baseurl . safeassign_api::APIVER . 'courses';
                     }
                     if ($response) {
                         $lastresponse = json_decode(rest_provider::instance()->lastresponse());
@@ -844,7 +844,7 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
                     $params['Course UUID'] = $assignment->courseuuid;
                     $params['Assignment ID'] = $assignment->assignmentid;
                     $params['Assignment Name'] = $assignment->assignmentname;
-                    $params['Url'] = $baseurl . '/api/v1/courses/' . $assignment->courseuuid . '/assignments';
+                    $params['Url'] = $baseurl . safeassign_api::APIVER . 'courses/' . $assignment->courseuuid . '/assignments';
                 }
                 if ($validation === false) {
                     $response = safeassign_api::create_assignment($courses[$assignment->courseid]->instructorid,
@@ -1227,7 +1227,7 @@ SQL;
                 $params['Assign UUID'] = $wrapper->assignuuid;
                 $params['Global Check'] = $wrapper->globalcheck;
                 $params['Group Permission'] = $wrapper->grouppermission;
-                $params['Url'] = $baseurl . '/api/v1/courses/' . $wrapper->courseuuid . '/assignments/'
+                $params['Url'] = $baseurl . safeassign_api::APIVER . 'courses/' . $wrapper->courseuuid . '/assignments/'
                     . $wrapper->assignuuid . '/submissions';
             }
             $event = sync_content_log::create_log_message('submission', $submissionid, true, null, $params);
@@ -1398,7 +1398,7 @@ SQL;
                 if (!empty($CFG->plagiarism_safeassign_debugging)) {
                     $params['Instructor id'] = $submission->instructorid;
                     $params['Submission UUID'] = $submission->uuid;
-                    $params['Url'] = $baseurl . '/api/v1/submissions/' . $submission->uuid;
+                    $params['Url'] = $baseurl . safeassign_api::APIVER . 'submissions/' . $submission->uuid;
                 }
                 $event = sync_content_log::create_log_message('delete submissions', $submission->uuid, true, null, $params);
                 $event->trigger();
@@ -1823,7 +1823,7 @@ SQL;
                     if (!empty($CFG->plagiarism_safeassign_debugging)) {
                         $params['Instructor id'] = $instructor->instructorid;
                         $params['Course UUID'] = $instructor->uuid;
-                        $params['Url'] = $baseurl . '/api/v1/'. $instructor->uuid .'/members';
+                        $params['Url'] = $baseurl . safeassign_api::APIVER . $instructor->uuid .'/members';
                     }
                     $event = sync_content_log::create_log_message('instructor', $instructor->instructorid, true, null, $params);
                     $event->trigger();
@@ -2055,7 +2055,7 @@ SQL;
                 if (!empty($CFG->plagiarism_safeassign_debugging)) {
                     $params['Instructor id'] = $instructor->instructorid;
                     $params['Course UUID'] = $instructor->uuid;
-                    $params['Url'] = $baseurl . '/api/v1/'. $instructor->uuid .'/members';
+                    $params['Url'] = $baseurl . safeassign_api::APIVER . $instructor->uuid .'/members';
                 }
                 $event = sync_content_log::create_log_message('delete instructor', $instructor->instructorid, true, null, $params);
                 $event->trigger();

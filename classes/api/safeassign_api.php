@@ -41,6 +41,11 @@ abstract class safeassign_api {
     const PLUGIN = 'plagiarism_safeassign';
 
     /**
+     * @var string APIVER
+     */
+    const APIVER = '/api/v3/';
+
+    /**
      * Logins as a teacher or a student into SafeAssign REST API.
      * @param int $userid
      * @param bool $isinstructor
@@ -65,7 +70,7 @@ abstract class safeassign_api {
         $firstname = $DB->get_field('user', 'firstname', array('id' => $userid));
         $lastname = $DB->get_field('user', 'lastname', array('id' => $userid));
 
-        $url = new \moodle_url($baseurl . '/api/v1/tokens', array(
+        $url = new \moodle_url($baseurl . self::APIVER . 'tokens', array(
             'grant_type' => 'client_credentials',
             'user_id' => urlencode($userid),
             'user_firstname' => urlencode($firstname),
@@ -265,7 +270,7 @@ abstract class safeassign_api {
         if (empty($baseurl)) {
             return false;
         }
-        $url = new \moodle_url($baseurl . '/api/v1/courses/' . $courseuuid . '/members');
+        $url = new \moodle_url($baseurl . self::APIVER . 'courses/' . $courseuuid . '/members');
         return self::generic_putcall($url->out(false), $userid, true);
     }
 
@@ -280,7 +285,7 @@ abstract class safeassign_api {
         if (empty($baseurl)) {
             return false;
         }
-        $url = new \moodle_url($baseurl . '/api/v1/courses/' . $courseuuid . '/members');
+        $url = new \moodle_url($baseurl . self::APIVER . 'courses/' . $courseuuid . '/members');
         return self::generic_deletecall($url->out(false), $userid, true);
     }
 
@@ -297,7 +302,7 @@ abstract class safeassign_api {
         if (empty($baseurl)) {
             return false;
         }
-        $url = new \moodle_url($baseurl . '/api/v1/courses');
+        $url = new \moodle_url($baseurl . self::APIVER . 'courses');
         $postparams = array(
             'id' => $courseid,
             'title' => $course->fullname
@@ -317,7 +322,7 @@ abstract class safeassign_api {
         if (empty($baseurl)) {
             return false;
         }
-        $url = new \moodle_url($baseurl . '/api/v1/courses', array('id' => $courseid));
+        $url = new \moodle_url($baseurl . self::APIVER . 'courses', array('id' => $courseid));
         return self::generic_getcall($url->out(false), $userid, true);
     }
 
@@ -338,7 +343,7 @@ abstract class safeassign_api {
         }
         $firstname = $DB->get_field('user', 'firstname', array('id' => $userid));
         $lastname = $DB->get_field('user', 'lastname', array('id' => $userid));
-        $url = new \moodle_url($baseurl . '/api/v1/tokens?grant_type=client_credentials', array('user_id' => $userid,
+        $url = new \moodle_url($baseurl . self::APIVER . 'tokens?grant_type=client_credentials', array('user_id' => $userid,
             'user_firstname' => $firstname, 'user_lastname' => $lastname));
         $result = rest_provider::instance()->post_withauth($url->out(false), $username, $password, array(), array());
         return $result;
@@ -358,10 +363,11 @@ abstract class safeassign_api {
         if (empty($baseurl)) {
             return false;
         }
-        $url = new \moodle_url($baseurl . '/api/v1/courses/' . $courseuuid . '/assignments');
+        $url = new \moodle_url($baseurl . self::APIVER . 'courses/' . $courseuuid . '/assignments');
         $postparams = array(
             'id' => $assignmentid,
-            'title' => $assignmenttitle
+            'title' => $assignmenttitle,
+            'draft' => false
         );
         $postdata = json_encode($postparams);
         return self::generic_postcall($url->out(false), $userid, $postdata, true);
@@ -379,7 +385,7 @@ abstract class safeassign_api {
         if (empty($baseurl)) {
             return false;
         }
-        $url = new \moodle_url($baseurl . '/api/v1/courses/' . $courseuuid . '/assignments', array('id' => $assignmentid));
+        $url = new \moodle_url($baseurl . self::APIVER . 'courses/' . $courseuuid . '/assignments', array('id' => $assignmentid));
         $result = self::generic_getcall($url->out(false), $userid, true);
         return $result;
     }
@@ -400,7 +406,8 @@ abstract class safeassign_api {
         if (empty($baseurl)) {
             return false;
         }
-        $url = new \moodle_url($baseurl . '/api/v1/courses/' . $courseuuid . '/assignments/' . $assignmentuuid . '/submissions');
+        $url = new \moodle_url($baseurl . self::APIVER . 'courses/' . $courseuuid . '/assignments/' .
+            $assignmentuuid . '/submissions');
 
         if (!rest_provider::instance()->hastoken($userid)) {
             if (!self::login($userid, false)) {
@@ -423,7 +430,7 @@ abstract class safeassign_api {
         if (empty($baseurl)) {
             return false;
         }
-        $url = new \moodle_url($baseurl . '/api/v1/submissions/' . $submissionuuid . '/report/metadata');
+        $url = new \moodle_url($baseurl . self::APIVER . 'submissions/' . $submissionuuid . '/report/metadata');
 
         $result = self::generic_getcall($url->out(false), $userid, true);
         return $result;
@@ -465,7 +472,7 @@ abstract class safeassign_api {
             $params['logo_url'] = $logourl;
         }
 
-        $url = new \moodle_url($baseurl . '/api/v1/submissions/' . $submissionuuid . '/report', $params);
+        $url = new \moodle_url($baseurl . self::APIVER . 'submissions/' . $submissionuuid . '/report', $params);
 
         // This request needs special headers.
         $locale = get_string('locale', 'langconfig');
@@ -521,7 +528,7 @@ abstract class safeassign_api {
             array_push($putparams['skipped_citations'], array('url' => $urls[$i], 'engine_name' => $engines[$i]));
         }
         $putdata = json_encode($putparams);
-        $url = new \moodle_url($baseurl . '/api/v1/submissions/' . $submissionuuid);
+        $url = new \moodle_url($baseurl . self::APIVER . 'submissions/' . $submissionuuid);
         $result = self::generic_putcall($url->out(false), $userid, true, [], $putdata);
         return $result;
     }
@@ -537,7 +544,7 @@ abstract class safeassign_api {
         if (empty($baseurl)) {
             return false;
         }
-        $url = new \moodle_url($baseurl . '/api/v1/submissions/' . $submissionuuid);
+        $url = new \moodle_url($baseurl . self::APIVER . 'submissions/' . $submissionuuid);
         $result = self::generic_deletecall($url->out(false), $userid, true);
         return $result;
     }
@@ -566,7 +573,7 @@ abstract class safeassign_api {
         }
 
         $putdata = json_encode($putparams);
-        $url = new \moodle_url($baseurl . '/api/v1/licenses');
+        $url = new \moodle_url($baseurl . self::APIVER . 'licenses');
         $result = self::generic_putcall($url->out(false), $userid, true, [], $putdata);
         return $result;
     }
@@ -585,7 +592,7 @@ abstract class safeassign_api {
         if (empty($baseurl)) {
             return false;
         }
-        $url = new \moodle_url($baseurl . '/api/v1/licenses?license_version=' . $licenseversion);
+        $url = new \moodle_url($baseurl . self::APIVER . 'licenses?license_version=' . $licenseversion);
         $result = self::generic_deletecall($url->out(false), $userid, true);
         return $result;
     }
@@ -601,7 +608,7 @@ abstract class safeassign_api {
         if (empty($baseurl)) {
             return false;
         }
-        $url = new \moodle_url($baseurl . '/api/v1/licenses/accepted');
+        $url = new \moodle_url($baseurl . self::APIVER . 'licenses/accepted');
         $result = self::generic_getcall($url->out(false), $userid, true);
         return $result;
     }
@@ -617,7 +624,7 @@ abstract class safeassign_api {
         if (empty($baseurl)) {
             return false;
         }
-        $url = new \moodle_url($baseurl . '/api/v1/licenses/all');
+        $url = new \moodle_url($baseurl . self::APIVER . 'licenses/all');
         $result = self::generic_getcall($url->out(false), $userid, true);
         return $result;
     }

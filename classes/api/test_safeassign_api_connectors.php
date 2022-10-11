@@ -131,7 +131,7 @@ abstract class test_safeassign_api_connectors {
      */
     public static function create_login_url($user) {
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
-        $loginurl = '%s/api/v1/tokens?';
+        $loginurl = '%s' . safeassign_api::APIVER . 'tokens?';
         $loginurl .= 'grant_type=client_credentials&user_id=%s&user_firstname=%s&user_lastname=%s';
         $loginurl = sprintf($loginurl, $baseapiurl, $user->id, $user->firstname, $user->lastname);
         return $loginurl;
@@ -143,7 +143,7 @@ abstract class test_safeassign_api_connectors {
      */
     public static function create_course_url() {
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
-        $courseurl = '%s/api/v1/courses';
+        $courseurl = '%s' . safeassign_api::APIVER . 'courses';
         $courseurl = sprintf($courseurl, $baseapiurl);
         return $courseurl;
     }
@@ -155,7 +155,7 @@ abstract class test_safeassign_api_connectors {
      */
     public static function create_put_delete_instructor_url($courseuuid) {
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
-        $courseurl = '%s/api/v1/courses/%s/members';
+        $courseurl = '%s' . safeassign_api::APIVER . 'courses/%s/members';
         $courseurl = sprintf($courseurl, $baseapiurl, $courseuuid);
         return $courseurl;
     }
@@ -167,7 +167,7 @@ abstract class test_safeassign_api_connectors {
      */
     public static function create_assignment_url($courseuuid) {
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
-        $assignmenturl = '%s/api/v1/courses/%s/assignments';
+        $assignmenturl = '%s' . safeassign_api::APIVER . 'courses/%s/assignments';
         $assignmenturl = sprintf($assignmenturl, $baseapiurl, $courseuuid);
         return $assignmenturl;
     }
@@ -180,7 +180,7 @@ abstract class test_safeassign_api_connectors {
      */
     public static function create_check_assignment_url($courseuuid, $assignmentid) {
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
-        $checkassignmenturl = '%s/api/v1/courses/%s/assignments?id=%s';
+        $checkassignmenturl = '%s' . safeassign_api::APIVER . 'courses/%s/assignments?id=%s';
         $checkassignmenturl = sprintf($checkassignmenturl, $baseapiurl, $courseuuid, $assignmentid);
         return $checkassignmenturl;
     }
@@ -193,7 +193,7 @@ abstract class test_safeassign_api_connectors {
      */
     public static function create_submission_url($courseuuid, $assignmentuuid) {
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
-        $submissionurl = '%s/api/v1/courses/%s/assignments/%s/submissions';
+        $submissionurl = '%s' . safeassign_api::APIVER . 'courses/%s/assignments/%s/submissions';
         $submissionurl = sprintf($submissionurl, $baseapiurl, $courseuuid, $assignmentuuid);
         return $submissionurl;
     }
@@ -205,7 +205,7 @@ abstract class test_safeassign_api_connectors {
      */
     public static function create_get_originality_report_basic_data_url($submissionuuid) {
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
-        $getreporturl = '%s/api/v1/submissions/%s/report/metadata';
+        $getreporturl = '%s' . safeassign_api::APIVER . 'submissions/%s/report/metadata';
         $getreporturl = sprintf($getreporturl, $baseapiurl, $submissionuuid);
         return $getreporturl;
     }
@@ -217,7 +217,7 @@ abstract class test_safeassign_api_connectors {
      */
     public static function create_get_originality_report_url($submissionuuid) {
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
-        $getreporturl = '%s/api/v1/submissions/%s/report';
+        $getreporturl = '%s' . safeassign_api::APIVER . 'submissions/%s/report';
         $getreporturl = sprintf($getreporturl, $baseapiurl, $submissionuuid);
         return $getreporturl;
     }
@@ -231,7 +231,7 @@ abstract class test_safeassign_api_connectors {
      */
     public static function create_get_originality_report_with_file_url($submissionuuid, $fileuuid, $force = false) {
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
-        $getreporturl = '%s/api/v1/submissions/%s/report?file_uuid=%s';
+        $getreporturl = '%s' . safeassign_api::APIVER . 'submissions/%s/report?file_uuid=%s';
         $getreporturl = sprintf($getreporturl, $baseapiurl, $submissionuuid, $fileuuid);
         if ($force) {
             $getreporturl .= '&force=true';
@@ -246,7 +246,7 @@ abstract class test_safeassign_api_connectors {
      */
     public static function create_resubmit_file_url($submissionuuid) {
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
-        $resubmitfileurl = '%s/api/v1/submissions/%s';
+        $resubmitfileurl = '%s' . safeassign_api::APIVER . 'submissions/%s';
         $resubmitfileurl = sprintf($resubmitfileurl, $baseapiurl, $submissionuuid);
         return $resubmitfileurl;
     }
@@ -257,7 +257,7 @@ abstract class test_safeassign_api_connectors {
      */
     public static function create_get_licenses_url() {
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
-        $getlicensesurl = '%s/api/v1/licenses/all';
+        $getlicensesurl = '%s' . safeassign_api::APIVER . 'licenses/all';
         $getlicensesurl = sprintf($getlicensesurl, $baseapiurl);
         return $getlicensesurl;
     }
@@ -268,7 +268,7 @@ abstract class test_safeassign_api_connectors {
      */
     public static function create_get_accepted_licenses_url() {
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
-        $getlicensesurl = '%s/api/v1/licenses/accepted';
+        $getlicensesurl = '%s' . safeassign_api::APIVER . 'licenses/accepted';
         $getlicensesurl = sprintf($getlicensesurl, $baseapiurl);
         return $getlicensesurl;
     }
@@ -279,7 +279,7 @@ abstract class test_safeassign_api_connectors {
      */
     public static function create_accept_license_url() {
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
-        $getlicensesurl = '%s/api/v1/licenses';
+        $getlicensesurl = '%s' . safeassign_api::APIVER . 'licenses';
         $getlicensesurl = sprintf($getlicensesurl, $baseapiurl);
         return $getlicensesurl;
     }
@@ -291,7 +291,8 @@ abstract class test_safeassign_api_connectors {
      */
     public static function create_revoke_license_url($licenseversion = '') {
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
-        $getlicensesurl = '%s/api/v1/licenses?license_version' . (empty($licenseversion) ? '' : ('=' . $licenseversion));
+        $getlicensesurl = '%s' . safeassign_api::APIVER . 'licenses?license_version' .
+            (empty($licenseversion) ? '' : ('=' . $licenseversion));
         $getlicensesurl = sprintf($getlicensesurl, $baseapiurl);
         return $getlicensesurl;
     }

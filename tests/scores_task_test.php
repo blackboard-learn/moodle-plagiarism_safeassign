@@ -74,7 +74,7 @@ class scores_task_test extends plagiarism_safeassign_base_testcase {
 
         // Login to SafeAssign.
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
-        $loginurl = '%s/api/v1/tokens?';
+        $loginurl = '%s' . safeassign_api::APIVER . 'tokens?';
         $loginurl .= 'grant_type=client_credentials&user_id=%s&user_firstname=%s&user_lastname=%s';
         $loginurl = sprintf($loginurl, $baseapiurl, $this->user->id, $this->user->firstname, $this->user->lastname);
 
@@ -136,7 +136,7 @@ class scores_task_test extends plagiarism_safeassign_base_testcase {
         $DB->insert_record('plagiarism_safeassign_files', $filerecord);
 
         // Get originality report basic data.
-        $getreporturl = '%s/api/v1/submissions/%s/report/metadata';
+        $getreporturl = '%s' . safeassign_api::APIVER . 'submissions/%s/report/metadata';
         $getreporturl = sprintf($getreporturl, $baseapiurl, $submissionuuid);
 
         testhelper::push_pair($getreporturl, 'get-originality-report-basic-data-ok.json');

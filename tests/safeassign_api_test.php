@@ -57,7 +57,7 @@ class safeassign_api_test extends plagiarism_safeassign_base_testcase {
      */
     private function create_login_url($user) {
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
-        $loginurl = '%s/api/v1/tokens?';
+        $loginurl = '%s' . safeassign_api::APIVER . 'tokens?';
         $loginurl .= 'grant_type=client_credentials&user_id=%s&user_firstname=%s&user_lastname=%s';
         $loginurl = sprintf($loginurl, $baseapiurl, $user->id, $user->firstname, $user->lastname);
         return $loginurl;
@@ -79,7 +79,7 @@ class safeassign_api_test extends plagiarism_safeassign_base_testcase {
      */
     public function create_course_url() {
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
-        $courseurl = '%s/api/v1/courses';
+        $courseurl = '%s' . safeassign_api::APIVER . 'courses';
         $courseurl = sprintf($courseurl, $baseapiurl);
         return $courseurl;
     }
@@ -110,7 +110,7 @@ class safeassign_api_test extends plagiarism_safeassign_base_testcase {
      */
     public function create_put_delete_instructor_url($courseuuid) {
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
-        $courseurl = '%s/api/v1/courses/%s/members';
+        $courseurl = '%s' . safeassign_api::APIVER . 'courses/%s/members';
         $courseurl = sprintf($courseurl, $baseapiurl, $courseuuid);
         return $courseurl;
     }
@@ -122,7 +122,7 @@ class safeassign_api_test extends plagiarism_safeassign_base_testcase {
      */
     public function create_assignment_url($courseuuid) {
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
-        $assignmenturl = '%s/api/v1/courses/%s/assignments';
+        $assignmenturl = '%s' . safeassign_api::APIVER . 'courses/%s/assignments';
         $assignmenturl = sprintf($assignmenturl, $baseapiurl, $courseuuid);
         return $assignmenturl;
     }
@@ -135,7 +135,7 @@ class safeassign_api_test extends plagiarism_safeassign_base_testcase {
      */
     public function create_submission_url($courseuuid, $assignmentuuid) {
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
-        $submissionurl = '%s/api/v1/courses/%s/assignments/%s/submissions';
+        $submissionurl = '%s' . safeassign_api::APIVER . 'courses/%s/assignments/%s/submissions';
         $submissionurl = sprintf($submissionurl, $baseapiurl, $courseuuid, $assignmentuuid);
         return $submissionurl;
     }
@@ -147,7 +147,7 @@ class safeassign_api_test extends plagiarism_safeassign_base_testcase {
      */
     private function create_get_originality_report_basic_data_url($submissionuuid) {
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
-        $getreporturl = '%s/api/v1/submissions/%s/report/metadata';
+        $getreporturl = '%s' . safeassign_api::APIVER . 'submissions/%s/report/metadata';
         $getreporturl = sprintf($getreporturl, $baseapiurl, $submissionuuid);
         return $getreporturl;
     }
@@ -159,7 +159,7 @@ class safeassign_api_test extends plagiarism_safeassign_base_testcase {
      */
     private function create_get_originality_report_url($submissionuuid) {
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
-        $getreporturl = '%s/api/v1/submissions/%s/report';
+        $getreporturl = '%s' . safeassign_api::APIVER . 'submissions/%s/report';
         $getreporturl = sprintf($getreporturl, $baseapiurl, $submissionuuid);
         return $getreporturl;
     }
@@ -171,7 +171,7 @@ class safeassign_api_test extends plagiarism_safeassign_base_testcase {
      */
     private function create_resubmit_file_url($submissionuuid) {
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
-        $resubmitfileurl = '%s/api/v1/submissions/%s';
+        $resubmitfileurl = '%s' . safeassign_api::APIVER . 'submissions/%s';
         $resubmitfileurl = sprintf($resubmitfileurl, $baseapiurl, $submissionuuid);
         return $resubmitfileurl;
     }
@@ -183,7 +183,7 @@ class safeassign_api_test extends plagiarism_safeassign_base_testcase {
      */
     public function create_delete_submission_url($submissionuuid) {
         $baseapiurl = get_config('plagiarism_safeassign', 'safeassign_api');
-        $deleteurl = '%s/api/v1/submissions/%s';
+        $deleteurl = '%s' . safeassign_api::APIVER . 'submissions/%s';
         $deleteurl = sprintf($deleteurl, $baseapiurl, $submissionuuid);
         return $deleteurl;
 
