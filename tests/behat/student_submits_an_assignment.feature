@@ -72,7 +72,7 @@ Feature: Send an submission to a SafeAssign assignment
       | safeassign_referencedbactivity | 1 | plagiarism_safeassign |
     And I am on "Course 1" course homepage
     Then I follow "Assignment One"
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I set the following fields to these values:
       | safeassign_global_reference   | 0 |
     And I press "Save and return to course"
@@ -96,8 +96,8 @@ Feature: Send an submission to a SafeAssign assignment
     Then I log out
     Then I log in as "teacher1"
     And I am on "Course 1" course homepage
-    And I follow "Assignment One"
-    And I navigate to "View all submissions" in current page administration
+    And I click on "Assignment One" "link" in the ".activityname" "css_element"
+    Then I follow "View all submissions"
     And I should see "SafeAssign Originality Report in progress" in the "Student 1" "table_row"
     And I click on "Grade" "link" in the "Student 1" "table_row"
     And I should see "SafeAssign Originality Report in progress..."

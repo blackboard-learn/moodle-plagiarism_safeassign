@@ -62,7 +62,7 @@ Feature: Duplicate an assignment with SafeAssign parameters
     And I wait until the page is ready
     And I turn editing mode off
     When I follow duplicate "1" of assignment "Assignment One"
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I follow "SafeAssign Plagiarism plugin"
     Then the field "safeassign_enabled" matches value "1"
     Then the field "safeassign_originality_report" matches value "1"
@@ -70,8 +70,8 @@ Feature: Duplicate an assignment with SafeAssign parameters
     And I set the field "name" to "copy_1"
     Then I press "Save and return to course"
 
-    Given I follow "Assignment One"
-    And I navigate to "Edit settings" in current page administration
+    Given I click on "Assignment One" "link" in the ".activityname" "css_element"
+    And I navigate to "Settings" in current page administration
     And I expand all fieldsets
     And I set the field "safeassign_originality_report" to "0"
     And I press "Save and return to course"
@@ -80,7 +80,7 @@ Feature: Duplicate an assignment with SafeAssign parameters
     And I wait until the page is ready
     And I turn editing mode off
     When I follow duplicate "1" of assignment "Assignment One"
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I follow "SafeAssign Plagiarism plugin"
     Then the field "safeassign_enabled" matches value "1"
     Then the field "safeassign_originality_report" matches value "0"
@@ -88,8 +88,8 @@ Feature: Duplicate an assignment with SafeAssign parameters
     And I set the field "name" to "copy_2"
     Then I press "Save and return to course"
 
-    Given I follow "Assignment One"
-    And I navigate to "Edit settings" in current page administration
+    Given I click on "Assignment One" "link" in the ".activityname" "css_element"
+    And I navigate to "Settings" in current page administration
     And I expand all fieldsets
     And I set the field "safeassign_global_reference" to "0"
     And I press "Save and return to course"
@@ -98,7 +98,7 @@ Feature: Duplicate an assignment with SafeAssign parameters
     And I wait until the page is ready
     And I turn editing mode off
     When I follow duplicate "1" of assignment "Assignment One"
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I follow "SafeAssign Plagiarism plugin"
     Then the field "safeassign_enabled" matches value "1"
     Then the field "safeassign_originality_report" matches value "0"
@@ -106,8 +106,8 @@ Feature: Duplicate an assignment with SafeAssign parameters
     And I set the field "name" to "copy_3"
     Then I press "Save and return to course"
 
-    Given I follow "Assignment One"
-    And I navigate to "Edit settings" in current page administration
+    Given I click on "Assignment One" "link" in the ".activityname" "css_element"
+    And I navigate to "Settings" in current page administration
     And I expand all fieldsets
     And I set the field "safeassign_enabled" to "0"
     And I press "Save and return to course"
@@ -116,7 +116,7 @@ Feature: Duplicate an assignment with SafeAssign parameters
     And I wait until the page is ready
     And I turn editing mode off
     When I follow duplicate "1" of assignment "Assignment One"
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I follow "SafeAssign Plagiarism plugin"
     Then the field "safeassign_enabled" matches value "0"
     Then the field "safeassign_originality_report" matches value "0"

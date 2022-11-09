@@ -268,7 +268,7 @@ class behat_plagiarism_safeassign extends behat_base {
      * @throws exception
      */
     public function i_follow_duplicate($duplicatenumber, $assignmentname) {
-        $xpath = '//div[contains(@class,"activityinstance")]//a';
+        $xpath = '//div[contains(@class,"activity-instance")]//a';
         $linknodes = $this->find_all('xpath', $xpath);
         $targetnode = $linknodes[$duplicatenumber];
         $targetnode->click();

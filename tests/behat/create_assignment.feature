@@ -48,7 +48,7 @@ Feature: Enable SafeAssign in an assignment
       And I am on the course with shortname "C1"
      Then I turn editing mode on
       And I follow "Test Assignment"
-      And I follow "Edit settings"
+      And I navigate to "Settings" in current page administration
       And I should not see "SafeAssign Plagiarism plugin"
       And I press "Cancel"
       And the following "activity" exists:
@@ -62,7 +62,7 @@ Feature: Enable SafeAssign in an assignment
         | enabled   | 1 | plagiarism_safeassign |
      Then I turn editing mode on
       And I follow "Assignment One"
-      And I follow "Edit settings"
+      And I navigate to "Settings" in current page administration
       And I should see "SafeAssign Plagiarism plugin"
      Then I set the field "Assignment name" to "Assignment One"
       And I set the field "Description" to "Assignment One"
@@ -73,7 +73,7 @@ Feature: Enable SafeAssign in an assignment
       And I set the field "safeassign_global_reference" to "0"
       And I press "Save and return to course"
      Then I follow "Assignment One"
-      And I follow "Edit settings"
+      And I navigate to "Settings" in current page administration
      Then the field "safeassign_enabled" matches value "1"
       And the field "safeassign_originality_report" matches value "1"
       And the field "safeassign_global_reference" does not match value "1"
@@ -96,7 +96,7 @@ Feature: Enable SafeAssign in an assignment
       And I set the field "safeassign_originality_report" to "1"
       And I set the field "safeassign_global_reference" to "0"
       And I press "Save and return to course"
-     Then I follow "Assignment One"
+     Then I click on "Assignment One" "link" in the ".activityname" "css_element"
       And I log out
       And I log in as "student1"
       And I am on the course with shortname "C1"
@@ -133,7 +133,7 @@ Feature: Enable SafeAssign in an assignment
       And I set the field "safeassign_originality_report" to "0"
       And I set the field "safeassign_global_reference" to "0"
       And I press "Save and return to course"
-     Then I follow "Assignment One"
+     Then I click on "Assignment One" "link" in the ".activityname" "css_element"
       And I log out
       And I log in as "student1"
       And I am on the course with shortname "C1"
@@ -159,7 +159,7 @@ Feature: Enable SafeAssign in an assignment
     And I set the field "safeassign_originality_report" to "1"
     And I set the field "safeassign_global_reference" to "0"
     And I press "Save and return to course"
-    Then I follow "Assignment One"
+    Then I click on "Assignment One" "link" in the ".activityname" "css_element"
     And I log out
     And I log in as "student1"
     And I am on the course with shortname "C1"

@@ -89,8 +89,8 @@ Feature: Send group submissions and get the SafeAssign Scores
     Then I sync submissions
     Then I log in as "teacher1"
     And I am on "Course 1" course homepage
-    And I follow "Assignment One"
-    Then I navigate to "View all submissions" in current page administration
+    And I click on "Assignment One" "link" in the ".activityname" "css_element"
+    Then I follow "View all submissions"
     And I should see "SafeAssign score" in the "Student 1" "table_row"
     And I should see "SafeAssign score" in the "Student 2" "table_row"
     And I should see "SafeAssign score" in the "Student 3" "table_row"

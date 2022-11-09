@@ -67,14 +67,14 @@ Feature: SafeAssign displays the submission status for the correct files
     Then I log out
     Then I log in as "teacher1"
     And I am on "Course 1" course homepage
-    And I follow "Assignment One"
-    And I navigate to "Edit settings" in current page administration
+    And I click on "Assignment One" "link" in the ".activityname" "css_element"
+    And I navigate to "Settings" in current page administration
     And I set the following fields to these values:
       | safeassign_enabled            | 1 |
       | safeassign_originality_report | 1 |
       | safeassign_global_reference   | 1 |
     And I press "Save and display"
-    And I navigate to "View all submissions" in current page administration
+    And I follow "View all submissions"
     And I should not see "Report in progress" in the "Student 1" "table_row"
     Then I log out
     Then I log in as "student2"

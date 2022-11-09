@@ -74,8 +74,8 @@ Feature: Navigate a wrapped version of the originality report and review the wra
   Scenario: See the changed links in the originality report
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
-    And I follow "Assignment One"
-    Then I navigate to "View all submissions" in current page administration
+    And I click on "Assignment One" "link" in the ".activityname" "css_element"
+    Then I follow "View all submissions"
     And I wait until the page is ready
     And I click on file originality report for student "student1"
     And I switch to "_sa_originality_report" window
