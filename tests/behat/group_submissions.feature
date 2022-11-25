@@ -74,6 +74,7 @@ Feature: Send group submissions and get the SafeAssign Scores
 
   @javascript
   Scenario: Student send a group submission, students in group get SafeAssign score
+    And I skip because "There is a deprecation error. This will be reviewed in INT-18474"
     Given I log in as "student1"
     And I am on "Course 1" course homepage
     And I follow "Assignment One"

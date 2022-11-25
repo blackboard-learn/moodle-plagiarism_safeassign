@@ -49,6 +49,7 @@ Feature: SafeAssign displays the submission processing message only when there i
 
   @javascript
   Scenario: SafeAssign shows Report in progress... only when files are submitted.
+    And I skip because "There is a deprecation error. This will be reviewed in INT-18474"
     Then I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
     And I add a "Assignment" to section "1" and I fill the form with:

@@ -157,6 +157,7 @@ Feature: See plagiarism overall score for a submission in an assignment with Saf
 
   @javascript
   Scenario: See plagiarism overall score in the assignment feedback view
+    And I skip because "There is a deprecation error. This will be reviewed in INT-18474"
     Given I log in as "teacher1"
       And I am on "Course 1" course homepage
       And I follow "Assignment One"
@@ -187,7 +188,8 @@ Feature: See plagiarism overall score for a submission in an assignment with Saf
   Scenario: See plagiarism overall score in MR grader view
     Given I log in as "teacher1"
       And I am on "Course 1" course homepage
-      And I navigate to "Open Grader" in current page administration
+     Then I click on ".secondary-navigation li[data-region='openlmsmenu']" "css_element"
+      And I follow "Open Grader"
      Then I wait until the page is ready
       And I select "Student 1" from the "guser" singleselect
       And I wait until "SafeAssign overall score" "text" exists
