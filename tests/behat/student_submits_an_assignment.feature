@@ -86,7 +86,6 @@ Feature: Send an submission to a SafeAssign assignment
 
   @javascript
   Scenario: Sending a file to SafeAssign shows Report in progress... text in student and teacher's view
-    And I skip because "There is a deprecation error. This will be reviewed in INT-18474"
     Given I log in as "student1"
     And I am on "Course 1" course homepage
     And I follow "Assignment One"
@@ -128,7 +127,6 @@ Feature: Send an submission to a SafeAssign assignment
 
     @javascript
     Scenario: Submissions done by students that have also a role as teacher, whether an admin or not, display a warning.
-      And I skip because "There is a deprecation error. This will be reviewed in INT-18474"
       Given the following "users" exist:
         | username    | firstname  | lastname | email |
         | multirole1  | Multi      | Role     | multirole@example.com |
@@ -156,8 +154,8 @@ Feature: Send an submission to a SafeAssign assignment
       Then I log out
       Then I log in as "teacher1"
       And I am on "Course 1" course homepage
-      And I follow "Assignment One"
-      And I navigate to "View all submissions" in current page administration
+      And I click on "Assignment One" "link" in the ".activityname" "css_element"
+      And I follow "View all submissions"
       And I should see "This submission will not be reviewed by SafeAssign" in the "Multi Role" "table_row"
       And I should see "This submission will not be reviewed by SafeAssign" in the "Admin User" "table_row"
       Then I log out

@@ -157,11 +157,10 @@ Feature: See plagiarism overall score for a submission in an assignment with Saf
 
   @javascript
   Scenario: See plagiarism overall score in the assignment feedback view
-    And I skip because "There is a deprecation error. This will be reviewed in INT-18474"
     Given I log in as "teacher1"
       And I am on "Course 1" course homepage
-      And I follow "Assignment One"
-     Then I navigate to "View all submissions" in current page administration
+      And I click on "Assignment One" "link" in the ".activityname" "css_element"
+     Then I follow "View all submissions"
       And I wait until "SafeAssign overall score" "text" exists
       And "Student 1" row "Online text" column of "generaltable" table should contain "SafeAssign overall score"
       And "Student 2" row "Online text" column of "generaltable" table should contain "SafeAssign overall score"
@@ -169,15 +168,15 @@ Feature: See plagiarism overall score for a submission in an assignment with Saf
       And I click on "Grade" "link" in the "student1" "table_row"
       And I wait until "SafeAssign overall score" "text" exists
      Then I am on "Course 1" course homepage
-      And I follow "Assignment Two"
-     Then I navigate to "View all submissions" in current page administration
+      And I click on "//*[@data-activityname='Assignment Two']//a" "xpath_element"
+     Then I follow "View all submissions"
       And I should not see "SafeAssign overall score"
       And I should see "6 files"
       And I follow "View submission"
       And I wait until "SafeAssign overall score" "text" exists
       And I am on "Course 1" course homepage
-     Then I follow "Assignment Two"
-      And I navigate to "View all submissions" in current page administration
+     Then I click on "//*[@data-activityname='Assignment Two']//a" "xpath_element"
+      And I follow "View all submissions"
       And I should not see "SafeAssign overall score"
       And I click on "Grade" "link" in the "student2" "table_row"
      Then I wait until "SafeAssign overall score" "text" exists

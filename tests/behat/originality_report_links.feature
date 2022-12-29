@@ -72,7 +72,6 @@ Feature: Navigate a wrapped version of the originality report and review the wra
 
   @javascript
   Scenario: See the changed links in the originality report
-    And I skip because "There is a deprecation error. This will be reviewed in INT-18474"
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I click on "Assignment One" "link" in the ".activityname" "css_element"

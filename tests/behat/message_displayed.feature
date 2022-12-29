@@ -57,7 +57,6 @@ Feature: SafeAssign displays the submission status for the correct files
 
   @javascript
   Scenario: SafeAssign shows Report in progress... text only for submissions done after its activation.
-    And I skip because "There is a deprecation error. This will be reviewed in INT-18474"
     Given I log in as "student1"
     And I am on "Course 1" course homepage
     And I follow "Assignment One"
@@ -88,7 +87,7 @@ Feature: SafeAssign displays the submission status for the correct files
     Then I log out
     Then I log in as "teacher1"
     And I am on "Course 1" course homepage
-    And I follow "Assignment One"
-    And I navigate to "View all submissions" in current page administration
+    And I click on "Assignment One" "link" in the ".activityname" "css_element"
+    And I follow "View all submissions"
     And I should see "Report in progress" in the "Student 2" "table_row"
     Then I log out

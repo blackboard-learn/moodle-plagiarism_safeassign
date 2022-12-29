@@ -371,15 +371,6 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     }
 
     /**
-     * hook to allow status of submitted files to be updated - called on grading/report pages.
-     *
-     * @param object $course - full Course object
-     * @param object $cm - full cm object
-     */
-    public function update_status($course, $cm) {
-    }
-
-    /**
      * Adds assignments to plagiarism_safeassign_assign table when an assignment is created on a course.
      *
      * @param object $eventdata
