@@ -406,6 +406,7 @@ class sync_assignments_test extends plagiarism_safeassign_base_testcase {
         // Delete the course module.
         course_delete_module($this->cm->id);
         // Now, run the course module deletion adhoc task.
+        $this->expectOutputString(\core\task\logmanager::add_line("Submission no longer exists\n"));
         \phpunit_util::run_all_adhoc_tasks();
         $submission = $DB->get_record('plagiarism_safeassign_subm', array('submissionid' => $this->student1submission->id));
         $this->assertEquals('1', $submission->deprecated);
@@ -421,6 +422,7 @@ class sync_assignments_test extends plagiarism_safeassign_base_testcase {
         $course = $DB->get_record('plagiarism_safeassign_course', array('courseid' => $this->course->id));
         $this->assertEquals(null, $course->uuid);
         delete_course($this->course->id, false);
+        $this->expectOutputString(\core\task\logmanager::add_line("Submission no longer exists\n"));
         \phpunit_util::run_all_adhoc_tasks();
         $course = $DB->get_record('plagiarism_safeassign_course', array('courseid' => $this->course->id));
         $this->assertFalse($course);
