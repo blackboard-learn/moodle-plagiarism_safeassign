@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
  *
- * @package   plagiarism_safeassign
  * @author    Guillermo Leon Alvarez Salamanca
  * @copyright Copyright (c) 2017 Open LMS (https://www.openlms.net)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -97,7 +96,7 @@ define(['jquery', 'core/str'], function($, str) {
              */
             var printSettings = function() {
                 var div = $('#safeassign_loading_div');
-                div.hide();
+                div.addClass('hidden-div');
                 child.removeAttr('style');
                 selectorCheckbox.prop('checked', checkboxInitialValue);
                 selectorCheckbox.prop('disabled', false);
