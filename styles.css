@@ -41,3 +41,7 @@
 #page-local-joulegrader-view .plagiarism-inline a {
     padding-left: .5em;
 }
+
+#safeassign_loading_div.hidden-div, .hidden-div {
+    display: none !important; /* Overwrite the important of d-flex */
+}
