@@ -92,8 +92,22 @@ class plagiarism_plugin_safeassign extends plagiarism_plugin {
     public function get_links($linkarray) {
         global $DB;
 
+        // Question type specific as some of those plugins do not include cmid.
+        if (isset($linkarray['component']) && $linkarray['component'] === 'qtype_essay' && empty($linkarray['cmid'])) {
+            $qusage = question_engine::load_questions_usage_by_activity($linkarray['area']);
+            $questioncontext = $qusage->get_owning_context();
+            if ($questioncontext->contextlevel == CONTEXT_MODULE) {
+                $qcm = get_coursemodule_from_id(false, $questioncontext->instanceid);
+            }
+            if (!empty($qcm)) {
+                $linkarray['cmid'] = $qcm->id;
+            }
+        }
+        // Final validation as it is not optional for SafeAssign.
+        if (empty($linkarray['cmid'])) {
+            return '';
+        }
         $cmid = $linkarray['cmid'];
-
         // Check if the user has the right capabilities to see the report.
         $cm = context_module::instance($cmid);
         if (!has_capability('plagiarism/safeassign:report', $cm)) {
