@@ -113,14 +113,18 @@ class plagiarism_safeassign_observer {
 
     /**
      * Remove submissions when they were removed from grader view.
-     * @param \mod_assign\event\submission_status_updated $event
      */
-    public static function submission_removed(\mod_assign\event\submission_status_updated $event) {
+    public static function submission_removed($event) {
         $eventdata = $event->get_data();
-        if ($eventdata['other']['newstatus'] == ASSIGN_SUBMISSION_STATUS_SUBMITTED) {
+        $status = false;
+        if ($event instanceof \mod_assign\event\submission_removed) {
+            $status = $eventdata['other']['submissionstatus'];
+        } else if ($event instanceof  \mod_assign\event\submission_status_updated) {
+            $status = $eventdata['other']['newstatus'];
+        }
+        if ($status == ASSIGN_SUBMISSION_STATUS_SUBMITTED) {
             $safeassign = new plagiarism_plugin_safeassign();
             $safeassign->remove_submission($eventdata);
         }
     }
-
 }
