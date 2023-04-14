@@ -134,4 +134,15 @@ class sync_content_log extends base {
             ]
         ]);
     }
+
+    /**
+     * Returns true if last API error matches a not found error.
+     * @return bool
+     */
+    public static function is_resource_not_found() {
+        $collecterr = error_handler::process_last_api_error(false, true, true);
+        if (strpos($collecterr, 'requested resource was not found') !== false) {
+            return true;
+        }
+    }
 }

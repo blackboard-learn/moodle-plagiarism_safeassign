@@ -1421,6 +1421,10 @@ SQL;
                     $params['Submission UUID'] = $submission->uuid;
                     $params['Url'] = $baseurl . safeassign_api::APIVER . 'submissions/' . $submission->uuid;
                 }
+                $notfound = sync_content_log::is_resource_not_found();
+                if ($notfound) { // For unknown reasons the subm is gone on SA side, mark as deleted or it will retry for ages.
+                    $DB->set_field('plagiarism_safeassign_subm', 'deleted', 1, array('uuid' => $submission->uuid));
+                }
                 $event = sync_content_log::create_log_message('delete submissions', $submission->uuid, true, null, $params);
                 $event->trigger();
             }
