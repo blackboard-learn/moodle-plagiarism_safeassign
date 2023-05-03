@@ -82,7 +82,7 @@ Feature: Sending a submission to a SafeAssign assignment and receiving notificat
 
     @javascript
     Scenario: Student sends submission, submission gets graded by SafeAssign and both teachers receive a notification
-      And I skip because "This will be reviewed in INT-18638"
+      And I skip because "This will be reviewed in INT-18638" (safeassign)
       Given I change notifications setup for user "teacher1" with "popup"
       And I change notifications setup for user "teacher2" with "popup"
       Then I sync submissions
@@ -101,7 +101,7 @@ Feature: Sending a submission to a SafeAssign assignment and receiving notificat
 
     @javascript
     Scenario: 2 students send a submission for same assignment, submissions get graded and both teachers receive a notification
-      And I skip because "This will be reviewed in INT-18638"
+      And I skip because "This will be reviewed in INT-18638" (safeassign)
       Given I change notifications setup for user "teacher1" with "popup"
       And I change notifications setup for user "teacher2" with "popup"
       And set test helper student "student2"
