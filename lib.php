@@ -18,7 +18,7 @@
  * lib.php - Contains Plagiarism plugin specific functions called by Modules.
  *
  * @package    plagiarism_safeassign
- * @copyright  Copyright (c) 2017 Open LMS (https://www.openlms.net)
+ * @copyright  Copyright (c) 2017 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -40,7 +40,7 @@ use plagiarism_safeassign\local;
  * Extends plagiarism core base class.
  *
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2017 Open LMS (https://www.openlms.net)
+ * @copyright Copyright (c) 2017 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class plagiarism_plugin_safeassign extends plagiarism_plugin {

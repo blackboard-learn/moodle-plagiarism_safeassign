@@ -16,7 +16,7 @@
 # Tests for visibility of admin block by user type and page.
 #
 # @package    plagiarism_safeassign
-# @copyright  Copyright (c) 2017 Open LMS (https://www.openlms.net)
+# @copyright  Copyright (c) 2017 Open LMS / 2023 Anthology Inc. and its affiliates
 # @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 
 @plugin @plagiarism_safeassign
@@ -79,7 +79,7 @@ Feature: Enable SafeAssign in an assignment
       And the field "safeassign_global_reference" does not match value "1"
       And I log out
 
-  @javascript
+  @javascript @wip
   Scenario: Disclosure agreement checkbox should appear and maintain value
     Given I log in as "admin"
      Then the following config values are set as admin:

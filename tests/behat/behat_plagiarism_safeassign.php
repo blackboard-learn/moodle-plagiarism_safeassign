@@ -19,7 +19,7 @@
  *
  * @package   plagiarism_safeassign
  * @category  test
- * @copyright Copyright (c) 2017 Open LMS (https://www.openlms.net)
+ * @copyright Copyright (c) 2017 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -36,7 +36,7 @@ use \Moodle\BehatExtension\Exception\SkippedException;
  *
  * @package   plagiarism_safeassign
  * @category  test
- * @copyright Copyright (c) 2017 Open LMS (https://www.openlms.net)
+ * @copyright Copyright (c) 2017 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class behat_plagiarism_safeassign extends behat_base {
@@ -341,5 +341,17 @@ class behat_plagiarism_safeassign extends behat_base {
      */
     public function skip_with_reason($reason) {
         throw new SkippedException($reason);
+    }
+
+    /**
+     * @Given The test is skipped if the environment is not an OpenLMS environment
+     * @return void
+     * @throws SkippedException
+     */
+    public function skip_if_not_openlms_environment() {
+        global $CFG;
+        if (!file_exists($CFG->dirroot.'/local/mrooms')) {
+            throw new SkippedException('Skipping this test because it will only work on an OpenLMS environment');
+        }
     }
 }

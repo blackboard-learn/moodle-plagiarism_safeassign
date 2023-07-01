@@ -15,7 +15,7 @@
  * along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
  *
  * @author    Juan Felipe Martinez
- * @copyright Copyright (c) 2017 Open LMS (https://www.openlms.net)
+ * @copyright Copyright (c) 2017 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -23,35 +23,35 @@
  * JS code to listen the disclosure agreement checkbox in an assignment
  * configured with SafeAssign.
  */
-define(['jquery', 'core/ajax'],
-    function($, ajax) {
-        return {
+import $ from 'jquery';
+import ajax from 'core/ajax';
 
-            /**
-             * Detects the change of from the  disclosure agreement
-             * checkbox and sends the flag state to a webservice
-             * to be stored in the DB.
-             * @param {int} cmid - course module ID
-             * @param {int} userid - user ID
-             */
-            init: function(cmid, userid) {
-                $("input[name = agreement]").click(function() {
-                    var flag = 0;
-                    if ($("input[name = agreement]").is(':checked')) {
-                        flag = 1;
-                    }
-                    ajax.call(
-                        [{
-                            methodname: 'plagiarism_safeassign_update_flag',
-                            args: {
-                                cmid: cmid,
-                                userid: userid,
-                                flag: flag
-                            }
-                        }]
-                    );
-                });
+const disclosure = {
+    /**
+     * Detects the change of from the  disclosure agreement
+     * checkbox and sends the flag state to a webservice
+     * to be stored in the DB.
+     * @param {int} cmid - course module ID
+     * @param {int} userid - user ID
+     */
+    init: function(cmid, userid) {
+        $("input[name = agreement]").click(function() {
+            var flag = 0;
+            if ($("input[name = agreement]").is(':checked')) {
+                flag = 1;
             }
-        };
+            ajax.call(
+                [{
+                    methodname: 'plagiarism_safeassign_update_flag',
+                    args: {
+                        cmid: cmid,
+                        userid: userid,
+                        flag: flag
+                    }
+                }]
+            );
+        });
     }
-);
+};
+
+export default disclosure;

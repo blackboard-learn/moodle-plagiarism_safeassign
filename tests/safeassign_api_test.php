@@ -17,7 +17,7 @@
 /**
  * All tests in this class will fail in case there is no appropriate fixture to be loaded.
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
+ * @copyright Copyright (c) 2018 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace plagiarism_safeassign;
@@ -32,7 +32,7 @@ use plagiarism_safeassign\api\error_handler;
 
 /**
  * Class plagiarism_safeassign_safeassign_api_testcase
- * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
+ * @copyright Copyright (c) 2018 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class safeassign_api_test extends plagiarism_safeassign_base_testcase {

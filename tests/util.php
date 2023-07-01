@@ -15,20 +15,21 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * SafeAssign version definition.
- * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2017 Open LMS / 2023 Anthology Inc. and its affiliates
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * Test utilities for plagiarism safeassign.
+ *
+ * @package plagiarism_safeassign
+ * @author    Guy Thomas
+ * @copyright Copyright (c) 2023 Anthology Inc. and its affiliates
+ * @license   https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+namespace plagiarism_safeassign;
 
-$plugin->version = 2023070100;
-$plugin->release = '4.1.0';
-$plugin->requires = 2022041900;
-$plugin->component = 'plagiarism_safeassign';
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->cron      = 0;
-$plugin->dependencies = [
-    'local_mr'       => ANY_VERSION,
-];
+/**
+ * Return true if the current environment is an OpenLMS environment.
+ * @return bool
+ */
+function env_is_openlms() {
+    global $CFG;
+    return file_exists($CFG->dirroot.'/local/mrooms');
+}

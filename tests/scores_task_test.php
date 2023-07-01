@@ -18,7 +18,7 @@
  * Test safeassign task interaction with Moodle.
  *
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2017 Open LMS (https://www.openlms.net)
+ * @copyright Copyright (c) 2017 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace plagiarism_safeassign;
@@ -36,7 +36,7 @@ use plagiarism_safeassign\api\rest_provider;
 
 /**
  * Class plagiarism_safeassign_tasks_testcase
- * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
+ * @copyright Copyright (c) 2018 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class scores_task_test extends plagiarism_safeassign_base_testcase {

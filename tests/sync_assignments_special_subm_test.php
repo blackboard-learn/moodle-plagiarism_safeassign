@@ -19,7 +19,7 @@
  *
  * @package    plagiarism_safeassign
  * @author     Juan Ibarra <juan.ibarra@openlms.net>
- * @copyright  Copyright (c) 2019 Open LMS (https://www.openlms.net)
+ * @copyright  Copyright (c) 2019 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace plagiarism_safeassign;
@@ -36,7 +36,7 @@ use plagiarism_safeassign\task\sync_assignments;
 
 /**
  * Test the sync function with file submissions with special characters on their name.
- * @copyright  Copyright (c) 2019 Open LMS (https://www.openlms.net)
+ * @copyright  Copyright (c) 2019 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class sync_assignments_special_subm_test extends plagiarism_safeassign_base_testcase {

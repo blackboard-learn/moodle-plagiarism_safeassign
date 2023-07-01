@@ -20,7 +20,7 @@
  * This event is fired when Safeassign license is trying to be synced.
  *
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
+ * @copyright Copyright (c) 2018 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace plagiarism_safeassign\event;
@@ -32,7 +32,7 @@ use plagiarism_safeassign\api\error_handler;
  * Class license_log
  *
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
+ * @copyright Copyright (c) 2018 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class license_log extends base {

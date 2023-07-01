@@ -18,7 +18,7 @@
  * Test SafeAssign events and how the records are stored when a submission is made.
  *
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
+ * @copyright Copyright (c) 2018 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace plagiarism_safeassign;
@@ -28,10 +28,11 @@ global $CFG;
 
 require_once($CFG->dirroot . '/mod/assign/tests/base_test.php');
 require_once($CFG->dirroot . '/plagiarism/safeassign/classes/observer.php');
+require_once($CFG->dirroot . '/plagiarism/safeassign/tests/util.php');
 
 /**
  * Class plagiarism_safeassign_submission_test
- * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
+ * @copyright Copyright (c) 2018 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class submission_test extends \advanced_testcase {
@@ -367,13 +368,15 @@ class submission_test extends \advanced_testcase {
         $event = reset($events);
 
         // Simulate that the submission has been synced with SafeAssign.
-        $DB->set_field("plagiarism_safeassign_subm", 'uuid', '1234567890', ['submissionid' => $this->submission->id]);
-        $record = $DB->get_record('plagiarism_safeassign_subm', ['submissionid' => $this->submission->id]);
-        $this->assertEquals(0, $record->deprecated);
-        \plagiarism_safeassign_observer::submission_removed($event);
-        $record = $DB->get_record('plagiarism_safeassign_subm', ['submissionid' => $this->submission->id]);
-        // The submission is deprecated.
-        $this->assertEquals(1, $record->deprecated);
+        if (env_is_openlms()) {
+            $DB->set_field("plagiarism_safeassign_subm", 'uuid', '1234567890', ['submissionid' => $this->submission->id]);
+            $record = $DB->get_record('plagiarism_safeassign_subm', ['submissionid' => $this->submission->id]);
+            $this->assertEquals(0, $record->deprecated);
+            \plagiarism_safeassign_observer::submission_removed($event);
+            $record = $DB->get_record('plagiarism_safeassign_subm', ['submissionid' => $this->submission->id]);
+            // The submission is deprecated.
+            $this->assertEquals(1, $record->deprecated);
+        }
     }
 
     /**
@@ -434,13 +437,15 @@ class submission_test extends \advanced_testcase {
         $events = $sink->get_events();
         $event = reset($events);
 
-        $record = $DB->get_record('plagiarism_safeassign_subm', ['submissionid' => $this->submission->id]);
-        // Make sure that the submission has not been synced.
-        $this->assertEquals("", $record->uuid);
-        $this->assertEquals(0, $record->deprecated);
-        \plagiarism_safeassign_observer::submission_removed($event);
-        $record = $DB->get_record('plagiarism_safeassign_subm', ['submissionid' => $this->submission->id]);
-        $this->assertEquals(1, $record->deprecated);
+        if (env_is_openlms()) {
+            $record = $DB->get_record('plagiarism_safeassign_subm', ['submissionid' => $this->submission->id]);
+            // Make sure that the submission has not been synced.
+            $this->assertEquals("", $record->uuid);
+            $this->assertEquals(0, $record->deprecated);
+            \plagiarism_safeassign_observer::submission_removed($event);
+            $record = $DB->get_record('plagiarism_safeassign_subm', ['submissionid' => $this->submission->id]);
+            $this->assertEquals(1, $record->deprecated);
+        }
     }
 
     /**

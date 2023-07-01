@@ -18,7 +18,7 @@
 /**
  * SafeAssign external file.
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
+ * @copyright Copyright (c) 2018 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -32,7 +32,7 @@ require_once($CFG->libdir . '/externallib.php');
 /**
  * Test the instructor and student credentials.
  * @author    Jonathan Garcia
- * @copyright Copyright (c) 2017 Open LMS (https://www.openlms.net)
+ * @copyright Copyright (c) 2017 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class plagiarism_safeassign_test_api_credentials_external extends external_api {
@@ -80,7 +80,7 @@ class plagiarism_safeassign_test_api_credentials_external extends external_api {
 /**
  * Save the global check flag state in the DB.
  * @author    Juan Felipe Martinez Ramos
- * @copyright Copyright (c) 2017 Open LMS (https://www.openlms.net)
+ * @copyright Copyright (c) 2017 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class plagiarism_safeassign_update_flag_external extends external_api {
