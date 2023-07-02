@@ -15,20 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * SafeAssign version definition.
- * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2017 Open LMS / 2023 Anthology Inc. and its affiliates
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * Install script for plagiarism_safeassign.
+ *
+ * @package    plagiarism_safeassign
+ * @copyright  2023 Anthology Group
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version = 2023070200;
-$plugin->release = '4.1.0';
-$plugin->requires = 2022041900;
-$plugin->component = 'plagiarism_safeassign';
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->cron      = 0;
-$plugin->dependencies = [
-    'local_mr'       => ANY_VERSION,
-];
+/**
+ * Perform the post-install procedures.
+ */
+function xmldb_plagiarism_safeassign_install() {
+    // Set license version and agreement status.
+    set_config('safeassign_latest_license_vers', '0.2', 'plagiarism_safeassign');
+    set_config('safeassign_license_agreement_status', 0, 'plagiarism_safeassign');
+}

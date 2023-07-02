@@ -118,7 +118,7 @@ $string['files_accepted'] = 'SafeAssign accepts files in .doc, .docx, .docm, .pp
 <br><br>By submitting this paper, you agree:
  (1) that you are submitting your paper to be used and stored as part of the SafeAssign&trade; services in accordance with the Anthology <a href="https://www.anthology.com/trust-center/terms-of-use" target="_blank">Terms and Service</a> and <a href="https://www.anthology.com/trust-center/privacy-statement" target="_blank">Anthology Privacy Policy</a>;
  (2) that your institution may use your paper in accordance with your institution\'s policies; and
- (3) that your use of SafeAssign will be without recourse against Open LMS and its affiliates.';
+ (3) that your use of SafeAssign will be without recourse against Anthology Group and its affiliates.';
 $string['agreement'] = 'I agree to submit my paper(s) to the <a href="https://help.blackboard.com/Learn/Instructor/Assignments/SafeAssign" target="_blank">Global Reference Database</a>.';
 $string['error_api_generic'] = 'There was an error processing your request';
 $string['error_api_unauthorized'] = 'There was an authentication error processing your request';
