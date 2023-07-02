@@ -15,23 +15,21 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin view endpoint. Routes requests to controllers.
+ * Test utilities for plagiarism safeassign.
  *
- * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2017 Open LMS / 2023 Anthology Inc. and its affiliates
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package plagiarism_safeassign
+ * @author    Guy Thomas
+ * @copyright Copyright (c) 2023 Anthology Inc. and its affiliates
+ * @license   https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// @codingStandardsIgnoreStart
-// We need to prevent code sniffer looking here in order to prevent latest check
-// that insists on login check after inclusion of config.php - which we do somewhere else.
+namespace plagiarism_safeassign;
 
-require_once('../../config.php');
-
-global $CFG;
-
-require($CFG->dirroot.'/local/mr/bootstrap.php');
-
-mr_controller::render('plagiarism/safeassign', 'pluginname', 'plagiarism_safeassign');
-
-// @codingStandardsIgnoreEnd
+/**
+ * Return true if the current environment is an OpenLMS environment.
+ * @return bool
+ */
+function env_is_openlms() {
+    global $CFG;
+    return file_exists($CFG->dirroot.'/local/mrooms');
+}

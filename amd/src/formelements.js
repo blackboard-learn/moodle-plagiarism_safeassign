@@ -15,7 +15,7 @@
  * along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
  *
  * @author    Guillermo Leon Alvarez Salamanca
- * @copyright Copyright (c) 2017 Open LMS (https://www.openlms.net)
+ * @copyright Copyright (c) 2017 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -23,105 +23,106 @@
  * JS code to disable temporarily the SafeAssign settings parameters in module edit from
  * until the page ends to load all the elements on it.
  */
-define(['jquery', 'core/str'], function($, str) {
+import $ from 'jquery';
+import {get_string as getString} from 'core/str';
 
-    return {
+const formElements = {
+    /**
+     * Hides via javascript the form elements until page is ready.
+     */
+    init: function() {
 
         /**
-         * Hides via javascript the form elements until page is ready.
+         * Create a div to display the loading message inside module edit form.
          */
-        init: function() {
+        const createDiv = function() {
+            const div = $('<div></div>').attr('class', child.attr('class'));
+            div.attr('id', 'safeassign_loading_div');
+            parent.append(div);
+            getMessage();
+        };
 
-            /**
-             * Create a div to display the loading message inside module edit form.
-             */
-            var createDiv = function() {
-                var div = $('<div></div>').attr('class', child.attr('class'));
-                div.attr('id', 'safeassign_loading_div');
-                parent.append(div);
-                getMessage();
-            };
+        /**
+         * Returns a string with the loading message.
+         */
+        const getMessage = function() {
 
-            /**
-             * Returns a string with the loading message.
-             */
-            var getMessage = function() {
+            // Get loading message via ajax.
+            const messageString = getString('safeassign_loading_settings', 'plagiarism_safeassign');
 
-                // Get loading message via ajax.
-                var messageString = str.get_string('safeassign_loading_settings', 'plagiarism_safeassign');
+            $.when(messageString).done(function(s) {
+                $('#safeassign_loading_div').append(s);
+            });
 
-                $.when(messageString).done(function(s) {
-                    $('#safeassign_loading_div').append(s);
-                });
+        };
 
-            };
+        /**
+         * Checks if the element is disabled.
+         * @returns {boolean}
+         */
+        const isElementDisabled = function() {
+            return $('#id_safeassign_global_reference').prop('disabled');
+        };
 
-            /**
-             * Checks if the element is disabled.
-             * @returns {boolean}
-             */
-            var isElementDisabled = function() {
-                return $('#id_safeassign_global_reference').prop('disabled');
-            };
+        /**
+         * Makes a JQuery promise to see if some element is disabled.
+         * @param {function} evaluateFunction
+         * @param {int} maxIterations
+         * @returns {promise} JQuery promise
+         */
+        const whenTrue = function(evaluateFunction, maxIterations) {
+            maxIterations = !maxIterations ? 10 : maxIterations;
 
-            /**
-             * Makes a JQuery promise to see if some element is disabled.
-             * @param {function} evaluateFunction
-             * @param {int} maxIterations
-             * @returns {promise} JQuery promise
-             */
-            var whenTrue = function(evaluateFunction, maxIterations) {
-                maxIterations = !maxIterations ? 10 : maxIterations;
-
-                var prom = $.Deferred();
-                var i = 0;
-                var checker = setInterval(function() {
-                    i = i + 1;
-                    if (i > maxIterations) {
-                        prom.reject();
+            const prom = $.Deferred();
+            let i = 0;
+            const checker = setInterval(function() {
+                i = i + 1;
+                if (i > maxIterations) {
+                    prom.reject();
+                    clearInterval(checker);
+                } else {
+                    if (evaluateFunction()) {
+                        prom.resolve();
                         clearInterval(checker);
-                    } else {
-                        if (evaluateFunction()) {
-                            prom.resolve();
-                            clearInterval(checker);
-                        }
                     }
-                }, 1000);
-
-                return prom.promise();
-            };
-
-            /**
-             * Print the settings checkboxes when tha page has been loaded.
-             */
-            var printSettings = function() {
-                var div = $('#safeassign_loading_div');
-                div.addClass('hidden-div');
-                child.removeAttr('style');
-                selectorCheckbox.prop('checked', checkboxInitialValue);
-                selectorCheckbox.prop('disabled', false);
-                if (checkboxInitialValue) {
-                    $('#id_safeassign_originality_report').prop('disabled', false);
-                    $('#id_safeassign_global_reference').prop('disabled', false);
                 }
-            };
+            }, 1000);
 
-            var parent = $('#id_plagiarismdesc');
+            return prom.promise();
+        };
 
-            // Hide the settings for SafeAssign in the module edit form.
-            var child = parent.children('div').hide();
+        /**
+         * Print the settings checkboxes when tha page has been loaded.
+         */
+        const printSettings = function() {
+            const div = $('#safeassign_loading_div');
+            div.addClass('hidden-div');
+            child.removeAttr('style');
+            selectorCheckbox.prop('checked', checkboxInitialValue);
+            selectorCheckbox.prop('disabled', false);
+            if (checkboxInitialValue) {
+                $('#id_safeassign_originality_report').prop('disabled', false);
+                $('#id_safeassign_global_reference').prop('disabled', false);
+            }
+        };
 
-            // Disable SafeAssign enable settings.
-            var selectorCheckbox = $('#id_safeassign_enabled');
-            var checkboxInitialValue = selectorCheckbox.prop('checked');
-            selectorCheckbox.prop('checked', false);
-            selectorCheckbox.prop('disabled', true);
+        const parent = $('#id_plagiarismdesc');
 
-            createDiv();
+        // Hide the settings for SafeAssign in the module edit form.
+        const child = parent.children('div').hide();
 
-            var ready = whenTrue(isElementDisabled, 30);
-            ready.then(printSettings);
+        // Disable SafeAssign enable settings.
+        const selectorCheckbox = $('#id_safeassign_enabled');
+        const checkboxInitialValue = selectorCheckbox.prop('checked');
+        selectorCheckbox.prop('checked', false);
+        selectorCheckbox.prop('disabled', true);
 
-        }
-    };
-});
+        createDiv();
+
+        const ready = whenTrue(isElementDisabled, 30);
+        ready.then(printSettings);
+
+    }
+};
+
+export default formElements;

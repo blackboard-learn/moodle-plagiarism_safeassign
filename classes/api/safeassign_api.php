@@ -18,7 +18,7 @@
  * Convenient wrappers and helper for using the SafeAssign web service API.
  *
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2017 Open LMS (https://www.openlms.net)
+ * @copyright Copyright (c) 2017 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -30,7 +30,7 @@ use plagiarism_safeassign\local;
  * Class safeassign_api
  *
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2017 Open LMS (https://www.openlms.net)
+ * @copyright Copyright (c) 2017 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class safeassign_api {

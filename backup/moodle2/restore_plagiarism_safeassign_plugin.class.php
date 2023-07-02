@@ -18,14 +18,14 @@
  * Restore class for the SafeAssign plugin.
  *
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2017 Open LMS (https://www.openlms.net)
+ * @copyright Copyright (c) 2017 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 use plagiarism_safeassign\event\sync_content_log;
 
 /**
  * Class restore_plagiarism_safeassign_plugin
- * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
+ * @copyright Copyright (c) 2018 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_plagiarism_safeassign_plugin extends restore_plagiarism_plugin {

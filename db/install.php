@@ -15,23 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin view endpoint. Routes requests to controllers.
+ * Install script for plagiarism_safeassign.
  *
- * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2017 Open LMS / 2023 Anthology Inc. and its affiliates
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    plagiarism_safeassign
+ * @copyright  2023 Anthology Group
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// @codingStandardsIgnoreStart
-// We need to prevent code sniffer looking here in order to prevent latest check
-// that insists on login check after inclusion of config.php - which we do somewhere else.
-
-require_once('../../config.php');
-
-global $CFG;
-
-require($CFG->dirroot.'/local/mr/bootstrap.php');
-
-mr_controller::render('plagiarism/safeassign', 'pluginname', 'plagiarism_safeassign');
-
-// @codingStandardsIgnoreEnd
+/**
+ * Perform the post-install procedures.
+ */
+function xmldb_plagiarism_safeassign_install() {
+    // Set license version and agreement status.
+    set_config('safeassign_latest_license_vers', '0.2', 'plagiarism_safeassign');
+    set_config('safeassign_license_agreement_status', 0, 'plagiarism_safeassign');
+}

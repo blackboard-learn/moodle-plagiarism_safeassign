@@ -19,7 +19,7 @@
  *
  * @package   plagiarism_safeassign
  * @category  test
- * @copyright Copyright (c) 2017 Open LMS (https://www.openlms.net)
+ * @copyright Copyright (c) 2017 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -29,13 +29,14 @@ use plagiarism_safeassign\api\testhelper;
 use plagiarism_safeassign\api\test_safeassign_api_connectors;
 use plagiarism_safeassign\api\safeassign_api;
 use plagiarism_safeassign\api\rest_provider;
+use \Moodle\BehatExtension\Exception\SkippedException;
 
 /**
  * Class behat_plagiarism_safeassign.
  *
  * @package   plagiarism_safeassign
  * @category  test
- * @copyright Copyright (c) 2017 Open LMS (https://www.openlms.net)
+ * @copyright Copyright (c) 2017 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class behat_plagiarism_safeassign extends behat_base {
@@ -333,5 +334,24 @@ class behat_plagiarism_safeassign extends behat_base {
         $student = $DB->get_record('user', array('username' => $username));
         $csspath = "#safeassign_or_" . $student->id . " a";
         $this->execute("behat_general::i_click_on", array($this->escape($csspath), "css_element"));
+    }
+
+    /**
+     * @Given /^I skip because "(?P<reason_string>[^"]*)" \(safeassign\)$/
+     */
+    public function skip_with_reason($reason) {
+        throw new SkippedException($reason);
+    }
+
+    /**
+     * @Given The test is skipped if the environment is not an OpenLMS environment
+     * @return void
+     * @throws SkippedException
+     */
+    public function skip_if_not_openlms_environment() {
+        global $CFG;
+        if (!file_exists($CFG->dirroot.'/local/mrooms')) {
+            throw new SkippedException('Skipping this test because it will only work on an OpenLMS environment');
+        }
     }
 }

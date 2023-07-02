@@ -18,7 +18,7 @@
  * Task to send notifications to Admins when a new SafeAssign License Terms & Conditions is available.
  * @package    plagiarism_safeassign
  * @subpackage plagiarism
- * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
+ * @copyright Copyright (c) 2018 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  */
 
@@ -31,7 +31,7 @@ use plagiarism_safeassign\event\sync_content_log;
 /**
  * Class send_notifications
  * @package    plagiarism_safeassign
- * @copyright  Copyright (c) 2018 Open LMS (https://www.openlms.net)
+ * @copyright  Copyright (c) 2018 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

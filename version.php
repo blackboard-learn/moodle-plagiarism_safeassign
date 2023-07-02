@@ -17,14 +17,14 @@
 /**
  * SafeAssign version definition.
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2017 Open LMS (https://www.openlms.net)
+ * @copyright Copyright (c) 2017 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2023041100;
-$plugin->release = '4.0.7';
+$plugin->version = 2023070200;
+$plugin->release = '4.1.0';
 $plugin->requires = 2022041900;
 $plugin->component = 'plagiarism_safeassign';
 $plugin->maturity  = MATURITY_STABLE;

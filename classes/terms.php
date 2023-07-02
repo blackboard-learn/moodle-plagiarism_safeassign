@@ -18,7 +18,7 @@
  * terms.php - Contains the License Agreement Text for SafeAssign.
  *
  * @package    plagiarism_safeassign
- * @copyright  Copyright (c) 2018 Open LMS (https://www.openlms.net)
+ * @copyright  Copyright (c) 2018 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace plagiarism_safeassign;
@@ -26,7 +26,7 @@ use plagiarism_safeassign\api\safeassign_api;
 
 /**
  * Class terms
- * @copyright  Copyright (c) 2017 Open LMS (https://www.openlms.net)
+ * @copyright  Copyright (c) 2017 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class terms {

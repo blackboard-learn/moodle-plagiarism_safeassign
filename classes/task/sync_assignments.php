@@ -18,7 +18,7 @@
  * Task to sync assignments, course and submissions from Moodle to SafeAssign.
  * @package    plagiarism_safeassign
  * @subpackage plagiarism
- * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
+ * @copyright Copyright (c) 2018 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  */
 
@@ -34,7 +34,7 @@ use plagiarism_safeassign\event\serv_unavailable_log;
 /**
  * Class sync_assignments
  * @package    plagiarism_safeassign
- * @copyright  Copyright (c) 2017 Open LMS (https://www.openlms.net)
+ * @copyright  Copyright (c) 2017 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class sync_assignments extends \core\task\scheduled_task {

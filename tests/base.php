@@ -17,7 +17,7 @@
 /**
  * Base class defines reusable things must place abstract here to avoid CI warning for non existing test.
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
+ * @copyright Copyright (c) 2018 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace plagiarism_safeassign;
@@ -26,7 +26,7 @@ use plagiarism_safeassign\api\testhelper;
 
 /**
  * Class plagiarism_safeassign_base_testcase
- * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
+ * @copyright Copyright (c) 2018 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class plagiarism_safeassign_base_testcase extends \advanced_testcase {

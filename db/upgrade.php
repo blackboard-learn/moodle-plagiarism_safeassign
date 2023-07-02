@@ -17,7 +17,7 @@
 /**
  * SafeAssign upgrade function.
  * @package   plagiarism_safeassign
- * @copyright Copyright (c) 2018 Open LMS (https://www.openlms.net)
+ * @copyright Copyright (c) 2018 Open LMS / 2023 Anthology Inc. and its affiliates
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -369,6 +369,20 @@ function xmldb_plagiarism_safeassign_upgrade($oldversion) {
             unset_config('safeassign_use', 'plagiarism');
         }
         upgrade_plugin_savepoint(true, 2020101603, 'plagiarism', 'safeassign');
+    }
+
+    if ($oldversion < 2023070200) {
+
+        // Set license defaults AGAIN since there was no install.php script to do this.
+        if (get_config('plagiarism_safeassign', 'safeassign_latest_license_vers') === false) {
+            set_config('safeassign_latest_license_vers', '0.2', 'plagiarism_safeassign');
+        }
+        if (get_config('plagiarism_safeassign', 'safeassign_license_agreement_status') === false) {
+            set_config('safeassign_license_agreement_status', 0, 'plagiarism_safeassign');
+        }
+
+        // Safeassign savepoint reached.
+        upgrade_plugin_savepoint(true, 2023070200, 'plagiarism', 'safeassign');
     }
     return true;
 
